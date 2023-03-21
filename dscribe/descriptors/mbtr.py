@@ -165,11 +165,12 @@ class MBTR(DescriptorGlobal):
                 output. The available options are:
 
                 * "none": No normalization.
-                * "l2_each": Normalize the Euclidean length of each k-term
-                  individually to unity.
+                * "l2": Normalize the Euclidean length to unity.
                 * "n_atoms": Normalize the output by dividing it with the number
                   of atoms in the system. If the system is periodic, the number
                   of atoms is determined from the given unit cell.
+                * "l2_each": Normalize the Euclidean length of each k-term
+                  individually to unity.
                 * "valle_oganov": Use Valle-Oganov descriptor normalization, with
                   system cell volume and numbers of different atoms in the cell.
 
@@ -475,7 +476,7 @@ class MBTR(DescriptorGlobal):
         Args:
             value(str): The normalization method to use.
         """
-        norm_options = set(("l2_each", "none", "n_atoms", "valle_oganov"))
+        norm_options = set(("none", "l2", "n_atoms", "l2_each", "valle_oganov"))
         if value not in norm_options:
             raise ValueError(
                 "Unknown normalization option given. Please use one of the "
@@ -612,8 +613,22 @@ class MBTR(DescriptorGlobal):
                     i_data = value.ravel()
                     i_norm = np.linalg.norm(i_data)
                     mbtr[key] = value / i_norm
+        elif self.normalization == "l2":
+            norm = 0
+            if self.flatten is True:
+                for key, value in mbtr.items():
+                    i_data = np.array(value.data)
+                    norm += np.linalg.norm(i_data)
+                for key, value in mbtr.items():
+                    mbtr[key] = value / norm
+            else:
+                for key, value in mbtr.items():
+                    i_data = value.ravel()
+                    norm += np.linalg.norm(i_data)
+                for key, value in mbtr.items():
+                    mbtr[key] = value / norm
         elif self.normalization == "n_atoms":
-            n_atoms = len(self.system)
+            n_atoms = len(system)
             if self.flatten is True:
                 for key, value in mbtr.items():
                     mbtr[key] = value / n_atoms

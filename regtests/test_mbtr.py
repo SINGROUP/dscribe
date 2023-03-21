@@ -4,7 +4,6 @@ import copy
 
 import pytest
 import numpy as np
-from scipy.signal import find_peaks
 from ase import Atoms, geometry
 from ase.build import molecule, bulk
 from dscribe.descriptors import MBTR
@@ -19,8 +18,10 @@ from conftest import (
     assert_symmetries,
     assert_derivatives,
     assert_systems,
+    assert_normalization,
     assert_mbtr_location,
     assert_mbtr_location_exception,
+    assert_mbtr_peak,
     water,
 )
 
@@ -236,172 +237,11 @@ def test_derivatives(method, periodic, normalization, k2, k3):
     assert_derivatives(mbtr_func, method, periodic, water())
 
 
-# =============================================================================
-# Tests that are specific to this descriptor.
-def test_exceptions():
-    """Tests different invalid parameters that should raise an
-    exception.
+@pytest.mark.parametrize("normalization", ['l2', 'n_atoms'])
+def test_normalization(normalization):
+    """Tests that the normalization works correctly.
     """
-    # Weighting needs to be provided for periodic system and terms k>1
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=["H"],
-            k2={
-                **default_k2["k2"],
-                "weighting": None,
-            },
-            periodic=True,
-        )
-    msg = "Periodic systems need to have a weighting function."
-    assert msg == str(excinfo.value)
-
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=["H"],
-            k2={
-                **default_k2["k2"],
-                "weighting": {"function": "unity"},
-            },
-            periodic=True,
-        )
-    assert msg == str(excinfo.value)
-
-    # Invalid weighting function
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=[1],
-            k1={
-                **default_k1["k1"],
-                "weighting": {"function": "exp", "threshold": 1, "scale": 1},
-            },
-            periodic=True,
-        )
-    msg = "Unknown weighting function specified for k=1. Please use one of the following: ['unity']"
-    assert msg == str(excinfo.value)
-
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=[1],
-            k2={
-                **default_k2["k2"],
-                "weighting": {"function": "none"},
-            },
-            periodic=True,
-        )
-    msg = "Unknown weighting function specified for k=2. Please use one of the following: ['exp', 'inverse_square', 'unity']"
-    assert msg == str(excinfo.value)
-
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=[1],
-            k3={
-                **default_k3["k3"],
-                "weighting": {"function": "none"},
-            },
-            periodic=True,
-        )
-    msg = "Unknown weighting function specified for k=3. Please use one of the following: ['exp', 'smooth_cutoff', 'unity']"
-    assert msg == str(excinfo.value)
-
-    # Invalid geometry function
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(
-            species=[1],
-            k1={
-                "geometry": {"function": "none"},
-                "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
-            },
-            periodic=False,
-        )
-
-    msg = "Unknown geometry function specified for k=1. Please use one of the following: ['atomic_number']"
-    assert msg == str(excinfo.value)
-
-    # Missing threshold
-    with pytest.raises(ValueError) as excinfo:
-        setup = copy.deepcopy(default_k2)
-        del setup["k2"]["weighting"]["threshold"]
-        MBTR(**setup, species=[1], periodic=True)
-    msg = "Missing value for 'threshold' in the k=2 weighting."
-    assert msg == str(excinfo.value)
-
-    # Missing scale or r_cut
-    with pytest.raises(ValueError) as excinfo:
-        setup = copy.deepcopy(default_k2)
-        del setup["k2"]["weighting"]["scale"]
-        MBTR(**setup, species=[1], periodic=True)
-    msg = "Provide either 'scale' or 'r_cut' in the k=2 weighting."
-    assert msg == str(excinfo.value)
-
-    # Both scale and r_cut provided
-    with pytest.raises(ValueError) as excinfo:
-        setup = copy.deepcopy(default_k2)
-        setup["k2"]["weighting"]["scale"] = 1
-        setup["k2"]["weighting"]["r_cut"] = 1
-        MBTR(**setup, species=[1], periodic=True)
-    msg = "Provide either 'scale' or 'r_cut', not both in the k=2 weighting."
-    assert msg == str(excinfo.value)
-
-    # Unknown normalization
-    with pytest.raises(ValueError) as excinfo:
-        MBTR(**default_k2, species=[1], normalization="l2_test", periodic=True)
-    msg = "Unknown normalization option given. Please use one of the following: l2_each, n_atoms, none, valle_oganov."
-    assert msg == str(excinfo.value)
-
-
-@pytest.mark.parametrize(
-    "normalize_gaussians",
-    [
-        pytest.param(True, id="normalized"),
-        pytest.param(False, id="unnormalized"),
-    ],
-)
-def test_gaussian_distribution(normalize_gaussians):
-    """Check that the broadening follows gaussian distribution."""
-    # Check with normalization
-    std = 1
-    start = -3
-    stop = 11
-    n = 500
-    desc = MBTR(
-        species=["H", "O"],
-        k1={
-            "geometry": {"function": "atomic_number"},
-            "grid": {"min": start, "max": stop, "sigma": std, "n": n},
-        },
-        normalize_gaussians=normalize_gaussians,
-    )
-    system = water()
-    y = desc.create(system)
-    x = np.linspace(start, stop, n)
-
-    # Find the location of the peaks
-    h_loc = desc.get_location(["H"])
-    peak1_x = np.searchsorted(x, 1)
-    h_feat = y[h_loc]
-    peak1_y = h_feat[peak1_x]
-    o_loc = desc.get_location(["O"])
-    peak2_x = np.searchsorted(x, 8)
-    o_feat = y[o_loc]
-    peak2_y = o_feat[peak2_x]
-
-    # Check against the analytical value
-    prefactor = 1 / np.sqrt(2 * np.pi) if normalize_gaussians else 1
-    gaussian = (
-        lambda x, mean: 1
-        / std
-        * prefactor
-        * np.exp(-((x - mean) ** 2) / (2 * std**2))
-    )
-    assert np.allclose(peak1_y, 2 * gaussian(1, 1), rtol=0, atol=0.001)
-    assert np.allclose(peak2_y, gaussian(8, 8), rtol=0, atol=0.001)
-
-    # Check the integral
-    pdf = y[h_loc]
-    dx = (stop - start) / (n - 1)
-    sum_cum = np.sum(0.5 * dx * (pdf[:-1] + pdf[1:]))
-    exp = 1 if normalize_gaussians else 1 / (1 / math.sqrt(2 * math.pi * std**2))
-    assert np.allclose(sum_cum, 2 * exp, rtol=0, atol=0.001)
+    assert_normalization(mbtr_default_k2, normalization)
 
 
 @pytest.mark.parametrize("k", [1, 2, 3])
@@ -617,47 +457,175 @@ def test_peaks(system, k, geometry, grid, weighting, periodic, peaks, prominence
         peaks: List of assumed peak locations and intensities
         prominence: How prominent peaks should be considered
     """
-    setup = {
-        f"k{k}": {
-            "grid": grid,
-            "geometry": geometry,
-            "weighting": weighting,
-        }
-    }
-    desc = MBTR(
-        species=system.get_atomic_numbers(),
-        **setup,
-        normalize_gaussians=False,
-        periodic=periodic,
-        flatten=True,
-        sparse=False,
-    )
-    features = desc.create(system)
+    assert_mbtr_peak(mbtr, system, k, grid, geometry, weighting, periodic, peaks, prominence)
 
-    start = grid["min"]
-    stop = grid["max"]
-    n = grid["n"]
+
+# =============================================================================
+# Tests that are specific to this descriptor.
+def test_exceptions():
+    """Tests different invalid parameters that should raise an
+    exception.
+    """
+    # Weighting needs to be provided for periodic system and terms k>1
+    with pytest.raises(ValueError) as excinfo:
+        MBTR(
+            species=["H"],
+            k2={
+                **default_k2["k2"],
+                "weighting": None,
+            },
+            periodic=True,
+        )
+    msg = "Periodic systems need to have a weighting function."
+    assert msg == str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        MBTR(
+            species=["H"],
+            k2={
+                **default_k2["k2"],
+                "weighting": {"function": "unity"},
+            },
+            periodic=True,
+        )
+    assert msg == str(excinfo.value)
+
+    # Invalid weighting function
+    with pytest.raises(ValueError) as excinfo:
+        MBTR(
+            species=[1],
+            k1={
+                **default_k1["k1"],
+                "weighting": {"function": "exp", "threshold": 1, "scale": 1},
+            },
+            periodic=True,
+        )
+    msg = "Unknown weighting function specified for k=1. Please use one of the following: ['unity']"
+    assert msg == str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        MBTR(
+            species=[1],
+            k2={
+                **default_k2["k2"],
+                "weighting": {"function": "none"},
+            },
+            periodic=True,
+        )
+    msg = "Unknown weighting function specified for k=2. Please use one of the following: ['exp', 'inverse_square', 'unity']"
+    assert msg == str(excinfo.value)
+
+    with pytest.raises(ValueError) as excinfo:
+        MBTR(
+            species=[1],
+            k3={
+                **default_k3["k3"],
+                "weighting": {"function": "none"},
+            },
+            periodic=True,
+        )
+    msg = "Unknown weighting function specified for k=3. Please use one of the following: ['exp', 'smooth_cutoff', 'unity']"
+    assert msg == str(excinfo.value)
+
+    # Invalid geometry function
+    with pytest.raises(ValueError) as excinfo:
+        MBTR(
+            species=[1],
+            k1={
+                "geometry": {"function": "none"},
+                "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
+            },
+            periodic=False,
+        )
+
+    msg = "Unknown geometry function specified for k=1. Please use one of the following: ['atomic_number']"
+    assert msg == str(excinfo.value)
+
+    # Missing threshold
+    with pytest.raises(ValueError) as excinfo:
+        setup = copy.deepcopy(default_k2)
+        del setup["k2"]["weighting"]["threshold"]
+        MBTR(**setup, species=[1], periodic=True)
+    msg = "Missing value for 'threshold' in the k=2 weighting."
+    assert msg == str(excinfo.value)
+
+    # Missing scale or r_cut
+    with pytest.raises(ValueError) as excinfo:
+        setup = copy.deepcopy(default_k2)
+        del setup["k2"]["weighting"]["scale"]
+        MBTR(**setup, species=[1], periodic=True)
+    msg = "Provide either 'scale' or 'r_cut' in the k=2 weighting."
+    assert msg == str(excinfo.value)
+
+    # Both scale and r_cut provided
+    with pytest.raises(ValueError) as excinfo:
+        setup = copy.deepcopy(default_k2)
+        setup["k2"]["weighting"]["scale"] = 1
+        setup["k2"]["weighting"]["r_cut"] = 1
+        MBTR(**setup, species=[1], periodic=True)
+    msg = "Provide either 'scale' or 'r_cut', not both in the k=2 weighting."
+    assert msg == str(excinfo.value)
+
+    # Unknown normalization
+    with pytest.raises(ValueError) as excinfo:
+        MBTR(**default_k2, species=[1], normalization="l2_test", periodic=True)
+    msg = "Unknown normalization option given. Please use one of the following: l2, l2_each, n_atoms, none, valle_oganov."
+    assert msg == str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "normalize_gaussians",
+    [
+        pytest.param(True, id="normalized"),
+        pytest.param(False, id="unnormalized"),
+    ],
+)
+def test_gaussian_distribution(normalize_gaussians):
+    """Check that the broadening follows gaussian distribution."""
+    # Check with normalization
+    std = 1
+    start = -3
+    stop = 11
+    n = 500
+    desc = MBTR(
+        species=["H", "O"],
+        k1={
+            "geometry": {"function": "atomic_number"},
+            "grid": {"min": start, "max": stop, "sigma": std, "n": n},
+        },
+        normalize_gaussians=normalize_gaussians,
+    )
+    system = water()
+    y = desc.create(system)
     x = np.linspace(start, stop, n)
 
-    # Check that the correct peaks can be found
-    for location, peak_x, peak_y in peaks:
-        feat = features[desc.get_location(location)]
+    # Find the location of the peaks
+    h_loc = desc.get_location(["H"])
+    peak1_x = np.searchsorted(x, 1)
+    h_feat = y[h_loc]
+    peak1_y = h_feat[peak1_x]
+    o_loc = desc.get_location(["O"])
+    peak2_x = np.searchsorted(x, 8)
+    o_feat = y[o_loc]
+    peak2_y = o_feat[peak2_x]
 
-        # import matplotlib.pyplot as mpl
-        # mpl.plot(x, feat)
-        # mpl.show()
+    # Check against the analytical value
+    prefactor = 1 / np.sqrt(2 * np.pi) if normalize_gaussians else 1
+    gaussian = (
+        lambda x, mean: 1
+        / std
+        * prefactor
+        * np.exp(-((x - mean) ** 2) / (2 * std**2))
+    )
+    assert np.allclose(peak1_y, 2 * gaussian(1, 1), rtol=0, atol=0.001)
+    assert np.allclose(peak2_y, gaussian(8, 8), rtol=0, atol=0.001)
 
-        peak_indices = find_peaks(feat, prominence=prominence)[0]
-        assert len(peak_indices) > 0
-        peak_locs = x[peak_indices]
-        peak_ints = feat[peak_indices]
-        assert np.allclose(peak_locs, peak_x, rtol=1e-3, atol=1e-3)
-        assert np.allclose(peak_ints, peak_y, rtol=1e-3, atol=1e-3)
-
-    # Check that everything else is zero
-    for peak in peaks:
-        features[desc.get_location(peak[0])] = 0
-    assert features.sum() == 0
+    # Check the integral
+    pdf = y[h_loc]
+    dx = (stop - start) / (n - 1)
+    sum_cum = np.sum(0.5 * dx * (pdf[:-1] + pdf[1:]))
+    exp = 1 if normalize_gaussians else 1 / (1 / math.sqrt(2 * math.pi * std**2))
+    assert np.allclose(sum_cum, 2 * exp, rtol=0, atol=0.001)
 
 
 @pytest.mark.parametrize(
@@ -702,26 +670,6 @@ def test_periodic_translation(setup):
     spectra1 = desc.create(atoms)
     spectra2 = desc.create(atoms2)
     assert np.allclose(spectra1, spectra2, rtol=0, atol=1e-10)
-
-
-@pytest.mark.parametrize(
-    "setup, normalization, norm",
-    [
-        pytest.param(default_k1, "l2_each", 1, id="K1"),
-        pytest.param(default_k2, "l2_each", 1, id="K2"),
-        pytest.param(default_k3, "l2_each", 1, id="K3"),
-    ],
-)
-def test_normalization(setup, normalization, norm):
-    """Tests that the normalization works correctly."""
-    system = water()
-    atomic_numbers = [1, 8]
-    desc = MBTR(
-        species=atomic_numbers, **setup, flatten=True, normalization=normalization
-    )
-
-    feat_normalized = desc.create(system)
-    assert np.linalg.norm(feat_normalized) == pytest.approx(norm, abs=1e-7)
 
 
 @pytest.mark.parametrize(

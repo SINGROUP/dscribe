@@ -1,4 +1,6 @@
 import pytest
+import numpy as np
+from ase import Atoms
 from dscribe.descriptors import LMBTR
 
 from conftest import (
@@ -9,9 +11,14 @@ from conftest import (
     assert_sparse,
     assert_parallellization,
     assert_symmetries,
+    assert_normalization,
+    assert_positions,
     assert_mbtr_location,
     assert_mbtr_location_exception,
+    assert_mbtr_peak,
     assert_systems,
+    assert_systems,
+    water,
 )
 
 # =============================================================================
@@ -139,6 +146,19 @@ def test_symmetries():
     assert_symmetries(lmbtr(**default_k2), True, True, False)
 
 
+@pytest.mark.parametrize("normalization", ['l2'])
+def test_normalization(normalization):
+    """Tests that the normalization works correctly.
+    """
+    assert_normalization(lmbtr_default_k2, normalization)
+
+
+def test_positions():
+    """Tests that the normalization works correctly.
+    """
+    assert_positions(lmbtr_default_k2)
+
+
 @pytest.mark.parametrize("k", [2, 3])
 def test_location(k):
     assert_mbtr_location(lmbtr, k)
@@ -154,6 +174,92 @@ def test_location(k):
 )
 def test_location_exceptions(location):
     assert_mbtr_location_exception(lmbtr(**default_k2, species=["H"])(), location)
+
+@pytest.mark.parametrize(
+    "system,k,geometry,grid,weighting,periodic,peaks,prominence",
+    [
+        pytest.param(
+            water(),
+            2,
+            {"function": "distance"},
+            {"min": -1, "max": 3, "sigma": 0.5, "n": 1000},
+            {"function": "unity"},
+            False,
+            [(("X", "H"), [1.4984985], [1]), (("X", "O"), [0.94994995], [1])],
+            0.5,
+            id="k2 finite",
+        ),
+        pytest.param(
+            Atoms(
+                cell=[
+                    [10, 0, 0],
+                    [10, 10, 0],
+                    [10, 0, 10],
+                ],
+                symbols=["H", "C"],
+                scaled_positions=[
+                    [0.1, 0.5, 0.5],
+                    [0.9, 0.5, 0.5],
+                ],
+                pbc=True,
+            ),
+            2,
+            {"function": "distance"},
+            {"min": 0, "max": 10, "sigma": 0.5, "n": 1000},
+            {"function": "exp", "scale": 0.8, "threshold": 1e-3},
+            True,
+            [(("X", "C"), [2, 8], np.exp(-0.8 * np.array([2, 8])))],
+            0.001,
+            id="k2 periodic",
+        ),
+        pytest.param(
+            water(),
+            3,
+            {"function": "angle"},
+            {"min": -10, "max": 180, "sigma": 5, "n": 2000},
+            {"function": "unity"},
+            False,
+            [
+                (("X", "H", "O"), [38], 1),
+                (("X", "O", "H"), [104], 1),
+                (("H", "X", "O"), [38], 1),
+            ],
+            0.5,
+            id="k3 finite",
+        ),
+        pytest.param(
+            Atoms(
+                cell=[
+                    [10, 0, 0],
+                    [0, 10, 0],
+                    [0, 0, 10],
+                ],
+                symbols=3 * ["H"],
+                scaled_positions=[
+                    [0.05, 0.40, 0.5],
+                    [0.05, 0.60, 0.5],
+                    [0.95, 0.5, 0.5],
+                ],
+                pbc=True,
+            ),
+            3,
+            {"function": "angle"},
+            {"min": 0, "max": 180, "sigma": 5, "n": 2000},
+            {"function": "exp", "scale": 0.85, "threshold": 1e-3},
+            True,
+            [
+                (("X", "H", "H"), [45, 90], np.exp([-0.85 * (2 + 2 * np.sqrt(2))] * 2)),
+                (("H", "X", "H"), [45], np.exp([-0.85 * (2 + 2 * np.sqrt(2))])),
+            ],
+            0.01,
+            id="k3 periodic",
+        ),
+    ],
+)
+def test_peaks(system, k, geometry, grid, weighting, periodic, peaks, prominence):
+    """Tests the correct peak locations and intensities are found.
+    """
+    assert_mbtr_peak(lmbtr, system, k, grid, geometry, weighting, periodic, peaks, prominence)
 
 
 # =============================================================================
@@ -171,5 +277,5 @@ def test_exceptions():
             normalization="n_atoms",
         )
 
-    msg = "Unknown normalization option given. Please use one of the following: l2_each, none."
+    msg = "Unknown normalization option given. Please use one of the following: l2, l2_each, none."
     assert msg == str(excinfo.value)

@@ -198,7 +198,7 @@ class LMBTR(MBTR, DescriptorLocal):
         Args:
             value(str): The normalization method to use.
         """
-        norm_options = set(("l2_each", "none"))
+        norm_options = set(("none", "l2", "l2_each"))
         if value not in norm_options:
             raise ValueError(
                 "Unknown normalization option given. Please use one of the "

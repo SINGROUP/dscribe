@@ -15,7 +15,6 @@ suite = unittest.TestSuite()
 
 # Add tests to the test suite
 suite.addTests(loader.loadTestsFromModule(generaltests))
-suite.addTests(loader.loadTestsFromModule(lmbtr))
 suite.addTests(loader.loadTestsFromModule(kernels))
 suite.addTests(loader.loadTestsFromModule(derivatives))
 suite.addTests(loader.loadTestsFromModule(runexamples))

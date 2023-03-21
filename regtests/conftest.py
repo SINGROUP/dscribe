@@ -5,6 +5,7 @@ import sparse
 import pytest
 import scipy
 import scipy.stats
+from scipy.signal import find_peaks
 from ase import Atoms
 from ase.build import molecule, bulk
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
@@ -481,6 +482,49 @@ def assert_basis(descriptor_func):
     assert abs(dot - 1) < 1e-3
 
 
+def assert_normalization(descriptor_func, normalization):
+    """Tests that the normalization of the output is done correctly."""
+    system = water()
+    desc_raw = descriptor_func(normalization='none')([system])
+    features_raw = desc_raw.create(system)
+    desc_normalized = descriptor_func(normalization=normalization)([system])
+    features_normalized = desc_normalized.create(system)
+    is_local = isinstance(desc_normalized, DescriptorLocal)
+    if is_local:
+        features_raw = features_raw[0]
+        features_normalized = features_normalized[0]
+
+    norm = np.linalg.norm(features_normalized)
+    norm_raw = np.linalg.norm(features_raw)
+    if normalization == "l2":
+        norm == pytest.approx(1, 0, 1e-8)
+    elif normalization == 'n_atoms':
+        norm == pytest.approx(norm_raw / 3, 0, 1e-8)
+    else:
+        raise ValueError("Unsupported normalization")
+
+
+def assert_positions(descriptor_func):
+    """Tests that local descriptors handle the position argument correctly."""
+    system = water()
+    desc = descriptor_func()([system])
+    positions = [
+        ([0, 1, 2], 3),
+        ([[0, 1, 2], [0, 1, 1]], 2),
+        (np.array([[0, 1, 2], [0, 1, 1]]), 2),
+        (("a"), 0),
+        ((3), 0),
+        ((-1), 0),
+    ]
+    for pos, n_pos in positions:
+        if not n_pos:
+            with pytest.raises(Exception):
+                desc.create(system, positions=pos)
+        else:
+            feat = desc.create(system, positions=pos)
+            assert feat.shape[0] == n_pos
+
+
 def assert_matrix_descriptor_exceptions(descriptor_func):
     system = water()
 
@@ -642,6 +686,53 @@ def assert_mbtr_location(descriptor_func, k):
                 assert combination_feats != 0
             else:
                 assert combination_feats == 0
+
+
+def assert_mbtr_peak(descriptor_func, system, k, grid, geometry, weighting, periodic, peaks, prominence):
+    """Tests that the correct peaks are present in the descriptor output.
+    """
+    setup = {
+        f"k{k}": {
+            "grid": grid,
+            "geometry": geometry,
+            "weighting": weighting,
+        }
+    }
+    desc = descriptor_func(
+        species=system.get_atomic_numbers(),
+        **setup,
+        periodic=periodic,
+        normalize_gaussians=False,
+        flatten=True,
+        sparse=False,
+    )([system])
+    features = desc.create(system)
+    if isinstance(desc, DescriptorLocal):
+        features = features[0]
+
+    start = grid["min"]
+    stop = grid["max"]
+    n = grid["n"]
+    x = np.linspace(start, stop, n)
+
+    # import matplotlib.pyplot as mpl
+    # mpl.plot(features)
+    # mpl.show()
+
+    # Check that the correct peaks can be found
+    for location, peak_x, peak_y in peaks:
+        feat = features[desc.get_location(location)]
+        peak_indices = find_peaks(feat, prominence=prominence)[0]
+        assert len(peak_indices) > 0
+        peak_locs = x[peak_indices]
+        peak_ints = feat[peak_indices]
+        assert np.allclose(peak_locs, peak_x, rtol=1e-3, atol=1e-3)
+        assert np.allclose(peak_ints, peak_y, rtol=1e-3, atol=1e-3)
+
+    # Check that everything else is zero
+    for peak in peaks:
+        features[desc.get_location(peak[0])] = 0
+    assert features.sum() == 0
 
 
 def assert_mbtr_location_exception(desc, location):
