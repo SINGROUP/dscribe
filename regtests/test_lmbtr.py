@@ -146,16 +146,14 @@ def test_symmetries():
     assert_symmetries(lmbtr(**default_k2), True, True, False)
 
 
-@pytest.mark.parametrize("normalization", ['l2'])
+@pytest.mark.parametrize("normalization", ["l2"])
 def test_normalization(normalization):
-    """Tests that the normalization works correctly.
-    """
+    """Tests that the normalization works correctly."""
     assert_normalization(lmbtr_default_k2, normalization)
 
 
 def test_positions():
-    """Tests that the normalization works correctly.
-    """
+    """Tests that the normalization works correctly."""
     assert_positions(lmbtr_default_k2)
 
 
@@ -174,6 +172,7 @@ def test_location(k):
 )
 def test_location_exceptions(location):
     assert_mbtr_location_exception(lmbtr(**default_k2, species=["H"])(), location)
+
 
 @pytest.mark.parametrize(
     "system,k,geometry,grid,weighting,periodic,peaks,prominence",
@@ -257,9 +256,10 @@ def test_location_exceptions(location):
     ],
 )
 def test_peaks(system, k, geometry, grid, weighting, periodic, peaks, prominence):
-    """Tests the correct peak locations and intensities are found.
-    """
-    assert_mbtr_peak(lmbtr, system, k, grid, geometry, weighting, periodic, peaks, prominence)
+    """Tests the correct peak locations and intensities are found."""
+    assert_mbtr_peak(
+        lmbtr, system, k, grid, geometry, weighting, periodic, peaks, prominence
+    )
 
 
 # =============================================================================

@@ -971,7 +971,7 @@ class MBTR(DescriptorGlobal):
                         count_product = 0.5 * counts[i] * counts[j]
                     else:
                         count_product = counts[i] * counts[j]
-                    if count_product == 0: 
+                    if count_product == 0:
                         continue
 
                     # This is the index of the spectrum. It is given by enumerating the
@@ -1145,7 +1145,7 @@ class MBTR(DescriptorGlobal):
                         start = m * n
                         end = (m + 1) * n
                         count_product = counts[i] * counts[j] * counts[k]
-                        if count_product == 0: 
+                        if count_product == 0:
                             continue
                         y_normed = (k3[start:end] * V) / count_product
                         k3[start:end] = y_normed

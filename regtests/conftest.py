@@ -488,7 +488,7 @@ def assert_basis(descriptor_func):
 def assert_normalization(descriptor_func, normalization):
     """Tests that the normalization of the output is done correctly."""
     system = water()
-    desc_raw = descriptor_func(normalization='none')([system])
+    desc_raw = descriptor_func(normalization="none")([system])
     features_raw = desc_raw.create(system)
     desc_normalized = descriptor_func(normalization=normalization)([system])
     features_normalized = desc_normalized.create(system)
@@ -501,7 +501,7 @@ def assert_normalization(descriptor_func, normalization):
     norm_raw = np.linalg.norm(features_raw)
     if normalization == "l2":
         norm == pytest.approx(1, 0, 1e-8)
-    elif normalization == 'n_atoms':
+    elif normalization == "n_atoms":
         norm == pytest.approx(norm_raw / 3, 0, 1e-8)
     else:
         raise ValueError("Unsupported normalization")
@@ -691,9 +691,10 @@ def assert_mbtr_location(descriptor_func, k):
                 assert combination_feats == 0
 
 
-def assert_mbtr_peak(descriptor_func, system, k, grid, geometry, weighting, periodic, peaks, prominence):
-    """Tests that the correct peaks are present in the descriptor output.
-    """
+def assert_mbtr_peak(
+    descriptor_func, system, k, grid, geometry, weighting, periodic, peaks, prominence
+):
+    """Tests that the correct peaks are present in the descriptor output."""
     setup = {
         f"k{k}": {
             "grid": grid,

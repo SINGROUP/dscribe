@@ -237,10 +237,9 @@ def test_derivatives(method, periodic, normalization, k2, k3):
     assert_derivatives(mbtr_func, method, periodic, water())
 
 
-@pytest.mark.parametrize("normalization", ['l2', 'n_atoms'])
+@pytest.mark.parametrize("normalization", ["l2", "n_atoms"])
 def test_normalization(normalization):
-    """Tests that the normalization works correctly.
-    """
+    """Tests that the normalization works correctly."""
     assert_normalization(mbtr_default_k2, normalization)
 
 
@@ -457,7 +456,9 @@ def test_peaks(system, k, geometry, grid, weighting, periodic, peaks, prominence
         peaks: List of assumed peak locations and intensities
         prominence: How prominent peaks should be considered
     """
-    assert_mbtr_peak(mbtr, system, k, grid, geometry, weighting, periodic, peaks, prominence)
+    assert_mbtr_peak(
+        mbtr, system, k, grid, geometry, weighting, periodic, peaks, prominence
+    )
 
 
 # =============================================================================
