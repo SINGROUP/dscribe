@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 from ase import Atoms
+from ase.build import bulk
 from dscribe.descriptors import LMBTR
 
 from conftest import (
@@ -146,10 +147,13 @@ def test_symmetries():
     assert_symmetries(lmbtr(**default_k2), True, True, False)
 
 
-@pytest.mark.parametrize("normalization", ["l2"])
-def test_normalization(normalization):
+@pytest.mark.parametrize("normalization, norm_rel, norm_abs", [
+    ("l2", None, 1),
+])
+def test_normalization(normalization, norm_rel, norm_abs):
     """Tests that the normalization works correctly."""
-    assert_normalization(lmbtr_default_k2, normalization)
+    system = bulk("Cu", "fcc", cubic=True, a=3.6)
+    assert_normalization(lmbtr_default_k2, system, normalization, norm_rel, norm_abs)
 
 
 def test_positions():

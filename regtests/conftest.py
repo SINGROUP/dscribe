@@ -389,9 +389,6 @@ def assert_parallellization(descriptor_func, n_jobs, flatten, sparse, positions=
 
     a = desc.create(samples[0], **a_kwargs)
     b = desc.create(samples[1], **b_kwargs)
-    # from ase.visualize import view
-    # print(a_kwargs)
-    # print(b_kwargs)
 
     # The output may be a list or an array.
     if isinstance(output, list):
@@ -420,7 +417,7 @@ def assert_no_system_modification(descriptor_func):
         pbc = np.array(system.get_pbc())
         atomic_numbers = np.array(system.get_atomic_numbers())
         symbols = np.array(system.get_chemical_symbols())
-        descriptor = descriptor_func()([system])
+        descriptor_func()([system])
         assert np.array_equal(cell, system.get_cell())
         assert np.array_equal(pos, system.get_positions())
         assert np.array_equal(pbc, system.get_pbc())
@@ -485,12 +482,11 @@ def assert_basis(descriptor_func):
     assert abs(dot - 1) < 1e-3
 
 
-def assert_normalization(descriptor_func, normalization):
+def assert_normalization(descriptor_func, system, normalization, norm_rel=None, norm_abs=None):
     """Tests that the normalization of the output is done correctly."""
-    system = water()
-    desc_raw = descriptor_func(normalization="none")([system])
+    desc_raw = descriptor_func(normalization="none", periodic=True)([system])
     features_raw = desc_raw.create(system)
-    desc_normalized = descriptor_func(normalization=normalization)([system])
+    desc_normalized = descriptor_func(normalization=normalization, periodic=True)([system])
     features_normalized = desc_normalized.create(system)
     is_local = isinstance(desc_normalized, DescriptorLocal)
     if is_local:
@@ -498,13 +494,14 @@ def assert_normalization(descriptor_func, normalization):
         features_normalized = features_normalized[0]
 
     norm = np.linalg.norm(features_normalized)
-    norm_raw = np.linalg.norm(features_raw)
-    if normalization == "l2":
-        norm == pytest.approx(1, 0, 1e-8)
-    elif normalization == "n_atoms":
-        norm == pytest.approx(norm_raw / 3, 0, 1e-8)
-    else:
-        raise ValueError("Unsupported normalization")
+    if norm_rel is not None and norm_abs is not None:
+        raise ValueError("Provide only relative or absolute norm")
+    if norm_rel is not None:
+        norm_raw = np.linalg.norm(features_raw)
+        assert norm_raw != 0
+        assert norm / norm_raw == pytest.approx(norm_rel, 0, 1e-8)
+    if norm_abs is not None:
+        assert norm == pytest.approx(norm_abs, 0, 1e-8)
 
 
 def assert_positions(descriptor_func):
@@ -624,7 +621,6 @@ def assert_matrix_descriptor_random(descriptor_func):
 
     # Get the mean value to compare to
     sigma = 5
-    n_atoms_max = 2
     desc = descriptor_func(permutation="sorted_l2", flatten=False)([HHe])
     features = desc.create(HHe)
     means = np.linalg.norm(features, axis=1)

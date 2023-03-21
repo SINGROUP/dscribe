@@ -4,7 +4,6 @@ from conftest import (
     assert_n_features,
     assert_no_system_modification,
     assert_sparse,
-    assert_basis,
     assert_parallellization,
     assert_symmetries,
     water,

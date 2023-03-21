@@ -237,10 +237,15 @@ def test_derivatives(method, periodic, normalization, k2, k3):
     assert_derivatives(mbtr_func, method, periodic, water())
 
 
-@pytest.mark.parametrize("normalization", ["l2", "n_atoms"])
-def test_normalization(normalization):
+@pytest.mark.parametrize("normalization, norm_rel, norm_abs", [
+    ("l2", None, 1),
+    ("n_atoms", 1 / 4, None),
+    ("valle_oganov", 46.656 / (4 * 8 * np.pi), None),
+])
+def test_normalization(normalization, norm_rel, norm_abs):
     """Tests that the normalization works correctly."""
-    assert_normalization(mbtr_default_k2, normalization)
+    system = bulk("Cu", "fcc", cubic=True, a=3.6)
+    assert_normalization(mbtr_default_k2, system, normalization, norm_rel, norm_abs)
 
 
 @pytest.mark.parametrize("k", [1, 2, 3])

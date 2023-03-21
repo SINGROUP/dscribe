@@ -956,23 +956,20 @@ class MBTR(DescriptorGlobal):
         # Valle-Oganov normalization is calculated separately for each pair.
         # Not implemented for derivatives.
         if self.normalization == "valle_oganov":
-            S = self.system
-            V = S.cell.volume
-            imap = self.index_to_atomic_number
+            volume = self.system.cell.volume
             # Calculate the amount of each element for N_A*N_B term
-            counts = {}
-            for index, number in imap.items():
-                counts[index] = list(S.get_atomic_numbers()).count(number)
-            for i in range(n_elem):
-                for j in range(n_elem):
+            values, counts = np.unique(self.system.get_atomic_numbers(), return_counts=True)
+            counts = dict(zip(values, counts))
+            for i_z in values:
+                for j_z in values:
+                    i = self.atomic_number_to_index[i_z]
+                    j = self.atomic_number_to_index[j_z]
                     if j < i:
                         continue
                     if i == j:
-                        count_product = 0.5 * counts[i] * counts[j]
+                        count_product = 0.5 * counts[i_z] * counts[j_z]
                     else:
-                        count_product = counts[i] * counts[j]
-                    if count_product == 0:
-                        continue
+                        count_product = counts[i_z] * counts[j_z]
 
                     # This is the index of the spectrum. It is given by enumerating the
                     # elements of an upper triangular matrix from left to right and top
@@ -980,7 +977,7 @@ class MBTR(DescriptorGlobal):
                     m = int(j + i * n_elem - i * (i + 1) / 2)
                     start = m * n
                     end = (m + 1) * n
-                    y_normed = (k2[start:end] * V) / (count_product * 4 * np.pi)
+                    y_normed = (k2[start:end] * volume) / (count_product * 4 * np.pi)
 
                     k2[start:end] = y_normed
 
@@ -1120,16 +1117,16 @@ class MBTR(DescriptorGlobal):
         # Valle-Oganov normalization is calculated separately for each triplet
         # Not implemented for derivatives.
         if self.normalization == "valle_oganov":
-            S = self.system
-            V = S.cell.volume
-            imap = self.index_to_atomic_number
+            volume = self.system.cell.volume
             # Calculate the amount of each element for N_A*N_B*N_C term
-            counts = {}
-            for index, number in imap.items():
-                counts[index] = list(S.get_atomic_numbers()).count(number)
-            for i in range(n_elem):
-                for j in range(n_elem):
-                    for k in range(n_elem):
+            values, counts = np.unique(self.system.get_atomic_numbers(), return_counts=True)
+            counts = dict(zip(values, counts))
+            for i_z in values:
+                for j_z in values:
+                    for k_z in values:
+                        i = self.atomic_number_to_index[i_z]
+                        j = self.atomic_number_to_index[j_z]
+                        k = self.atomic_number_to_index[k_z]
                         if k < i:
                             continue
                         # This is the index of the spectrum. It is given by enumerating the
@@ -1144,10 +1141,8 @@ class MBTR(DescriptorGlobal):
                         )
                         start = m * n
                         end = (m + 1) * n
-                        count_product = counts[i] * counts[j] * counts[k]
-                        if count_product == 0:
-                            continue
-                        y_normed = (k3[start:end] * V) / count_product
+                        count_product = counts[i_z] * counts[j_z] * counts[k_z]
+                        y_normed = (k3[start:end] * volume) / count_product
                         k3[start:end] = y_normed
 
         # If non-flattened descriptor is requested, reshape the output
@@ -1249,11 +1244,7 @@ class MBTR(DescriptorGlobal):
             mbtr_d["k3"] = k3_d
 
         # Handle normalization
-        if self.normalization == "l2_each":
-            # Normalization factor is a function of atomic positions.
-            # Not implemented
-            pass
-        elif self.normalization == "n_atoms":
+        if self.normalization == "n_atoms":
             n_atoms = len(self.system)
             if self.flatten is True:
                 for key, value in mbtr.items():

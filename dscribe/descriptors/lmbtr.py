@@ -18,6 +18,7 @@ import math
 
 import numpy as np
 import scipy.spatial.distance
+from sklearn.preprocessing import normalize
 import sparse
 from ase import Atoms
 import ase.data
@@ -412,15 +413,26 @@ class LMBTR(MBTR, DescriptorLocal):
         # Handle normalization
         if self.normalization == "l2_each":
             if self.flatten is True:
-                for key, value in mbtr.items():
+                for value in mbtr.values():
                     norm = np.linalg.norm(value.data)
                     value /= norm
             else:
-                for key, value in mbtr.items():
+                for value in mbtr.values():
                     for array in value:
                         i_data = array.ravel()
                         i_norm = np.linalg.norm(i_data)
                         array /= i_norm
+        elif self.normalization == "l2":
+            if self.flatten is True:
+                for value in mbtr.values():
+                    normalize(value.tocsr(), norm="l2", axis=1, copy=False)
+            else:
+                for value in mbtr.values():
+                    for array in value:
+                        norm += np.linalg.norm(array.ravel())
+                for value in mbtr.values():
+                    for array in value:
+                        array /= norm
 
         # Flatten output if requested
         if self.flatten:
