@@ -99,17 +99,12 @@ class MBTR(DescriptorGlobal):
     gaussian broadening and *n* is the number of points sampled on the
     grid.
 
-    If flatten=False, a list of dense np.ndarrays for each k in ascending order
-    is returned. These arrays are of dimension (n_elements x n_elements x
-    n_grid_points), where the elements are sorted in ascending order by their
-    atomic number.
-
-    If flatten=True, a sparse.COO sparse matrix is returned. This sparse matrix
-    is of size (n_features,), where n_features is given by
-    get_number_of_features(). This vector is ordered so that the different
-    k-terms are ordered in ascending order, and within each k-term the
-    distributions at each entry (i, j, h) of the tensor are ordered in an
-    ascending order by (i * n_elements) + (j * n_elements) + (h * n_elements).
+    A sparse.COO sparse matrix is returned. This sparse matrix is of size
+    (n_features,), where n_features is given by get_number_of_features(). This
+    vector is ordered so that the different k-terms are ordered in ascending
+    order, and within each k-term the distributions at each entry (i, j, h) of
+    the tensor are ordered in an ascending order by (i * n_elements) + (j *
+    n_elements) + (h * n_elements).
 
     This implementation does not support the use of a non-identity correlation
     matrix.
@@ -122,7 +117,6 @@ class MBTR(DescriptorGlobal):
         k3=None,
         normalize_gaussians=True,
         normalization="none",
-        flatten=True,
         species=None,
         periodic=False,
         sparse=False,
@@ -174,10 +168,6 @@ class MBTR(DescriptorGlobal):
                 * "valle_oganov": Use Valle-Oganov descriptor normalization, with
                   system cell volume and numbers of different atoms in the cell.
 
-            flatten (bool): Whether the output should be flattened to a 1D
-                array. If False, a dictionary of the different tensors is
-                provided, containing the values under keys: "k1", "k2", and
-                "k3":
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
@@ -195,13 +185,7 @@ class MBTR(DescriptorGlobal):
                     * ``"float32"``: Single precision floating point numbers.
                     * ``"float64"``: Double precision floating point numbers.
         """
-        if sparse and not flatten:
-            raise ValueError(
-                "Sparse, non-flattened output is currently not supported. If "
-                "you want a non-flattened output, please specify sparse=False "
-                "in the MBTR constructor."
-            )
-        super().__init__(periodic=periodic, flatten=flatten, sparse=sparse, dtype=dtype)
+        super().__init__(periodic=periodic, sparse=sparse, dtype=dtype)
         self.system = None
         self.k1 = k1
         self.k2 = k2
@@ -542,22 +526,15 @@ class MBTR(DescriptorGlobal):
                 into to the console.
 
         Returns:
-            np.ndarray | sparse.COO | list: MBTR for the
-            given systems. The return type depends on the 'sparse' and
-            'flatten'-attributes. For flattened output a single numpy array or
-            sparse.COO matrix is returned. If the output is not flattened,
-            dictionaries containing the MBTR tensors for each k-term are
-            returned.
+            np.ndarray | sparse.COO: MBTR for the given systems. The return type
+            depends on the 'sparse' attribute.
         """
         # Combine input arguments
         system = [system] if isinstance(system, Atoms) else system
         inp = [(i_sys,) for i_sys in system]
 
         # Determine if the outputs have a fixed size
-        if self.flatten:
-            static_size = [self.get_number_of_features()]
-        else:
-            static_size = None
+        static_size = [self.get_number_of_features()]
 
         # Create in parallel
         output = self.create_parallel(
@@ -578,12 +555,8 @@ class MBTR(DescriptorGlobal):
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
 
         Returns:
-            dict | np.ndarray | sparse.COO: The return type is
-            specified by the 'flatten' and 'sparse'-parameters. If the output
-            is not flattened, a dictionary containing of MBTR outputs as numpy
-            arrays is created. Each output is under a "kX" key. If the output
-            is flattened, a single concatenated output vector is returned,
-            either as a sparse or a dense vector.
+            np.ndarray | sparse.COO: A single concatenated output vector is
+            returned, either as a sparse or a dense vector.
         """
         # Ensuring variables are re-initialized when a new system is introduced
         self.system = system
@@ -603,50 +576,31 @@ class MBTR(DescriptorGlobal):
 
         # Handle normalization
         if self.normalization == "l2_each":
-            if self.flatten is True:
-                for key, value in mbtr.items():
-                    i_data = np.array(value.data)
-                    i_norm = np.linalg.norm(i_data)
-                    mbtr[key] = value / i_norm
-            else:
-                for key, value in mbtr.items():
-                    i_data = value.ravel()
-                    i_norm = np.linalg.norm(i_data)
-                    mbtr[key] = value / i_norm
+            for key, value in mbtr.items():
+                i_data = np.array(value.data)
+                i_norm = np.linalg.norm(i_data)
+                mbtr[key] = value / i_norm
         elif self.normalization == "l2":
             norm = 0
-            if self.flatten is True:
-                for key, value in mbtr.items():
-                    i_data = np.array(value.data)
-                    norm += np.linalg.norm(i_data)
-                for key, value in mbtr.items():
-                    mbtr[key] = value / norm
-            else:
-                for key, value in mbtr.items():
-                    i_data = value.ravel()
-                    norm += np.linalg.norm(i_data)
-                for key, value in mbtr.items():
-                    mbtr[key] = value / norm
+            for key, value in mbtr.items():
+                i_data = np.array(value.data)
+                norm += np.linalg.norm(i_data)
+            for key, value in mbtr.items():
+                mbtr[key] = value / norm
         elif self.normalization == "n_atoms":
             n_atoms = len(system)
-            if self.flatten is True:
-                for key, value in mbtr.items():
-                    mbtr[key] = value / n_atoms
-            else:
-                for key, value in mbtr.items():
-                    mbtr[key] = value / n_atoms
+            for key, value in mbtr.items():
+                mbtr[key] = value / n_atoms
 
-        # Flatten output if requested
-        if self.flatten:
-            keys = sorted(mbtr.keys())
-            if len(keys) > 1:
-                mbtr = np.concatenate([mbtr[key] for key in keys], axis=0)
-            else:
-                mbtr = mbtr[keys[0]]
+        keys = sorted(mbtr.keys())
+        if len(keys) > 1:
+            mbtr = np.concatenate([mbtr[key] for key in keys], axis=0)
+        else:
+            mbtr = mbtr[keys[0]]
 
-            # Make into a sparse array if requested
-            if self.sparse:
-                mbtr = sparse.COO.from_numpy(mbtr)
+        # Make into a sparse array if requested
+        if self.sparse:
+            mbtr = sparse.COO.from_numpy(mbtr)
 
         return mbtr
 
@@ -677,7 +631,7 @@ class MBTR(DescriptorGlobal):
 
     def get_location(self, species):
         """Can be used to query the location of a species combination in the
-        the flattened output.
+        the output.
 
         Args:
             species(tuple): A tuple containing a species combination as
@@ -781,12 +735,10 @@ class MBTR(DescriptorGlobal):
         regard to atomic positions.
 
         Returns:
-            1D or 3D ndarray:   K1 values. If flatten=True, returns a 1D array
-                                and if flatten=False returns a 2D array.
-                                If return_descriptor=False, returns an array of
-                                shape (0).
-            3D ndarray:         K1 derivatives. If return_derivatives=False,
-                                returns an array of shape (0,0,0).
+            1D or 3D ndarray: K1 values. Returns a 1D array. If
+                return_descriptor=False, returns an array of shape (0).
+            3D ndarray: K1 derivatives. If return_derivatives=False, returns an
+                array of shape (0,0,0).
         """
         grid = self.k1["grid"]
         start = grid["min"]
@@ -833,10 +785,6 @@ class MBTR(DescriptorGlobal):
             k1 /= max_val
             k1_d /= max_val
 
-        # Reshape the output if non-flattened descriptor is requested
-        if return_descriptor and not self.flatten:
-            k1 = k1.reshape((n_elem, n))
-
         # Convert to the final output precision.
         if self.dtype == "float32":
             k1 = k1.astype(self.dtype)
@@ -848,12 +796,10 @@ class MBTR(DescriptorGlobal):
         """Calculates the second order term and/or its derivatives with
         regard to atomic positions.
         Returns:
-            1D or 3D ndarray:   K2 values. If flatten=True, returns a 1D array
-                                and if flatten=False returns a 3D array.
-                                If return_descriptor=False, returns an array of
-                                shape (0).
-            3D ndarray:         K2 derivatives. If return_derivatives=False,
-                                returns an array of shape (0,0,0).
+            1D ndarray:   K2 values. Returns a 1D array. If
+                return_descriptor=False, returns an array of shape (0).
+            3D ndarray: K2 derivatives. If return_derivatives=False, returns an
+                array of shape (0,0,0).
         """
         grid = self.k2["grid"]
         start = grid["min"]
@@ -981,19 +927,6 @@ class MBTR(DescriptorGlobal):
 
                     k2[start:end] = y_normed
 
-        # Reshape the output if non-flattened descriptor is requested
-        if return_descriptor and not self.flatten:
-            k2_nonflat = np.zeros((n_elem, n_elem, n), dtype=np.float64)
-            for i in range(n_elem):
-                for j in range(n_elem):
-                    if j < i:
-                        continue
-                    m = int(j + i * n_elem - i * (i + 1) / 2)
-                    start = m * n
-                    end = (m + 1) * n
-                    k2_nonflat[i, j] = k2[start:end]
-            k2 = k2_nonflat
-
         # Convert to the final output precision.
         if self.dtype == "float32":
             k2 = k2.astype(self.dtype)
@@ -1005,12 +938,10 @@ class MBTR(DescriptorGlobal):
         """Calculates the third order term and/or its derivatives with
         regard to atomic positions.
         Returns:
-            1D or 4D ndarray:   K2 values. If flatten=True, returns a 1D array
-                                and if flatten=False returns a 4D array.
-                                If return_descriptor=False, returns an array of
-                                shape (0).
-            3D ndarray:         K2 derivatives. If return_derivatives=False,
-                                returns an array of shape (0,0,0).
+            1D ndarray: K3 values. Returns a 1D array. If
+                return_descriptor=False, returns an array of shape (0).
+            3D ndarray: K3 derivatives. If return_derivatives=False, returns an
+                array of shape (0,0,0).
         """
         grid = self.k3["grid"]
         start = grid["min"]
@@ -1145,25 +1076,6 @@ class MBTR(DescriptorGlobal):
                         y_normed = (k3[start:end] * volume) / count_product
                         k3[start:end] = y_normed
 
-        # If non-flattened descriptor is requested, reshape the output
-        if return_descriptor and not self.flatten:
-            k3_nonflat = np.zeros((n_elem, n_elem, n_elem, n), dtype=np.float64)
-            for i in range(n_elem):
-                for j in range(n_elem):
-                    for k in range(n_elem):
-                        if k < i:
-                            continue
-                        m = int(
-                            j * n_elem * (n_elem + 1) / 2
-                            + k
-                            + i * n_elem
-                            - i * (i + 1) / 2
-                        )
-                        start = m * n
-                        end = (m + 1) * n
-                        k3_nonflat[i, j, k] = k3[start:end]
-            k3 = k3_nonflat
-
         # Convert to the final output precision.
         if self.dtype == "float32":
             k3 = k3.astype(self.dtype)
@@ -1180,8 +1092,6 @@ class MBTR(DescriptorGlobal):
             raise ValueError(
                 "Invalid method specified. Please choose from: {}".format(methods)
             )
-        if self.flatten == False:
-            raise ValueError("Derivatives not implemented for flatten=False.")
 
         if method == "numerical":
             return method
@@ -1246,14 +1156,9 @@ class MBTR(DescriptorGlobal):
         # Handle normalization
         if self.normalization == "n_atoms":
             n_atoms = len(self.system)
-            if self.flatten is True:
-                for key, value in mbtr.items():
-                    mbtr[key] = value / n_atoms
-                    mbtr_d[key] /= n_atoms
-            else:
-                for key, value in mbtr.items():
-                    mbtr[key] = value / n_atoms
-                    mbtr_d[key] /= n_atoms
+            for key, value in mbtr.items():
+                mbtr[key] = value / n_atoms
+                mbtr_d[key] /= n_atoms
 
         keys = sorted(mbtr.keys())
         if len(keys) > 1:

@@ -92,17 +92,12 @@ class LMBTR(MBTR, DescriptorLocal):
     gaussian broadening and *n* is the number of points sampled on the
     grid.
 
-    If flatten=False, a list of dense np.ndarrays for each k in ascending order
-    is returned. These arrays are of dimension (n_elements x n_elements x
-    n_grid_points), where the elements are sorted in ascending order by their
-    atomic number.
-
-    If flatten=True, a sparse.COO is returned. This sparse matrix
-    is of size (n_features,), where n_features is given by
-    get_number_of_features(). This vector is ordered so that the different
-    k-terms are ordered in ascending order, and within each k-term the
-    distributions at each entry (i, j, h) of the tensor are ordered in an
-    ascending order by (i * n_elements) + (j * n_elements) + (h * n_elements).
+    A sparse.COO is returned. This sparse matrix is of size (n_features,), where
+    n_features is given by get_number_of_features(). This vector is ordered so
+    that the different k-terms are ordered in ascending order, and within each
+    k-term the distributions at each entry (i, j, h) of the tensor are ordered
+    in an ascending order by (i * n_elements) + (j * n_elements) + (h *
+    n_elements).
 
     This implementation does not support the use of a non-identity correlation
     matrix.
@@ -114,7 +109,6 @@ class LMBTR(MBTR, DescriptorLocal):
         k3=None,
         normalize_gaussians=True,
         normalization="none",
-        flatten=True,
         species=None,
         periodic=False,
         sparse=False,
@@ -162,10 +156,6 @@ class LMBTR(MBTR, DescriptorLocal):
                 * "l2_each": Normalize the Euclidean length of each k-term
                   individually to unity.
 
-            flatten (bool): Whether the output should be flattened to a 1D
-                array. If False, a dictionary of the different tensors is
-                provided, containing the values under keys: "k1", "k2", and
-                "k3":
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
             dtype (str): The data type of the output. Valid options are:
@@ -181,7 +171,6 @@ class LMBTR(MBTR, DescriptorLocal):
             species=species,
             normalization=normalization,
             normalize_gaussians=normalize_gaussians,
-            flatten=flatten,
             sparse=sparse,
             dtype=dtype,
         )
@@ -412,50 +401,22 @@ class LMBTR(MBTR, DescriptorLocal):
 
         # Handle normalization
         if self.normalization == "l2_each":
-            if self.flatten is True:
-                for value in mbtr.values():
-                    norm = np.linalg.norm(value.data)
-                    value /= norm
-            else:
-                for value in mbtr.values():
-                    for array in value:
-                        i_data = array.ravel()
-                        i_norm = np.linalg.norm(i_data)
-                        array /= i_norm
+            for value in mbtr.values():
+                norm = np.linalg.norm(value.data)
+                value /= norm
         elif self.normalization == "l2":
-            if self.flatten is True:
-                for value in mbtr.values():
-                    normalize(value.tocsr(), norm="l2", axis=1, copy=False)
-            else:
-                for value in mbtr.values():
-                    for array in value:
-                        norm += np.linalg.norm(array.ravel())
-                for value in mbtr.values():
-                    for array in value:
-                        array /= norm
+            for value in mbtr.values():
+                normalize(value.tocsr(), norm="l2", axis=1, copy=False)
 
-        # Flatten output if requested
-        if self.flatten:
-            keys = sorted(mbtr.keys())
-            if len(keys) > 1:
-                result = sparse.concatenate([mbtr[key] for key in keys], axis=1)
-            else:
-                result = mbtr[keys[0]]
-
-            # Make into a dense array if requested
-            if not self.sparse:
-                result = result.todense()
-
-        # Otherwise return a list of dictionaries, each dictionary containing
-        # the requested unflattened tensors
+        keys = sorted(mbtr.keys())
+        if len(keys) > 1:
+            result = sparse.concatenate([mbtr[key] for key in keys], axis=1)
         else:
-            result = np.empty((n_loc), dtype="object")
-            for i_loc in range(n_loc):
-                i_dict = {}
-                for key in mbtr.keys():
-                    tensor = mbtr[key]
-                    i_dict[key] = tensor[i_loc]
-                result[i_loc] = i_dict
+            result = mbtr[keys[0]]
+
+        # Make into a dense array if requested
+        if not self.sparse:
+            result = result.todense()
 
         return result
 
@@ -607,39 +568,24 @@ class LMBTR(MBTR, DescriptorLocal):
             n,
         )
         k2_list = self._make_new_klist_local(k2_list)
-
-        # Depending on flattening, use either a sparse matrix or a dense one.
         n_elem = self.n_elements
         n_loc = len(indices)
-        if self.flatten:
-            k2 = sparse.DOK((n_loc, n_elem * n), dtype=self.dtype)
+        k2 = sparse.DOK((n_loc, n_elem * n), dtype=self.dtype)
 
-            for i_loc, k2_map in enumerate(k2_list):
-                for key, gaussian_sum in k2_map.items():
-                    i = key[1]
-                    m = i
-                    start = int(m * n)
-                    end = int((m + 1) * n)
+        for i_loc, k2_map in enumerate(k2_list):
+            for key, gaussian_sum in k2_map.items():
+                i = key[1]
+                m = i
+                start = int(m * n)
+                end = int((m + 1) * n)
 
-                    # Denormalize if requested
-                    if not self.normalize_gaussians:
-                        max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                        gaussian_sum /= max_val
+                # Denormalize if requested
+                if not self.normalize_gaussians:
+                    max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+                    gaussian_sum /= max_val
 
-                    k2[i_loc, start:end] = gaussian_sum
-            k2 = k2.to_coo()
-        else:
-            k2 = np.zeros((n_loc, n_elem, n), dtype=self.dtype)
-            for i_loc, k2_map in enumerate(k2_list):
-                for key, gaussian_sum in k2_map.items():
-                    i = key[1]
-
-                    # Denormalize if requested
-                    if not self.normalize_gaussians:
-                        max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                        gaussian_sum /= max_val
-
-                    k2[i_loc, i, :] = gaussian_sum
+                k2[i_loc, start:end] = gaussian_sum
+        k2 = k2.to_coo()
 
         return k2
 
@@ -785,53 +731,39 @@ class LMBTR(MBTR, DescriptorLocal):
         )
 
         k3_list = self._make_new_klist_local(k3_list)
-        # Depending on flattening, use either a sparse matrix or a dense one.
+
         n_elem = self.n_elements
         n_loc = len(indices)
-        if self.flatten:
-            k3 = sparse.DOK(
-                (n_loc, int((n_elem * (3 * n_elem - 1) * n / 2))), dtype=self.dtype
-            )
+        k3 = sparse.DOK(
+            (n_loc, int((n_elem * (3 * n_elem - 1) * n / 2))), dtype=self.dtype
+        )
 
-            for i_loc, k3_map in enumerate(k3_list):
-                for key, gaussian_sum in k3_map.items():
-                    i = key[0]
-                    j = key[1]
-                    k = key[2]
+        for i_loc, k3_map in enumerate(k3_list):
+            for key, gaussian_sum in k3_map.items():
+                i = key[0]
+                j = key[1]
+                k = key[2]
 
-                    # This is the index of the spectrum. It is given by enumerating the
-                    # elements of a three-dimensional array and only considering
-                    # elements for which k>=i and i || j == 0. The enumeration begins
-                    # from [0, 0, 0], and ends at [n_elem, n_elem, n_elem], looping the
-                    # elements in the order k, i, j.
-                    if j == 0:
-                        m = k + i * n_elem - i * (i + 1) / 2
-                    else:
-                        m = n_elem * (n_elem + 1) / 2 + (j - 1) * n_elem + k
-                    start = int(m * n)
-                    end = int((m + 1) * n)
+                # This is the index of the spectrum. It is given by enumerating the
+                # elements of a three-dimensional array and only considering
+                # elements for which k>=i and i || j == 0. The enumeration begins
+                # from [0, 0, 0], and ends at [n_elem, n_elem, n_elem], looping the
+                # elements in the order k, i, j.
+                if j == 0:
+                    m = k + i * n_elem - i * (i + 1) / 2
+                else:
+                    m = n_elem * (n_elem + 1) / 2 + (j - 1) * n_elem + k
+                start = int(m * n)
+                end = int((m + 1) * n)
 
-                    # Denormalize if requested
-                    if not self.normalize_gaussians:
-                        max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                        gaussian_sum /= max_val
+                # Denormalize if requested
+                if not self.normalize_gaussians:
+                    max_val = 1 / (sigma * math.sqrt(2 * math.pi))
+                    gaussian_sum /= max_val
 
-                    k3[i_loc, start:end] = gaussian_sum
-            k3 = k3.to_coo()
-        else:
-            k3 = np.zeros((n_loc, n_elem, n_elem, n_elem, n), dtype=self.dtype)
-            for i_loc, k3_map in enumerate(k3_list):
-                for key, gaussian_sum in k3_map.items():
-                    i = key[0]
-                    j = key[1]
-                    k = key[2]
+                k3[i_loc, start:end] = gaussian_sum
+        k3 = k3.to_coo()
 
-                    # Denormalize if requested
-                    if not self.normalize_gaussians:
-                        max_val = 1 / (sigma * math.sqrt(2 * math.pi))
-                        gaussian_sum /= max_val
-
-                    k3[i_loc, i, j, k, :] = gaussian_sum
         return k3
 
     def get_location(self, species):

@@ -76,7 +76,7 @@ class ACSF(DescriptorLocal):
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(periodic=periodic, flatten=True, sparse=sparse, dtype=dtype)
+        super().__init__(periodic=periodic, sparse=sparse, dtype=dtype)
 
         self.acsf_wrapper = ACSFWrapper()
 

@@ -20,7 +20,6 @@ class ValleOganov(MBTR):
         species,
         k2=None,
         k3=None,
-        flatten=True,
         sparse=False,
     ):
         """
@@ -112,7 +111,6 @@ class ValleOganov(MBTR):
             k1=None,
             k2=k2_temp,
             k3=k3_temp,
-            flatten=flatten,
             sparse=sparse,
             normalization="valle_oganov",
             normalize_gaussians=True,

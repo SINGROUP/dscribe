@@ -191,7 +191,7 @@ class SOAP(DescriptorLocal):
                 "Invalid output data type '{}' given. Please use "
                 "one of the following: {}".format(dtype, supported_dtype)
             )
-        super().__init__(periodic=periodic, flatten=True, sparse=sparse, dtype=dtype)
+        super().__init__(periodic=periodic, sparse=sparse, dtype=dtype)
 
         # Setup the involved chemical species
         self.species = species

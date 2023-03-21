@@ -21,8 +21,8 @@ from dscribe.utils.dimensionality import is1d
 class DescriptorLocal(Descriptor):
     """An abstract base class for all local descriptors."""
 
-    def __init__(self, periodic, flatten, sparse, dtype="float64", average="off"):
-        super().__init__(periodic=periodic, flatten=flatten, sparse=sparse, dtype=dtype)
+    def __init__(self, periodic, sparse, dtype="float64", average="off"):
+        super().__init__(periodic=periodic, sparse=sparse, dtype=dtype)
         self.average = average
 
     def validate_derivatives_method(self, method, attach):
