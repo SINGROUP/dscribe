@@ -1,5 +1,4 @@
 from dscribe.descriptors import MBTR
-import math
 
 
 class ValleOganov(MBTR):

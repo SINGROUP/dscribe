@@ -22,7 +22,6 @@ def valle_oganov(**kwargs):
     """Returns a function that can be used to create a valid ValleOganov
     descriptor for a dataset.
     """
-
     def func(systems=None):
         species = set()
         for system in systems:
@@ -77,10 +76,6 @@ def test_sparse():
 def test_symmetries():
     """Tests the symmetries of the descriptor."""
     assert_symmetries(valle_oganov())
-
-
-# def test_basis():
-#     assert_basis(valle_oganov())
 
 
 # =============================================================================

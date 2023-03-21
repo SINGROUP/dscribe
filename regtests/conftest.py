@@ -389,6 +389,9 @@ def assert_parallellization(descriptor_func, n_jobs, flatten, sparse, positions=
 
     a = desc.create(samples[0], **a_kwargs)
     b = desc.create(samples[1], **b_kwargs)
+    # from ase.visualize import view
+    # print(a_kwargs)
+    # print(b_kwargs)
 
     # The output may be a list or an array.
     if isinstance(output, list):

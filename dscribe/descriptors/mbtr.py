@@ -956,22 +956,23 @@ class MBTR(DescriptorGlobal):
         # Valle-Oganov normalization is calculated separately for each pair.
         # Not implemented for derivatives.
         if self.normalization == "valle_oganov":
+            S = self.system
+            V = S.cell.volume
+            imap = self.index_to_atomic_number
+            # Calculate the amount of each element for N_A*N_B term
+            counts = {}
+            for index, number in imap.items():
+                counts[index] = list(S.get_atomic_numbers()).count(number)
             for i in range(n_elem):
                 for j in range(n_elem):
                     if j < i:
                         continue
-                    S = self.system
-                    n_elements = len(self.species)
-                    V = S.cell.volume
-                    imap = self.index_to_atomic_number
-                    # Calculate the amount of each element for N_A*N_B term
-                    counts = {}
-                    for index, number in imap.items():
-                        counts[index] = list(S.get_atomic_numbers()).count(number)
                     if i == j:
                         count_product = 0.5 * counts[i] * counts[j]
                     else:
                         count_product = counts[i] * counts[j]
+                    if count_product == 0: 
+                        continue
 
                     # This is the index of the spectrum. It is given by enumerating the
                     # elements of an upper triangular matrix from left to right and top
@@ -980,6 +981,7 @@ class MBTR(DescriptorGlobal):
                     start = m * n
                     end = (m + 1) * n
                     y_normed = (k2[start:end] * V) / (count_product * 4 * np.pi)
+
                     k2[start:end] = y_normed
 
         # Reshape the output if non-flattened descriptor is requested
@@ -1118,20 +1120,18 @@ class MBTR(DescriptorGlobal):
         # Valle-Oganov normalization is calculated separately for each triplet
         # Not implemented for derivatives.
         if self.normalization == "valle_oganov":
+            S = self.system
+            V = S.cell.volume
+            imap = self.index_to_atomic_number
+            # Calculate the amount of each element for N_A*N_B*N_C term
+            counts = {}
+            for index, number in imap.items():
+                counts[index] = list(S.get_atomic_numbers()).count(number)
             for i in range(n_elem):
                 for j in range(n_elem):
                     for k in range(n_elem):
                         if k < i:
                             continue
-                        S = self.system
-                        n_elements = len(self.species)
-                        V = S.cell.volume
-                        imap = self.index_to_atomic_number
-                        # Calculate the amount of each element for N_A*N_B*N_C term
-                        counts = {}
-                        for index, number in imap.items():
-                            counts[index] = list(S.get_atomic_numbers()).count(number)
-
                         # This is the index of the spectrum. It is given by enumerating the
                         # elements of a three-dimensional array where for valid elements
                         # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
@@ -1145,6 +1145,8 @@ class MBTR(DescriptorGlobal):
                         start = m * n
                         end = (m + 1) * n
                         count_product = counts[i] * counts[j] * counts[k]
+                        if count_product == 0: 
+                            continue
                         y_normed = (k3[start:end] * V) / count_product
                         k3[start:end] = y_normed
 
