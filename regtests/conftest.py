@@ -175,6 +175,27 @@ def assert_symmetry_permutation(descriptor_func):
     assert is_perm_sym
 
 
+def assert_periodic(descriptor_func):
+    """Tests the periodic images are correctly seen by the descriptor."""
+    a = 10
+    reference = Atoms(
+        symbols=["C", "C"],
+        positions=[[0, 0, 0], [-1, -1, -1]],
+        cell=[[0.0, a, a], [a, 0.0, a], [a, a, 0.0]],
+        pbc=[False]
+    )
+
+    periodic = reference.copy()
+    periodic.set_pbc(True)
+    periodic.wrap()
+
+    desc = descriptor_func(periodic=True)([reference])
+    feat_ref = desc.create(reference)
+    feat_periodic = desc.create(periodic)
+    assert feat_ref.max() > 0.5
+    assert np.allclose(feat_ref, feat_periodic)
+
+
 def assert_derivatives(descriptor_func, method, pbc, system=big_system()):
     assert_derivatives_include(descriptor_func, method, pbc)
     assert_derivatives_exclude(descriptor_func, method, pbc)

@@ -153,7 +153,6 @@ def test_normalization(normalization, norm_rel, norm_abs):
 
 
 def test_positions():
-    """Tests that the normalization works correctly."""
     assert_positions(lmbtr_default_k2)
 
 

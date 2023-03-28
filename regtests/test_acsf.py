@@ -12,6 +12,7 @@ from conftest import (
     assert_basis,
     assert_parallellization,
     assert_symmetries,
+    assert_periodic,
     assert_derivatives,
     big_system,
     water,
@@ -103,6 +104,9 @@ def test_symmetries():
     # Local descriptors are not permutation symmetric.
     assert_symmetries(acsf(), True, True, False)
 
+
+def test_periodic():
+    assert_periodic(acsf)
 
 def test_basis():
     assert_basis(acsf(periodic=True))

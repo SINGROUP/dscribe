@@ -3,7 +3,6 @@ import sys
 
 # Import the test modules
 import generaltests
-import soap
 import kernels
 import derivatives
 import runexamples

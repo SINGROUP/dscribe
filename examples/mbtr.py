@@ -50,8 +50,6 @@ import ase.data
 from ase.build import bulk
 import matplotlib.pyplot as mpl
 
-# The MBTR-object is configured with flatten=False so that we can easily
-# visualize the different terms.
 nacl = bulk("NaCl", "rocksalt", a=5.64)
 decay = 0.5
 mbtr = MBTR(
@@ -62,7 +60,6 @@ mbtr = MBTR(
         "weighting": {"function": "exp", "scale": decay, "threshold": 1e-3},
     },
     periodic=True,
-    flatten=False,
     sparse=False
 )
 mbtr_output = mbtr.create(nacl)
@@ -70,16 +67,17 @@ mbtr_output = mbtr.create(nacl)
 # Create the mapping between an index in the output and the corresponding
 # chemical symbol
 n_elements = len(mbtr.species)
-imap = mbtr.index_to_atomic_number
 x = np.linspace(0, 0.5, 200)
-smap = {index: ase.data.chemical_symbols[number] for index, number in imap.items()}
 
 # Plot k=2
 fig, ax = mpl.subplots()
 for i in range(n_elements):
     for j in range(n_elements):
         if j >= i:
-            mpl.plot(x, mbtr_output["k2"][i, j, :], label="{}-{}".format(smap[i], smap[j]))
+            i_species = mbtr.species[i]
+            j_species = mbtr.species[j]
+            loc = mbtr.get_location((i_species, j_species))
+            mpl.plot(x, mbtr_output[loc], label="{}-{}".format(i_species, j_species))
 ax.set_xlabel("Inverse distance (1/angstrom)")
 ax.legend()
 mpl.show()
@@ -92,7 +90,6 @@ desc = MBTR(
         "grid": {"min": 0.4, "max": 8, "sigma": 0.1, "n": 200},
     },
     periodic=False,
-    flatten=True,
     sparse=False,
     normalization="l2_each",
 )
@@ -134,7 +131,6 @@ desc = MBTR(
         "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
         "weighting": {"function": "exp", "scale": 1.0, "threshold": 1e-3},
     },
-    flatten=True,
     sparse=False,
 )
 

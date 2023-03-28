@@ -1,4 +1,5 @@
 import pytest
+import itertools
 import numpy as np
 from ase import Atoms
 from conftest import (
@@ -10,6 +11,8 @@ from conftest import (
     assert_basis,
     assert_parallellization,
     assert_symmetries,
+    assert_positions,
+    assert_periodic,
     assert_derivatives,
     big_system,
     water,
@@ -275,6 +278,14 @@ def test_symmetries(rbf):
     assert_symmetries(soap(rbf=rbf), True, True, False)
 
 
+def test_periodic():
+    assert_periodic(soap)
+
+
+def test_positions():
+    assert_positions(soap)
+
+
 @pytest.mark.parametrize("rbf", ["gto", "polynomial"])
 def test_basis(rbf):
     assert_basis(soap(rbf=rbf, periodic=True))
@@ -417,6 +428,39 @@ def test_infer_r_cut(weighting, expected_r_cut):
     """
     soap = SOAP(n_max=1, l_max=1, weighting=weighting, species=[1, 8], sparse=True)
     assert soap._r_cut == pytest.approx(expected_r_cut, rel=1e-8, abs=0)
+
+
+@pytest.mark.parametrize("crossover", (False, True))
+@pytest.mark.parametrize("rbf", ("gto", "polynomial"))
+def test_crossover(crossover, rbf):
+    """Tests that disabling/enabling crossover works as expected."""
+    species = [1, 8]
+    n_max = 5
+    l_max = 5
+    system = water()
+    pos = [system.get_center_of_mass()]
+
+    desc = SOAP(
+        species=species,
+        rbf=rbf,
+        crossover=crossover,
+        r_cut=3,
+        n_max=n_max,
+        l_max=l_max,
+        periodic=False,
+    )
+
+    feat = desc.create(system, positions=pos)[0, :]
+    for pair in itertools.combinations_with_replacement(species, 2):
+        crossed = pair[0] != pair[1]
+        if crossed:
+            if not crossover:
+                with pytest.raises(ValueError):
+                    desc.get_location(pair)
+            else:
+                assert feat[desc.get_location(pair)].sum() != 0
+        else:
+            assert feat[desc.get_location(pair)].sum() != 0
 
 
 @pytest.mark.parametrize("rbf", ["gto", "polynomial"])
