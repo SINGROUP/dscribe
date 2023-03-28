@@ -1,7 +1,7 @@
 # Defines when the pipeline is triggered
 trigger:
 - master
-- v1.2.3
+- v2.0.0
 
 # Jobs
 jobs:
