@@ -167,7 +167,7 @@ class EwaldSumMatrix(DescriptorMatrix):
 
         # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
-        if self._flatten:
+        if self.flatten:
             static_size = [n_features]
         elif self.permutation == "eigenspectrum":
             static_size = [self.n_atoms_max]

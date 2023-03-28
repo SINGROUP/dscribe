@@ -86,17 +86,10 @@ def test_dtype(dtype, sparse):
     assert_dtype(lmbtr_default_k2, dtype, sparse)
 
 
-@pytest.mark.parametrize(
-    "n_jobs, flatten, sparse",
-    [
-        (1, True, False),  # Serial job, flattened, dense
-        (2, True, False),  # Parallel job, flattened, dense
-        (1, True, True),  # Serial job, flattened, sparse
-        (2, True, True),  # Parallel job, flattened, sparse
-    ],
-)
-def test_parallellization(n_jobs, flatten, sparse):
-    assert_parallellization(lmbtr_default_k2, n_jobs, flatten, sparse)
+@pytest.mark.parametrize("n_jobs", (1, 2))
+@pytest.mark.parametrize("sparse", (True, False))
+def test_parallellization(n_jobs, sparse):
+    assert_parallellization(lmbtr_default_k2, n_jobs, sparse)
 
 
 def test_no_system_modification():
@@ -147,9 +140,12 @@ def test_symmetries():
     assert_symmetries(lmbtr(**default_k2), True, True, False)
 
 
-@pytest.mark.parametrize("normalization, norm_rel, norm_abs", [
-    ("l2", None, 1),
-])
+@pytest.mark.parametrize(
+    "normalization, norm_rel, norm_abs",
+    [
+        ("l2", None, 1),
+    ],
+)
 def test_normalization(normalization, norm_rel, norm_abs):
     """Tests that the normalization works correctly."""
     system = bulk("Cu", "fcc", cubic=True, a=3.6)

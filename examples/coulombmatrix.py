@@ -27,16 +27,6 @@ samples = [molecule("H2O"), molecule("NO2"), molecule("CO2")]
 coulomb_matrices = cm.create(samples)            # Serial
 coulomb_matrices = cm.create(samples, n_jobs=2)  # Parallel
 
-# No flattening
-cm = CoulombMatrix(
-    n_atoms_max=6, flatten=False
-)
-cm_methanol = cm.create(methanol)
-
-print(cm_methanol)
-print("not flattened", cm_methanol.shape)
-
-
 # Zero-padding
 cm = CoulombMatrix(
     n_atoms_max=10, flatten=False

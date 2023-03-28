@@ -28,11 +28,12 @@ from joblib import Parallel, delayed
 class Descriptor(ABC):
     """An abstract base class for all descriptors."""
 
-    def __init__(self, periodic, flatten, sparse, dtype="float64"):
+    def __init__(self, periodic, sparse, dtype="float64"):
         """
         Args:
-            flatten (bool): Whether the output of create() should be flattened
-                to a 1D array.
+            periodic (bool): Whether the descriptor should take PBC into account.
+            sparse (bool): Whether the output should use a sparse format.
+            dtype (str): The output data type.
         """
         supported_dtype = set(("float32", "float64"))
         if dtype not in supported_dtype:
@@ -41,7 +42,6 @@ class Descriptor(ABC):
                 "one of the following: {}".format(dtype, supported_dtype)
             )
         self.sparse = sparse
-        self.flatten = flatten
         self.periodic = periodic
         self.dtype = dtype
         self._atomic_numbers = None
@@ -108,19 +108,6 @@ class Descriptor(ABC):
             value(float): Are the systems periodic.
         """
         self._periodic = value
-
-    @property
-    def flatten(self):
-        return self._flatten
-
-    @flatten.setter
-    def flatten(self, value):
-        """Sets whether the output should be flattened or not.
-
-        Args:
-            value(float): Should the output be flattened.
-        """
-        self._flatten = value
 
     def _set_species(self, species):
         """Used to setup the species information for this descriptor. This

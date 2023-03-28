@@ -62,7 +62,7 @@ class DescriptorMatrix(DescriptorGlobal):
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(periodic=False, flatten=flatten, sparse=sparse, dtype=dtype)
+        super().__init__(periodic=False, sparse=sparse, dtype=dtype)
 
         # Check parameter validity
         if n_atoms_max <= 0:
@@ -86,6 +86,7 @@ class DescriptorMatrix(DescriptorGlobal):
                 "as 'random'."
             )
 
+        self.flatten = flatten
         self.seed = seed
         self.random_state = RandomState(seed)
         self.n_atoms_max = n_atoms_max
@@ -110,7 +111,7 @@ class DescriptorMatrix(DescriptorGlobal):
 
         Returns:
             ndarray: The zero padded matrix either as a 2D array or as
-                a 1D array depending on the setting self._flatten.
+                a 1D array depending on the setting self.flatten.
         """
         # Remove the old norm vector for the new system
         self._norm_vector = None
@@ -131,7 +132,7 @@ class DescriptorMatrix(DescriptorGlobal):
         matrix = self.zero_pad(matrix)
 
         # Flatten
-        if self.permutation == "eigenspectrum" or self._flatten:
+        if self.permutation == "eigenspectrum" or self.flatten:
             matrix = np.reshape(matrix, (matrix.size,))
 
         # If a sparse matrix is requested, convert to coo_matrix

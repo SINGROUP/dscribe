@@ -126,19 +126,11 @@ def test_matrix_descriptor_random():
     assert_matrix_descriptor_random(coulomb_matrix)
 
 
-@pytest.mark.parametrize(
-    "n_jobs, flatten, sparse",
-    [
-        (1, True, False),  # Serial job, flattened, dense
-        (2, True, False),  # Parallel job, flattened, dense
-        (2, False, False),  # Unflattened output, dense
-        (1, True, True),  # Serial job, flattened, sparse
-        (2, True, True),  # Parallel job, flattened, sparse
-        (2, False, True),  # Unflattened output, sparse
-    ],
-)
-def test_parallellization(n_jobs, flatten, sparse):
-    assert_parallellization(coulomb_matrix, n_jobs, flatten, sparse)
+@pytest.mark.parametrize("n_jobs", (1, 2))
+@pytest.mark.parametrize("sparse", (True, False))
+@pytest.mark.parametrize("flatten", (True, False))
+def test_parallellization(n_jobs, sparse, flatten):
+    assert_parallellization(coulomb_matrix, n_jobs, sparse, flatten=flatten)
 
 
 def test_no_system_modification():
@@ -226,7 +218,6 @@ def test_performance(permutation):
     """Tests that the C++ code performs better than the numpy version."""
     n_iter = 10
     system = big_system()
-    times = []
     start = time
     n_atoms_max = len(system)
     descriptor = coulomb_matrix(permutation=permutation)([system])

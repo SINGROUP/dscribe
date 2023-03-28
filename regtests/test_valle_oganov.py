@@ -30,7 +30,6 @@ def valle_oganov(**kwargs):
             "species": species,
             "k2": default_k2,
             "k3": default_k3,
-            "flatten": True,
         }
         final_kwargs.update(kwargs)
         return ValleOganov(**final_kwargs)
@@ -49,20 +48,13 @@ def valle_oganov(**kwargs):
     ],
 )
 def test_number_of_features(k2, k3, n_features):
-    assert_n_features(valle_oganov(k2=k2, k3=k3, flatten=True), n_features)
+    assert_n_features(valle_oganov(k2=k2, k3=k3), n_features)
 
 
-@pytest.mark.parametrize(
-    "n_jobs, flatten, sparse",
-    [
-        (1, True, False),  # Serial job, flattened, dense
-        (2, True, False),  # Parallel job, flattened, dense
-        (1, True, True),  # Serial job, flattened, sparse
-        (2, True, True),  # Parallel job, flattened, sparse
-    ],
-)
-def test_parallellization(n_jobs, flatten, sparse):
-    assert_parallellization(valle_oganov, n_jobs, flatten, sparse)
+@pytest.mark.parametrize("n_jobs", (1, 2))
+@pytest.mark.parametrize("sparse", (True, False))
+def test_parallellization(n_jobs, sparse):
+    assert_parallellization(valle_oganov, n_jobs, sparse=sparse)
 
 
 def test_no_system_modification():
@@ -84,15 +76,6 @@ def test_exceptions():
     """Tests different invalid parameters that should raise an
     exception.
     """
-    # Cannot create a sparse and non-flattened output.
-    with pytest.raises(ValueError):
-        ValleOganov(
-            species=["H"],
-            k2=default_k2,
-            flatten=False,
-            sparse=True,
-        )
-
     # Missing r_cut
     with pytest.raises(ValueError):
         ValleOganov(
@@ -136,29 +119,6 @@ def test_exceptions():
         )
 
 
-def test_flatten():
-    """Tests that flattened, and non-flattened output works correctly."""
-    system = water()
-    n = 10
-    n_species = len(set(system.get_atomic_numbers()))
-
-    # K2 unflattened
-    desc = ValleOganov(
-        species=[1, 8],
-        k2={"sigma": 0.1, "n": n, "r_cut": 5},
-        flatten=False,
-        sparse=False,
-    )
-    feat = desc.create(system)["k2"]
-    assert feat.shape == (n_species, n_species, n)
-
-    # K2 flattened.
-    n_features = desc.get_number_of_features()
-    desc.flatten = True
-    feat = desc.create(system)
-    assert feat.shape == (n_features,)
-
-
 def test_vs_mbtr():
     """Tests that the ValleOganov subclass gives the same output as MBTR with
     the corresponding parameters.
@@ -185,7 +145,6 @@ def test_vs_mbtr():
             "weighting": {"function": "smooth_cutoff", "r_cut": 5},
         },
         normalization="valle_oganov",
-        flatten=True,
         sparse=False,
     )
     feat2 = desc2.create(system)

@@ -1,11 +1,10 @@
-import itertools
 import math
 import copy
 
 import pytest
 import numpy as np
 from ase import Atoms, geometry
-from ase.build import molecule, bulk
+from ase.build import bulk
 from dscribe.descriptors import MBTR
 
 from conftest import (
@@ -124,17 +123,10 @@ def test_dtype(dtype, sparse):
     assert_dtype(mbtr_default_k2, dtype, sparse)
 
 
-@pytest.mark.parametrize(
-    "n_jobs, flatten, sparse",
-    [
-        (1, True, False),  # Serial job, flattened, dense
-        (2, True, False),  # Parallel job, flattened, dense
-        (1, True, True),  # Serial job, flattened, sparse
-        (2, True, True),  # Parallel job, flattened, sparse
-    ],
-)
-def test_parallellization(n_jobs, flatten, sparse):
-    assert_parallellization(mbtr_default_k2, n_jobs, flatten, sparse)
+@pytest.mark.parametrize("n_jobs", (1, 2))
+@pytest.mark.parametrize("sparse", (True, False))
+def test_parallellization(n_jobs, sparse):
+    assert_parallellization(mbtr_default_k2, n_jobs, sparse)
 
 
 def test_no_system_modification():
@@ -237,11 +229,14 @@ def test_derivatives(method, periodic, normalization, k2, k3):
     assert_derivatives(mbtr_func, method, periodic, water())
 
 
-@pytest.mark.parametrize("normalization, norm_rel, norm_abs", [
-    ("l2", None, 1),
-    ("n_atoms", 1 / 4, None),
-    ("valle_oganov", 46.656 / (4 * 8 * np.pi), None),
-])
+@pytest.mark.parametrize(
+    "normalization, norm_rel, norm_abs",
+    [
+        ("l2", None, 1),
+        ("n_atoms", 1 / 4, None),
+        ("valle_oganov", 46.656 / (4 * 8 * np.pi), None),
+    ],
+)
 def test_normalization(normalization, norm_rel, norm_abs):
     """Tests that the normalization works correctly."""
     system = bulk("Cu", "fcc", cubic=True, a=3.6)
@@ -728,7 +723,6 @@ def test_periodic_supercell_similarity(setup):
         species=["H"],
         periodic=True,
         **setup,
-        flatten=True,
         sparse=False,
         normalization="l2_each",
     )
@@ -796,7 +790,6 @@ def test_periodic_images_1(setup):
         periodic=True,
         **setup,
         normalization="l2_each",
-        flatten=True,
     )
 
     # Tests that a system has the same spectrum as the supercell of the same

@@ -253,7 +253,7 @@ def test_dtype(dtype, sparse):
     ],
 )
 def test_parallellization(n_jobs, sparse, positions):
-    assert_parallellization(soap, n_jobs, None, sparse, positions)
+    assert_parallellization(soap, n_jobs, sparse, positions)
 
 
 @pytest.mark.parametrize("cell", ["collapsed_periodic", "collapsed_finite"])

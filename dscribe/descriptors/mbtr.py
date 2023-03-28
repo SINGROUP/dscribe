@@ -904,7 +904,9 @@ class MBTR(DescriptorGlobal):
         if self.normalization == "valle_oganov":
             volume = self.system.cell.volume
             # Calculate the amount of each element for N_A*N_B term
-            values, counts = np.unique(self.system.get_atomic_numbers(), return_counts=True)
+            values, counts = np.unique(
+                self.system.get_atomic_numbers(), return_counts=True
+            )
             counts = dict(zip(values, counts))
             for i_z in values:
                 for j_z in values:
@@ -1050,7 +1052,9 @@ class MBTR(DescriptorGlobal):
         if self.normalization == "valle_oganov":
             volume = self.system.cell.volume
             # Calculate the amount of each element for N_A*N_B*N_C term
-            values, counts = np.unique(self.system.get_atomic_numbers(), return_counts=True)
+            values, counts = np.unique(
+                self.system.get_atomic_numbers(), return_counts=True
+            )
             counts = dict(zip(values, counts))
             for i_z in values:
                 for j_z in values:

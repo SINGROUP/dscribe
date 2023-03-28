@@ -14,7 +14,6 @@ from conftest import (
     assert_parallellization,
     assert_symmetries,
     assert_derivatives,
-    big_system,
     water,
 )
 from dscribe.descriptors import SineMatrix
@@ -75,19 +74,11 @@ def test_matrix_descriptor_random():
     assert_matrix_descriptor_random(sine_matrix)
 
 
-@pytest.mark.parametrize(
-    "n_jobs, flatten, sparse",
-    [
-        (1, True, False),  # Serial job, flattened, dense
-        (2, True, False),  # Parallel job, flattened, dense
-        (2, False, False),  # Unflattened output, dense
-        (1, True, True),  # Serial job, flattened, sparse
-        (2, True, True),  # Parallel job, flattened, sparse
-        (2, False, True),  # Unflattened output, sparse
-    ],
-)
-def test_parallellization(n_jobs, flatten, sparse):
-    assert_parallellization(sine_matrix, n_jobs, flatten, sparse)
+@pytest.mark.parametrize("n_jobs", (1, 2))
+@pytest.mark.parametrize("sparse", (True, False))
+@pytest.mark.parametrize("flatten", (True, False))
+def test_parallellization(n_jobs, sparse, flatten):
+    assert_parallellization(sine_matrix, n_jobs, sparse, flatten=flatten)
 
 
 def test_no_system_modification():

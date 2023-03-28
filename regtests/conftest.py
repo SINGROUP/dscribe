@@ -345,7 +345,7 @@ def assert_n_features(descriptor_func, n_features):
     assert n_features_reported == n_features_actual == n_features
 
 
-def assert_parallellization(descriptor_func, n_jobs, flatten, sparse, positions=None):
+def assert_parallellization(descriptor_func, n_jobs, sparse, positions=None, **kwargs):
     """Tests creating output parallelly."""
     # Periodic systems are used since all descriptors support them.
     CO = molecule("CO")
@@ -355,9 +355,7 @@ def assert_parallellization(descriptor_func, n_jobs, flatten, sparse, positions=
     NO.set_cell([5, 5, 5])
     NO.set_pbc(True)
     samples = [CO, NO]
-    kwargs = {"sparse": sparse}
-    if flatten is not None:
-        kwargs["flatten"] = flatten
+    kwargs["sparse"] = sparse
     desc = descriptor_func(**kwargs)(samples)
 
     all_kwargs = {}
@@ -482,11 +480,15 @@ def assert_basis(descriptor_func):
     assert abs(dot - 1) < 1e-3
 
 
-def assert_normalization(descriptor_func, system, normalization, norm_rel=None, norm_abs=None):
+def assert_normalization(
+    descriptor_func, system, normalization, norm_rel=None, norm_abs=None
+):
     """Tests that the normalization of the output is done correctly."""
     desc_raw = descriptor_func(normalization="none", periodic=True)([system])
     features_raw = desc_raw.create(system)
-    desc_normalized = descriptor_func(normalization=normalization, periodic=True)([system])
+    desc_normalized = descriptor_func(normalization=normalization, periodic=True)(
+        [system]
+    )
     features_normalized = desc_normalized.create(system)
     is_local = isinstance(desc_normalized, DescriptorLocal)
     if is_local:
@@ -703,7 +705,6 @@ def assert_mbtr_peak(
         **setup,
         periodic=periodic,
         normalize_gaussians=False,
-        flatten=True,
         sparse=False,
     )([system])
     features = desc.create(system)

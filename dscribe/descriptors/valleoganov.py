@@ -51,10 +51,6 @@ class ValleOganov(MBTR):
                         "r_cut": 10
                     }
 
-            flatten (bool): Whether the output should be flattened to a 1D
-                array. If False, a dictionary of the different tensors is
-                provided, containing the values under keys: "k1", "k2", and
-                "k3":
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
