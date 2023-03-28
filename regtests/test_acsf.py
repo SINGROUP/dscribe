@@ -108,6 +108,7 @@ def test_symmetries():
 def test_periodic():
     assert_periodic(acsf)
 
+
 def test_basis():
     assert_basis(acsf(periodic=True))
 

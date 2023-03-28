@@ -44,8 +44,6 @@ import matplotlib.pyplot as plt
 import ase.data
 from ase.build import bulk
 
-# The ValleOganov-object is configured with flatten=False so that we can easily
-# visualize the different terms.
 nacl = bulk("NaCl", "rocksalt", a=5.64)
 vo = ValleOganov(
     species=["Na", "Cl"],
@@ -54,7 +52,6 @@ vo = ValleOganov(
         "sigma": 10**(-0.625),
         "r_cut": 10
     },
-    flatten=False,
     sparse=False
 )
 vo_nacl = vo.create(nacl)
@@ -62,9 +59,7 @@ vo_nacl = vo.create(nacl)
 # Create the mapping between an index in the output and the corresponding
 # chemical symbol
 n_elements = len(vo.species)
-imap = vo.index_to_atomic_number
 x = np.linspace(0, 10, 200)
-smap = {index: ase.data.chemical_symbols[number] for index, number in imap.items()}
 
 # Plot k=2
 fig, ax = plt.subplots()
@@ -72,8 +67,11 @@ legend = []
 for i in range(n_elements):
     for j in range(n_elements):
         if j >= i:
-            plt.plot(x, vo_nacl["k2"][i, j, :])
-            legend.append(f'{smap[i]}-{smap[j]}')
+            i_species = vo.species[i]
+            j_species = vo.species[j]
+            loc = vo.get_location((i_species, j_species))
+            plt.plot(x, vo_nacl[loc])
+            legend.append(f'{i_species}-{j_species}')
 ax.set_xlabel("Distance (angstrom)")
 plt.legend(legend)
 plt.show()
@@ -90,7 +88,6 @@ mbtr = MBTR(
     normalize_gaussians=True,
     normalization="valle_oganov",
     periodic=True,
-    flatten=False,
     sparse=False
 )
 
@@ -108,7 +105,6 @@ mbtr = MBTR(
         "weighting": {"function": "exp", "scale": decay, "threshold": 1e-3},
     },
     periodic=True,
-    flatten=False,
     sparse=False
 )
 
@@ -119,7 +115,6 @@ vo = ValleOganov(
         "sigma": 10**(-0.625),
         "r_cut": 20
     },
-    flatten=False,
     sparse=False
 )
 
@@ -127,15 +122,16 @@ mbtr_output = mbtr.create(nacl)
 vo_output = vo.create(nacl)
 
 n_elements = len(vo.species)
-imap = vo.index_to_atomic_number
 x = np.linspace(0, 20, 200)
-smap = {index: ase.data.chemical_symbols[number] for index, number in imap.items()}
 
 fig, ax = plt.subplots()
 legend = []
 for key, output in {"MBTR": mbtr_output, "Valle-Oganov": vo_output}.items():
-    plt.plot(x, output["k2"][0, 1, :])
-    legend.append(f'{key}: {smap[0]}-{smap[1]}')
+    i_species = vo.species[0]
+    j_species = vo.species[1]
+    loc = vo.get_location((i_species, j_species))
+    plt.plot(x, output[loc])
+    legend.append(f'{key}: {i_species}-{j_species}')
 ax.set_xlabel("Distance (angstrom)")
 plt.legend(legend)
 plt.show()

@@ -182,7 +182,7 @@ def assert_periodic(descriptor_func):
         symbols=["C", "C"],
         positions=[[0, 0, 0], [-1, -1, -1]],
         cell=[[0.0, a, a], [a, 0.0, a], [a, a, 0.0]],
-        pbc=[False]
+        pbc=[False],
     )
 
     periodic = reference.copy()
