@@ -196,38 +196,74 @@ def assert_periodic(descriptor_func):
     assert np.allclose(feat_ref, feat_periodic)
 
 
-def assert_derivatives(descriptor_func, method, pbc, system=big_system()):
-    assert_derivatives_include(descriptor_func, method, pbc)
-    assert_derivatives_exclude(descriptor_func, method, pbc)
-
+def assert_derivatives(descriptor_func, method, pbc, system=big_system(), attach=None):
     # Test values against a naive python implementation.
     system.set_pbc(pbc)
     h = 0.0001
     n_atoms = len(system)
     n_comp = 3
     descriptor = descriptor_func([system])
-
-    # The maximum error depends on how big the system is. With a small system
-    # the error is smaller for non-periodic systems than the corresponding error
-    # when periodicity is turned on. The errors become equal (~1e-5) when the
-    # size of the system is increased.
     n_features = descriptor.get_number_of_features()
-    derivatives_python = np.zeros((n_atoms, n_comp, n_features))
-    d0 = descriptor.create(system)
     coeffs = [-1.0 / 2.0, 1.0 / 2.0]
     deltas = [-1.0, 1.0]
-    for i_atom in range(len(system)):
-        for i_comp in range(3):
-            for i_stencil in range(2):
-                system_disturbed = system.copy()
-                i_pos = system_disturbed.get_positions()
-                i_pos[i_atom, i_comp] += h * deltas[i_stencil]
-                system_disturbed.set_positions(i_pos)
-                d1 = descriptor.create(system_disturbed)
-                derivatives_python[i_atom, i_comp, :] += coeffs[i_stencil] * d1 / h
 
-    # Calculate with numerical method
-    derivatives_cpp, d_cpp = descriptor.derivatives(system, method=method)
+    if isinstance(descriptor, DescriptorLocal):
+        if attach:
+            centers = [38, 0]
+        else:
+            centers = [np.sum(system.get_cell(), axis=0) / 2, system.get_positions()[0]]
+        average = descriptor.average
+        if average != "off":
+            n_centers = 1
+            derivatives_python = np.zeros((n_atoms, n_comp, n_features))
+        else:
+            n_centers = len(centers)
+            derivatives_python = np.zeros(
+                (n_centers, n_atoms, n_comp, n_features)
+            )
+        d0 = descriptor.create(system, centers)
+        for i_atom in range(len(system)):
+            for i_center in range(n_centers):
+                for i_comp in range(3):
+                    for i_stencil in range(2):
+                        if average == "off":
+                            i_cent = [centers[i_center]]
+                        else:
+                            i_cent = centers
+                        system_disturbed = system.copy()
+                        i_pos = system_disturbed.get_positions()
+                        i_pos[i_atom, i_comp] += h * deltas[i_stencil]
+                        system_disturbed.set_positions(i_pos)
+                        d1 = descriptor.create(system_disturbed, i_cent)
+                        if average != "off":
+                            derivatives_python[i_atom, i_comp, :] += (
+                                coeffs[i_stencil] * d1 / h
+                            )
+                        else:
+                            derivatives_python[
+                                i_center, i_atom, i_comp, :
+                            ] += (coeffs[i_stencil] * d1[0, :] / h)
+        derivatives_cpp, d_cpp = descriptor.derivatives(
+            system, positions=centers, attach=attach, method=method
+        )
+    else:
+        derivatives_python = np.zeros((n_atoms, n_comp, n_features))
+        d0 = descriptor.create(system)
+        for i_atom in range(len(system)):
+            for i_comp in range(3):
+                for i_stencil in range(2):
+                    system_disturbed = system.copy()
+                    i_pos = system_disturbed.get_positions()
+                    i_pos[i_atom, i_comp] += h * deltas[i_stencil]
+                    system_disturbed.set_positions(i_pos)
+                    d1 = descriptor.create(system_disturbed)
+                    derivatives_python[i_atom, i_comp, :] += coeffs[i_stencil] * d1 / h
+        derivatives_cpp, d_cpp = descriptor.derivatives(system, method=method)
+
+    # The maximum error depends on how big the system is. With a small
+    # system the error is smaller for non-periodic systems than the
+    # corresponding error when periodicity is turned on. The errors become
+    # equal when the size of the system is increased.
 
     # Compare descriptor values
     assert np.allclose(d0, d_cpp, atol=1e-6)
@@ -236,14 +272,11 @@ def assert_derivatives(descriptor_func, method, pbc, system=big_system()):
     assert np.allclose(derivatives_python, derivatives_cpp, rtol=1e-4, atol=1e-4)
 
 
-def assert_derivatives_include(descriptor_func, method, pbc):
+def assert_derivatives_include(descriptor_func, method):
     H2O = molecule("H2O")
     CO2 = molecule("CO2")
-    H2O.set_pbc(pbc)
-    CO2.set_pbc(pbc)
-    if pbc:
-        H2O.set_cell([5, 5, 5])
-        CO2.set_cell([5, 5, 5])
+    H2O.set_cell([5, 5, 5])
+    CO2.set_cell([5, 5, 5])
     descriptor = descriptor_func([H2O, CO2])
 
     # Invalid include options
@@ -253,34 +286,60 @@ def assert_derivatives_include(descriptor_func, method, pbc):
         descriptor.derivatives(H2O, include=[3], method=method)
     with pytest.raises(ValueError):
         descriptor.derivatives(H2O, include=[-1], method=method)
+    with pytest.raises(ValueError):
+        descriptor.derivatives(H2O, include=[0], exclude=[0], method=method)
+
+    if isinstance(descriptor, DescriptorLocal):
+        slice_d1_a = np.index_exp[:, 0, :]
+        slice_d2_a = np.index_exp[:, 2, :]
+        slice_d1_b = np.index_exp[:, 1, :]
+        slice_d2_b = np.index_exp[:, 0, :]
+        slice_d1_c = np.index_exp[:, :, 0, :]
+        slice_d2_c = np.index_exp[:, :, 1, :]
+        slice_d1_d = np.index_exp[:, :, 1, :]
+        slice_d2_d = np.index_exp[:, :, 0, :]
+        slice_d1_e = np.index_exp[0, :, 0, :]
+        slice_d2_e = np.index_exp[0, :, 0, :]
+        slice_d1_f = np.index_exp[1, :, 0, :]
+        slice_d2_f = np.index_exp[1, :, 1, :]
+    else:
+        slice_d1_a = np.index_exp[0, :]
+        slice_d2_a = np.index_exp[2, :]
+        slice_d1_b = np.index_exp[1, :]
+        slice_d2_b = np.index_exp[0, :]
+        slice_d1_c = np.index_exp[:, 0, :]
+        slice_d2_c = np.index_exp[:, 1, :]
+        slice_d1_d = np.index_exp[:, 1, :]
+        slice_d2_d = np.index_exp[:, 0, :]
+        slice_d1_e = np.index_exp[0, 0, :]
+        slice_d2_e = np.index_exp[0, 0, :]
+        slice_d1_f = np.index_exp[1, 0, :]
+        slice_d2_f = np.index_exp[1, 1, :]
 
     # Test that correct atoms are included and in the correct order
     D1, d1 = descriptor.derivatives(H2O, include=[2, 0], method=method)
     D2, d2 = descriptor.derivatives(H2O, method=method)
-    assert np.array_equal(D1[0, :], D2[2, :])
-    assert np.array_equal(D1[1, :], D2[0, :])
+    assert np.array_equal(D1[slice_d1_a], D2[slice_d2_a])
+    assert np.array_equal(D1[slice_d1_b], D2[slice_d2_b])
 
     # Test that using multiple samples and single include works
     D1, d1 = descriptor.derivatives([H2O, CO2], include=[1, 0], method=method)
     D2, d2 = descriptor.derivatives([H2O, CO2], method=method)
-    assert np.array_equal(D1[:, 0, :], D2[:, 1, :])
-    assert np.array_equal(D1[:, 1, :], D2[:, 0, :])
+    assert np.array_equal(D1[slice_d1_c], D2[slice_d2_c])
+    assert np.array_equal(D1[slice_d1_d], D2[slice_d2_d])
 
     # Test that using multiple samples and multiple includes
     D1, d1 = descriptor.derivatives([H2O, CO2], include=[[0], [1]], method=method)
     D2, d2 = descriptor.derivatives([H2O, CO2], method=method)
-    assert np.array_equal(D1[0, 0, :], D2[0, 0, :])
-    assert np.array_equal(D1[1, 0, :], D2[1, 1, :])
+    assert np.array_equal(D1[slice_d1_e], D2[slice_d2_e])
+    assert np.array_equal(D1[slice_d1_f], D2[slice_d2_f])
 
 
-def assert_derivatives_exclude(descriptor_func, method, pbc):
+def assert_derivatives_exclude(descriptor_func, method):
     H2O = molecule("H2O")
     CO2 = molecule("CO2")
-    H2O.set_pbc(pbc)
-    CO2.set_pbc(pbc)
-    if pbc:
-        H2O.set_cell([5, 5, 5])
-        CO2.set_cell([5, 5, 5])
+    H2O.set_cell([5, 5, 5])
+    CO2.set_cell([5, 5, 5])
     descriptor = descriptor_func([H2O, CO2])
 
     # Invalid exclude options
@@ -289,17 +348,36 @@ def assert_derivatives_exclude(descriptor_func, method, pbc):
     with pytest.raises(ValueError):
         descriptor.derivatives(H2O, exclude=[-1], method=method)
 
+    if isinstance(descriptor, DescriptorLocal):
+        slice_d1_a = np.index_exp[:, 0, :]
+        slice_d2_a = np.index_exp[:, 0, :]
+        slice_d1_b = np.index_exp[:, 1, :]
+        slice_d2_b = np.index_exp[:, 2, :]
+        slice_d1_c = np.index_exp[:, :, 0, :]
+        slice_d2_c = np.index_exp[:, :, 0, :]
+        slice_d1_d = np.index_exp[:, :, 1, :]
+        slice_d2_d = np.index_exp[:, :, 2, :]
+    else:
+        slice_d1_a = np.index_exp[0, :]
+        slice_d2_a = np.index_exp[0, :]
+        slice_d1_b = np.index_exp[1, :]
+        slice_d2_b = np.index_exp[2, :]
+        slice_d1_c = np.index_exp[:, 0, :]
+        slice_d2_c = np.index_exp[:, 0, :]
+        slice_d1_d = np.index_exp[:, 1, :]
+        slice_d2_d = np.index_exp[:, 2, :]
+
     # Test that correct atoms are excluded and in the correct order
     D1, d1 = descriptor.derivatives(H2O, exclude=[1], method=method)
     D2, d2 = descriptor.derivatives(H2O, method=method)
-    assert np.array_equal(D1[0, :], D2[0, :])
-    assert np.array_equal(D1[1, :], D2[2, :])
+    assert np.array_equal(D1[slice_d1_a], D2[slice_d2_a])
+    assert np.array_equal(D1[slice_d1_b], D2[slice_d2_b])
 
     # Test that using single list and multiple samples works
     D1, d1 = descriptor.derivatives([H2O, CO2], exclude=[1], method=method)
     D2, d2 = descriptor.derivatives([H2O, CO2], method=method)
-    assert np.array_equal(D1[:, 0, :], D2[:, 0, :])
-    assert np.array_equal(D1[:, 1, :], D2[:, 2, :])
+    assert np.array_equal(D1[slice_d1_c], D2[slice_d2_c])
+    assert np.array_equal(D1[slice_d1_d], D2[slice_d2_d])
 
 
 def assert_cell(descriptor_func, cell):
@@ -367,7 +445,7 @@ def assert_n_features(descriptor_func, n_features):
 
 
 def assert_parallellization(descriptor_func, n_jobs, sparse, positions=None, **kwargs):
-    """Tests creating output parallelly."""
+    """Tests creating output and derivatives parallelly."""
     # Periodic systems are used since all descriptors support them.
     CO = molecule("CO")
     CO.set_cell([5, 5, 5])
@@ -379,50 +457,56 @@ def assert_parallellization(descriptor_func, n_jobs, sparse, positions=None, **k
     kwargs["sparse"] = sparse
     desc = descriptor_func(**kwargs)(samples)
 
-    all_kwargs = {}
-    a_kwargs = {}
-    b_kwargs = {}
-    if positions == "all":
-        all_kwargs["positions"] = None
-        a_kwargs["positions"] = None
-        b_kwargs["positions"] = None
-    elif positions == "indices_fixed":
-        all_kwargs["positions"] = [[0, 1], [0, 1]]
-        a_kwargs["positions"] = [0, 1]
-        b_kwargs["positions"] = [0, 1]
-    elif positions == "indices_variable":
-        all_kwargs["positions"] = [[0], [0, 1]]
-        a_kwargs["positions"] = [0]
-        b_kwargs["positions"] = [0, 1]
-    elif positions == "cartesian_fixed":
-        all_kwargs["positions"] = [[[0, 0, 0], [1, 2, 0]], [[0, 0, 0], [1, 2, 0]]]
-        a_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
-        b_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
-    elif positions == "cartesian_variable":
-        all_kwargs["positions"] = [[[1, 2, 0]], [[0, 0, 0], [1, 2, 0]]]
-        a_kwargs["positions"] = [[1, 2, 0]]
-        b_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
-    elif positions is not None:
-        raise ValueError("Unknown positions option")
-    output = desc.create(samples, n_jobs=n_jobs, **all_kwargs)
+    for func in ["create", "derivatives"]:
+        all_kwargs = {}
+        a_kwargs = {}
+        b_kwargs = {}
+        if positions == "all":
+            all_kwargs["positions"] = None
+            a_kwargs["positions"] = None
+            b_kwargs["positions"] = None
+        elif positions == "indices_fixed":
+            all_kwargs["positions"] = [[0, 1], [0, 1]]
+            a_kwargs["positions"] = [0, 1]
+            b_kwargs["positions"] = [0, 1]
+        elif positions == "indices_variable":
+            all_kwargs["positions"] = [[0], [0, 1]]
+            a_kwargs["positions"] = [0]
+            b_kwargs["positions"] = [0, 1]
+        elif positions == "cartesian_fixed":
+            all_kwargs["positions"] = [[[0, 0, 0], [1, 2, 0]], [[0, 0, 0], [1, 2, 0]]]
+            a_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
+            b_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
+        elif positions == "cartesian_variable":
+            all_kwargs["positions"] = [[[1, 2, 0]], [[0, 0, 0], [1, 2, 0]]]
+            a_kwargs["positions"] = [[1, 2, 0]]
+            b_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
+        elif positions is not None:
+            raise ValueError("Unknown positions option")
 
-    a = desc.create(samples[0], **a_kwargs)
-    b = desc.create(samples[1], **b_kwargs)
+        if func == "create":
+            output = desc.create(samples, n_jobs=n_jobs, **all_kwargs)
+            a = desc.create(samples[0], **a_kwargs)
+            b = desc.create(samples[1], **b_kwargs)
+        elif func == "derivatives":
+            _, output = desc.derivatives(samples, n_jobs=n_jobs, **all_kwargs)
+            _, a = desc.derivatives(samples[0], **a_kwargs)
+            _, b = desc.derivatives(samples[1], **b_kwargs)
 
-    # The output may be a list or an array.
-    if isinstance(output, list):
-        for i, j in zip(output, [a, b]):
+        # The output may be a list or an array.
+        if isinstance(output, list):
+            for i, j in zip(output, [a, b]):
+                if sparse:
+                    i = i.todense()
+                    j = j.todense()
+                assert np.allclose(i, j)
+        else:
             if sparse:
-                i = i.todense()
-                j = j.todense()
-            assert np.allclose(i, j)
-    else:
-        if sparse:
-            a = a.todense()
-            b = b.todense()
-            output = output.todense()
-        assumed = np.array([a, b])
-        assert np.allclose(output, assumed)
+                a = a.todense()
+                b = b.todense()
+                output = output.todense()
+            assumed = np.array([a, b])
+            assert np.allclose(output, assumed)
 
 
 def assert_no_system_modification(descriptor_func):

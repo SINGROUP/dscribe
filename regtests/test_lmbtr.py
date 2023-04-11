@@ -14,6 +14,8 @@ from conftest import (
     assert_symmetries,
     assert_normalization,
     assert_positions,
+    assert_derivatives_exclude,
+    assert_derivatives_include,
     assert_mbtr_location,
     assert_mbtr_location_exception,
     assert_mbtr_peak,
@@ -138,6 +140,16 @@ def test_sparse():
 def test_symmetries():
     # Local descriptors are not permutation symmetric.
     assert_symmetries(lmbtr(**default_k2), True, True, False)
+
+
+@pytest.mark.parametrize("method", ("numerical",))
+def test_derivatives_include(method):
+    assert_derivatives_include(lmbtr_default_k2(), method)
+
+
+@pytest.mark.parametrize("method", ("numerical",))
+def test_derivatives_exclude(method):
+    assert_derivatives_exclude(lmbtr_default_k2(), method)
 
 
 @pytest.mark.parametrize(

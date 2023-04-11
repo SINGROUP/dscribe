@@ -16,6 +16,8 @@ from conftest import (
     assert_parallellization,
     assert_symmetries,
     assert_derivatives,
+    assert_derivatives_include,
+    assert_derivatives_exclude,
     assert_systems,
     assert_normalization,
     assert_mbtr_location,
@@ -227,6 +229,16 @@ def test_symmetries():
 def test_derivatives(method, periodic, normalization, k2, k3):
     mbtr_func = mbtr(normalization=normalization, periodic=periodic, k2=k2, k3=k3)
     assert_derivatives(mbtr_func, method, periodic, water())
+
+
+@pytest.mark.parametrize("method", ("numerical", "analytical"))
+def test_derivatives_include(method):
+    assert_derivatives_include(mbtr_default_k2(), method)
+
+
+@pytest.mark.parametrize("method", ("numerical", "analytical"))
+def test_derivatives_exclude(method):
+    assert_derivatives_exclude(mbtr_default_k2(), method)
 
 
 @pytest.mark.parametrize(

@@ -14,6 +14,8 @@ from conftest import (
     assert_positions,
     assert_periodic,
     assert_derivatives,
+    assert_derivatives_exclude,
+    assert_derivatives_include,
     big_system,
     water,
 )
@@ -291,15 +293,50 @@ def test_basis(rbf):
     assert_basis(soap(rbf=rbf, periodic=True))
 
 
-# @pytest.mark.parametrize(
-#     "method, pbc",
-#     [
-#         ("numerical", False),
-#         ("numerical", True),
-#     ],
-# )
-# def test_derivatives(method, pbc):
-#     assert_derivatives(acsf(), method, pbc)
+@pytest.mark.parametrize("rbf", ("gto", ))
+@pytest.mark.parametrize("pbc", (False, True))
+@pytest.mark.parametrize("attach", (False, True))
+@pytest.mark.parametrize("average", ("off", "inner", "outer"))
+@pytest.mark.parametrize("crossover", (True, ))
+def test_derivatives_numerical(pbc, attach, average, rbf, crossover):
+    descriptor_func = soap(
+        r_cut=3,
+        n_max=4,
+        l_max=4,
+        rbf=rbf,
+        sparse=False,
+        average=average,
+        crossover=crossover,
+        periodic=pbc,
+        dtype="float64",
+    )
+    assert_derivatives(descriptor_func, "numerical", pbc, attach=attach)
+
+@pytest.mark.parametrize("pbc, attach, average, rbf", [(False, False, "off", "gto")])
+@pytest.mark.parametrize("crossover", (True, False))
+def test_derivatives_analytical(pbc, attach, average, rbf, crossover):
+    descriptor_func = soap(
+        r_cut=3,
+        n_max=4,
+        l_max=4,
+        rbf=rbf,
+        sparse=False,
+        average=average,
+        crossover=crossover,
+        periodic=pbc,
+        dtype="float64",
+    )
+    assert_derivatives(descriptor_func, "analytical", pbc, attach=attach)
+
+
+@pytest.mark.parametrize("method", ("numerical", "analytical"))
+def test_derivatives_include(method):
+    assert_derivatives_include(soap(), method)
+
+
+@pytest.mark.parametrize("method", ("numerical", "analytical"))
+def test_derivatives_exclude(method):
+    assert_derivatives_exclude(soap(), method)
 
 
 # =============================================================================
@@ -401,6 +438,34 @@ def test_exceptions():
     with pytest.raises(ValueError):
         args["weighting"] = {"function": "invalid", "c": 1, "d": 1, "r0": 1}
         SOAP(**args)
+
+    # Test that trying to get analytical derivatives with averaged output
+    # raises an exception
+    positions = [[0.0, 0.0, 0.0]]
+    with pytest.raises(ValueError):
+        args["average"] = 'inner'
+        soap = SOAP(**args)
+        soap.derivatives(system, positions=positions, method="analytical")
+    with pytest.raises(ValueError):
+        args["average"] = 'outer'
+        soap = SOAP(**args)
+        soap.derivatives(system, positions=positions, method="analytical")
+
+    # Test that trying to get analytical derivatives with polynomial basis
+    # raises an exception.
+    with pytest.raises(ValueError):
+        args["average"] = "off"
+        args["rbf"] = "polynomial"
+        soap = SOAP(**args)
+        soap.derivatives(system, positions=positions, method="analytical")
+
+    # Test that trying to get analytical derivatives with periodicity on
+    # raises an exception
+    with pytest.raises(ValueError):
+        args["periodic"] = True
+        args["rbf"] = "rbf"
+        soap = SOAP(**args)
+        soap.derivatives(system, positions=positions, method="analytical")
 
 
 w_poly = {"function": "poly", "c": 2, "m": 3, "r0": 4}

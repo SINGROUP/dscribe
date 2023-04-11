@@ -287,7 +287,6 @@ class DescriptorLocal(Descriptor):
         n_centers = len(system) if positions is None else len(positions)
 
         # Initialize numpy arrays for storing the descriptor and derivatives.
-        n_features = self.get_number_of_features()
         if return_descriptor:
             c = self.init_descriptor_array(n_centers)
         else:
@@ -356,30 +355,27 @@ class DescriptorLocal(Descriptor):
                 typically is faster to calculate both in one go.
         """
         h = 0.0001
-        n_atoms = len(system)
-        n_features = self.get_number_of_features()
-
-        # The maximum error depends on how big the system is. With a small system
-        # the error is smaller for non-periodic systems than the corresponding
-        # error when periodicity is turned on. The errors become equal (~1e-5) when
-        # the size of the system is increased.
         coeffs = [-1.0 / 2.0, 1.0 / 2.0]
         deltas = [-1.0, 1.0]
-        derivatives_python = np.zeros((n_atoms, 3, n_features))
-        for i_atom in range(len(system)):
-            for i_comp in range(3):
-                for i_stencil in range(2):
-                    system_disturbed = system.copy()
-                    i_pos = system_disturbed.get_positions()
-                    i_pos[i_atom, i_comp] += h * deltas[i_stencil]
-                    system_disturbed.set_positions(i_pos)
-                    d1 = self.create_single(system_disturbed, positions)
-                    derivatives_python[i_atom, i_comp, :] += coeffs[i_stencil] * d1 / h
+        n_comp = 3
+        if positions is None:
+            positions = range(len(system))
 
-        i = 0
-        for index in indices:
-            d[i, :] = derivatives_python[index, :, :]
-            i += 1
+        n_positions = len(positions)
+        d0 = self.create_single(system, positions)
+        index = 0
+        for i_atom in indices:
+            for i_center in range(n_positions):
+                for i_comp in range(n_comp):
+                    for i_stencil in range(2):
+                        i_cent = [positions[i_center]]
+                        system_disturbed = system.copy()
+                        i_pos = system_disturbed.get_positions()
+                        i_pos[i_atom, i_comp] += h * deltas[i_stencil]
+                        system_disturbed.set_positions(i_pos)
+                        d1 = self.create_single(system_disturbed, i_cent)
+                        d[i_center, index, i_comp, :] += (coeffs[i_stencil] * d1[0, :] / h)
+            index += 1
 
         if return_descriptor:
-            np.copyto(c, self.create_single(system, positions))
+            np.copyto(c, d0)

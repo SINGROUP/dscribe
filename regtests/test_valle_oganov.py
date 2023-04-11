@@ -6,6 +6,8 @@ from conftest import (
     assert_sparse,
     assert_parallellization,
     assert_symmetries,
+    assert_derivatives_include,
+    assert_derivatives_exclude,
     water,
 )
 from dscribe.descriptors import ValleOganov, MBTR
@@ -68,6 +70,16 @@ def test_sparse():
 def test_symmetries():
     """Tests the symmetries of the descriptor."""
     assert_symmetries(valle_oganov())
+
+
+@pytest.mark.parametrize("method", ("numerical",))
+def test_derivatives_include(method):
+    assert_derivatives_include(valle_oganov(), method)
+
+
+@pytest.mark.parametrize("method", ("numerical",))
+def test_derivatives_exclude(method):
+    assert_derivatives_exclude(valle_oganov(), method)
 
 
 # =============================================================================

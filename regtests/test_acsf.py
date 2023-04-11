@@ -14,6 +14,8 @@ from conftest import (
     assert_symmetries,
     assert_periodic,
     assert_derivatives,
+    assert_derivatives_include,
+    assert_derivatives_exclude,
     big_system,
     water,
 )
@@ -122,6 +124,16 @@ def test_basis():
 # )
 # def test_derivatives(method, pbc):
 #     assert_derivatives(acsf(), method, pbc)
+
+
+@pytest.mark.parametrize("method", ("numerical",))
+def test_derivatives_include(method):
+    assert_derivatives_include(acsf(), method)
+
+
+@pytest.mark.parametrize("method", ("numerical",))
+def test_derivatives_exclude(method):
+    assert_derivatives_exclude(acsf(), method)
 
 
 # =============================================================================

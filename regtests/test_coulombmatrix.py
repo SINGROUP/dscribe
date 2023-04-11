@@ -14,6 +14,8 @@ from conftest import (
     assert_parallellization,
     assert_symmetries,
     assert_derivatives,
+    assert_derivatives_include,
+    assert_derivatives_exclude,
     big_system,
 )
 from dscribe.descriptors import CoulombMatrix
@@ -161,16 +163,19 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
     )
 
 
-@pytest.mark.parametrize(
-    "permutation, method",
-    [
-        ("none", "numerical"),
-        ("eigenspectrum", "numerical"),
-        ("sorted_l2", "numerical"),
-    ],
-)
-def test_derivatives(permutation, method):
-    assert_derivatives(coulomb_matrix(permutation=permutation), method, False)
+@pytest.mark.parametrize("permutation", ("none", "eigenspectrum", "sorted_l2"))
+def test_derivatives_numerical(permutation):
+    assert_derivatives(coulomb_matrix(permutation=permutation), "numerical", False)
+
+
+@pytest.mark.parametrize("method", ("numerical",))
+def test_derivatives_include(method):
+    assert_derivatives_include(coulomb_matrix(), method)
+
+
+@pytest.mark.parametrize("method", ("numerical",))
+def test_derivatives_exclude(method):
+    assert_derivatives_exclude(coulomb_matrix(), method)
 
 
 # =============================================================================
