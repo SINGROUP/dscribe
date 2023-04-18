@@ -120,7 +120,7 @@ def get_soap_polynomial_l_max_setup():
 def get_ewald_sum_matrix_default_setup():
     """Returns an atomic system and Ewald sum matrix parameters for testing."""
     system = water()
-    ewald_arguments = {"n_atoms_max": 3, "permutation": "none", "flatten": False}
+    ewald_arguments = {"n_atoms_max": 3, "permutation": "none"}
     create_arguments = {
         "a": 0.5,
         "r_cut": 30,
@@ -135,7 +135,7 @@ def get_ewald_sum_matrix_automatic_setup():
     to determine parameters.
     """
     system = water()
-    ewald_arguments = {"n_atoms_max": 3, "permutation": "none", "flatten": False}
+    ewald_arguments = {"n_atoms_max": 3, "permutation": "none"}
     create_arguments = {
         "a": None,
         "r_cut": None,

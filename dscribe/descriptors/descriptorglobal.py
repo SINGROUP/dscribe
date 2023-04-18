@@ -198,16 +198,8 @@ class DescriptorGlobal(Descriptor):
         elif method == "analytical":
             self.derivatives_analytical(d, c, system, indices, return_descriptor)
 
-        # Convert to the final output precision.
-        if self.dtype == "float32":
-            d = d.astype(self.dtype)
-            c = c.astype(self.dtype)
-
-        # Convert to sparse here. Currently everything up to this point is
-        # calculated with dense matrices. This imposes some memory limitations.
-        if self.sparse:
-            d = sp.COO.from_numpy(d)
-            c = sp.COO.from_numpy(c)
+        d = self.format_array(d)
+        c = self.format_array(c)
 
         if return_descriptor:
             return (d, c)

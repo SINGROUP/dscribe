@@ -4,8 +4,7 @@ from dscribe.descriptors import SineMatrix
 sm = SineMatrix(
     n_atoms_max=6,
     permutation="sorted_l2",
-    sparse=False,
-    flatten=True
+    sparse=False
 )
 
 # Creation
@@ -37,8 +36,7 @@ system = bulk("Al", "fcc", cubic=False)
 sm = SineMatrix(
     n_atoms_max=2,
     permutation="none",
-    sparse=False,
-    flatten=False
+    sparse=False
 )
 n = 100
 d = 10
@@ -49,6 +47,7 @@ for ix, x in enumerate(values):
         i_atom = Atoms(["Al"], positions=[[x, y, 0]])
         i_sys = system.copy()+i_atom
         i_sm = sm.create(i_sys)
+        i_sm = sm.unflatten(i_sm)
         i_sm = i_sm[0, 1]
         grid[ix, iy] = i_sm
 

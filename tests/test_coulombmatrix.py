@@ -5,7 +5,6 @@ from numpy.random import RandomState
 from conftest import (
     assert_n_features,
     assert_matrix_descriptor_exceptions,
-    assert_matrix_descriptor_flatten,
     assert_matrix_descriptor_sorted,
     assert_matrix_descriptor_eigenspectrum,
     assert_matrix_descriptor_random,
@@ -23,7 +22,7 @@ from dscribe.descriptors import CoulombMatrix
 
 # =============================================================================
 # Utilities
-def cm_python(system, n_atoms_max, permutation, flatten, sigma=None):
+def cm_python(system, n_atoms_max, permutation, sigma=None):
     """Calculates a python reference value for the Coulomb matrix."""
     pos = system.get_positions()
     n = len(system)
@@ -58,15 +57,12 @@ def cm_python(system, n_atoms_max, permutation, flatten, sigma=None):
         elif permutation == "none":
             pass
         else:
-            raise ValueError("Unkown permutation option")
+            raise ValueError("Unknown permutation option")
+
         # Flattening
-        if flatten:
-            cm = cm.flatten()
-            padded = np.zeros((n_atoms_max**2))
-            padded[: n**2] = cm
-        else:
-            padded = np.zeros((n_atoms_max, n_atoms_max))
-            padded[:n, :n] = cm
+        padded = np.zeros((n_atoms_max, n_atoms_max))
+        padded[:n, :n] = cm
+        padded = padded.flatten()
 
     return padded
 
@@ -81,7 +77,6 @@ def coulomb_matrix(**kwargs):
         final_kwargs = {
             "n_atoms_max": n_atoms_max,
             "permutation": "none",
-            "flatten": True,
         }
         final_kwargs.update(kwargs)
         if (
@@ -105,15 +100,11 @@ def coulomb_matrix(**kwargs):
     ],
 )
 def test_number_of_features(permutation, n_features):
-    assert_n_features(coulomb_matrix(permutation=permutation, flatten=True), n_features)
+    assert_n_features(coulomb_matrix(permutation=permutation), n_features)
 
 
 def test_matrix_descriptor_exceptions():
     assert_matrix_descriptor_exceptions(coulomb_matrix)
-
-
-def test_matrix_descriptor_flatten():
-    assert_matrix_descriptor_flatten(coulomb_matrix)
 
 
 def test_matrix_descriptor_sorted():
@@ -130,9 +121,8 @@ def test_matrix_descriptor_random():
 
 @pytest.mark.parametrize("n_jobs", (1, 2))
 @pytest.mark.parametrize("sparse", (True, False))
-@pytest.mark.parametrize("flatten", (True, False))
-def test_parallellization(n_jobs, sparse, flatten):
-    assert_parallellization(coulomb_matrix, n_jobs, sparse, flatten=flatten)
+def test_parallellization(n_jobs, sparse):
+    assert_parallellization(coulomb_matrix, n_jobs, sparse)
 
 
 def test_no_system_modification():
@@ -190,10 +180,7 @@ def test_derivatives_exclude(method):
 )
 def test_features(permutation, H2O):
     n_atoms_max = 5
-    desc = CoulombMatrix(
-        n_atoms_max=n_atoms_max, permutation=permutation, flatten=False
-    )
-    n_features = desc.get_number_of_features()
+    desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation=permutation)
     cm = desc.create(H2O)
     cm_assumed = cm_python(H2O, n_atoms_max, permutation, False)
     assert np.allclose(cm, cm_assumed)
@@ -203,11 +190,11 @@ def test_periodicity(bulk_system):
     """Tests that periodicity is not taken into account in Coulomb matrix
     even if the system is set as periodic.
     """
-    desc = CoulombMatrix(n_atoms_max=5, permutation="none", flatten=False)
+    desc = CoulombMatrix(n_atoms_max=5, permutation="none")
     cm = desc.create(bulk_system)
     pos = bulk_system.get_positions()
     assumed = 1 * 1 / np.linalg.norm((pos[0] - pos[1]))
-    assert cm[0, 1] == assumed
+    assert cm[1] == assumed
 
 
 @pytest.mark.parametrize(

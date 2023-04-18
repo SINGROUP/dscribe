@@ -12,7 +12,6 @@ from testutils import (
 from conftest import (
     assert_n_features,
     assert_matrix_descriptor_exceptions,
-    assert_matrix_descriptor_flatten,
     assert_matrix_descriptor_sorted,
     assert_matrix_descriptor_eigenspectrum,
     assert_matrix_descriptor_random,
@@ -39,7 +38,6 @@ def ewald_sum_matrix(**kwargs):
         final_kwargs = {
             "n_atoms_max": n_atoms_max,
             "permutation": "none",
-            "flatten": True,
         }
         final_kwargs.update(kwargs)
         if (
@@ -64,16 +62,12 @@ def ewald_sum_matrix(**kwargs):
 )
 def test_number_of_features(permutation, n_features):
     assert_n_features(
-        ewald_sum_matrix(permutation=permutation, flatten=True), n_features
+        ewald_sum_matrix(permutation=permutation), n_features
     )
 
 
 def test_matrix_descriptor_exceptions():
     assert_matrix_descriptor_exceptions(ewald_sum_matrix)
-
-
-def test_matrix_descriptor_flatten():
-    assert_matrix_descriptor_flatten(ewald_sum_matrix)
 
 
 def test_matrix_descriptor_sorted():
@@ -90,9 +84,8 @@ def test_matrix_descriptor_random():
 
 @pytest.mark.parametrize("n_jobs", (1, 2))
 @pytest.mark.parametrize("sparse", (True, False))
-@pytest.mark.parametrize("flatten", (True, False))
-def test_parallellization(n_jobs, sparse, flatten):
-    assert_parallellization(ewald_sum_matrix, n_jobs, sparse, flatten=flatten)
+def test_parallellization(n_jobs, sparse):
+    assert_parallellization(ewald_sum_matrix, n_jobs, sparse)
 
 
 def test_no_system_modification():
@@ -171,8 +164,9 @@ def test_a_independence():
     system = water()
     prev_array = None
     for i, a in enumerate([0.1, 0.5, 1, 2, 3]):
-        desc = EwaldSumMatrix(n_atoms_max=5, permutation="none", flatten=False)
+        desc = EwaldSumMatrix(n_atoms_max=5, permutation="none")
         matrix = desc.create(system, a=a, r_cut=r_cut, g_cut=g_cut)
+        matrix = desc.unflatten(matrix)
 
         if i > 0:
             assert np.allclose(prev_array, matrix, atol=0.001, rtol=0)
@@ -221,7 +215,7 @@ def test_electrostatics(setup):
 
 def test_unit_cells():
     """Tests if arbitrary unit cells are accepted"""
-    desc = EwaldSumMatrix(n_atoms_max=3, permutation="none", flatten=False)
+    desc = EwaldSumMatrix(n_atoms_max=3, permutation="none")
     molecule = water()
 
     # A system without cell should produce an error

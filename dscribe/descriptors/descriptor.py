@@ -144,6 +144,17 @@ class Descriptor(ABC):
                 "for this descriptor: {}".format(zs.difference(self._atomic_number_set))
             )
 
+    def format_array(self, input):
+        """Used to format a float64 numpy array in the final format that will be
+        returned to the user.
+        """
+        if self.dtype != "float64":
+            input = input.astype(self.dtype)
+        if self.sparse:
+            input = sp.COO.from_numpy(input)
+
+        return input
+
     def create_parallel(
         self,
         inp,
@@ -200,7 +211,7 @@ class Descriptor(ABC):
         """
         # If single system given, skip the parallelization overhead
         if len(inp) == 1:
-            return func(*inp[0])
+            return self.format_array(func(*inp[0]))
 
         # Determine the number of jobs
         if n_jobs < 0:
@@ -238,6 +249,7 @@ class Descriptor(ABC):
 
             for i_sample, i_arg in enumerate(arguments):
                 i_out = func(*i_arg)
+                i_out = self.format_array(i_out)
 
                 # If the shape varies, just add result into a list
                 if static_size is None:

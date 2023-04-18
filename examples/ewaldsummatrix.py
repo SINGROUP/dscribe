@@ -9,9 +9,7 @@ nmax = 8
 lmax = 6
 
 # Setting up the Ewald sum matrix descriptor
-esm = EwaldSumMatrix(
-    n_atoms_max=6,
-)
+esm = EwaldSumMatrix(n_atoms_max=6)
 
 # Creation
 from ase.build import bulk
@@ -47,12 +45,9 @@ g_cut = 40
 a = 3
 
 # Calculate Ewald sum matrix with DScribe
-ems = EwaldSumMatrix(
-    n_atoms_max=3,
-    permutation="none",
-    flatten=False
-)
+ems = EwaldSumMatrix(n_atoms_max=3, permutation="none")
 ems_out = ems.create(al, a=a, r_cut=r_cut, g_cut=g_cut)
+ems_out = ems.unflatten(ems_out)
 
 # Calculate the total electrostatic energy of the crystal
 total_energy = ems_out[0, 0] + ems_out[1, 1] + ems_out[0, 1]

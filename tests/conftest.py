@@ -487,9 +487,9 @@ def assert_parallellization(descriptor_func, n_jobs, sparse, positions=None, **k
             a = desc.create(samples[0], **a_kwargs)
             b = desc.create(samples[1], **b_kwargs)
         elif func == "derivatives":
-            _, output = desc.derivatives(samples, n_jobs=n_jobs, **all_kwargs)
-            _, a = desc.derivatives(samples[0], **a_kwargs)
-            _, b = desc.derivatives(samples[1], **b_kwargs)
+            output, _ = desc.derivatives(samples, n_jobs=n_jobs, **all_kwargs)
+            a, _ = desc.derivatives(samples[0], **a_kwargs)
+            b, _ = desc.derivatives(samples[1], **b_kwargs)
 
         # The output may be a list or an array.
         if isinstance(output, list):
@@ -645,32 +645,12 @@ def assert_matrix_descriptor_exceptions(descriptor_func):
         cm.create([system])
 
 
-def assert_matrix_descriptor_flatten(descriptor_func):
-    system = water()
-
-    # Unflattened
-    desc = descriptor_func(n_atoms_max=5, flatten=False)([system])
-    unflattened = desc.create(system)
-    assert unflattened.shape == (5, 5)
-
-    # Flattened
-    desc = descriptor_func(n_atoms_max=5, flatten=True)([system])
-    flattened = desc.create(system)
-    assert flattened.shape == (25,)
-
-    # Check that flattened and unflattened versions contain same values
-    assert np.array_equal(flattened.reshape((5, 5)), unflattened)
-
-    # Check that the arrays are zero-padded correctly
-    unflattened[:3, :3] = 0
-    assert np.all((unflattened == 0))
-
-
 def assert_matrix_descriptor_sorted(descriptor_func):
     """Tests that sorting using row norm works as expected"""
     system = molecule_complex()
-    desc = descriptor_func(permutation="sorted_l2", flatten=False)([system])
+    desc = descriptor_func(permutation="sorted_l2")([system])
     features = desc.create(system)
+    features = desc.unflatten(features, 1)
 
     # Check that norms are ordered correctly
     lens = np.linalg.norm(features, axis=1)
@@ -726,8 +706,9 @@ def assert_matrix_descriptor_random(descriptor_func):
 
     # Get the mean value to compare to
     sigma = 5
-    desc = descriptor_func(permutation="sorted_l2", flatten=False)([HHe])
+    desc = descriptor_func(permutation="sorted_l2")([HHe])
     features = desc.create(HHe)
+    features = desc.unflatten(features, 1)
     means = np.linalg.norm(features, axis=1)
     mu2 = means[0]
     mu1 = means[1]
@@ -736,12 +717,12 @@ def assert_matrix_descriptor_random(descriptor_func):
         permutation="random",
         sigma=sigma,
         seed=42,
-        flatten=False,
     )([HHe])
     count = 0
     rand_instances = 20000
     for i in range(0, rand_instances):
         features = desc.create(HHe)
+        features = desc.unflatten(features, 1)
         i_means = np.linalg.norm(features, axis=1)
         if i_means[0] < i_means[1]:
             count += 1

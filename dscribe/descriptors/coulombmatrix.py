@@ -59,14 +59,12 @@ class CoulombMatrix(DescriptorMatrix):
         sigma=None,
         seed=None,
         sparse=False,
-        flatten=True,
     ):
         super().__init__(
             n_atoms_max,
             permutation,
             sigma,
             seed,
-            flatten,
             sparse,
         )
         self.wrapper = dscribe.ext.CoulombMatrix(
@@ -120,10 +118,6 @@ class CoulombMatrix(DescriptorMatrix):
             verbose=verbose,
         )
 
-        # Unflatten output if so requested
-        if not self.flatten and self.permutation != "eigenspectrum":
-            output = self.unflatten(output, system)
-
         return output
 
     def create_single(self, system):
@@ -146,40 +140,8 @@ class CoulombMatrix(DescriptorMatrix):
             system.get_pbc(),
         )
 
-        # If a sparse matrix is requested, convert to sparse.COO
-        if self._sparse:
-            out_des = sparse.COO.from_numpy(out_des)
-
         return out_des
 
-    def unflatten(self, output, systems):
-        n_systems = len(systems)
-        if self.sparse:
-            if n_systems != 1:
-                full = sparse.zeros(
-                    (n_systems, self.n_atoms_max, self.n_atoms_max), format="dok"
-                )
-                for i_sys, system in enumerate(systems):
-                    n_atoms = len(system)
-                    full[i_sys] = (
-                        output[i_sys]
-                        .reshape((self.n_atoms_max, self.n_atoms_max))
-                        .todense()
-                    )
-                full = full.to_coo()
-            else:
-                full = output.reshape((self.n_atoms_max, self.n_atoms_max))
-        else:
-            if n_systems != 1:
-                full = np.zeros((n_systems, self.n_atoms_max, self.n_atoms_max))
-                for i_sys, system in enumerate(systems):
-                    n_atoms = len(system)
-                    full[i_sys] = output[i_sys].reshape(
-                        (self.n_atoms_max, self.n_atoms_max)
-                    )
-            else:
-                full = output.reshape((self.n_atoms_max, self.n_atoms_max))
-        return full
 
     def derivatives_numerical(
         self,

@@ -16,7 +16,6 @@ from conftest import (
     assert_derivatives,
     assert_derivatives_include,
     assert_derivatives_exclude,
-    big_system,
     water,
 )
 from dscribe.descriptors import ACSF

@@ -598,10 +598,6 @@ class MBTR(DescriptorGlobal):
         else:
             mbtr = mbtr[keys[0]]
 
-        # Make into a sparse array if requested
-        if self.sparse:
-            mbtr = sparse.COO.from_numpy(mbtr)
-
         return mbtr
 
     def get_number_of_features(self):

@@ -5,7 +5,6 @@ from ase import Atoms
 from conftest import (
     assert_n_features,
     assert_matrix_descriptor_exceptions,
-    assert_matrix_descriptor_flatten,
     assert_matrix_descriptor_sorted,
     assert_matrix_descriptor_eigenspectrum,
     assert_matrix_descriptor_random,
@@ -29,7 +28,6 @@ def sine_matrix(**kwargs):
         final_kwargs = {
             "n_atoms_max": n_atoms_max,
             "permutation": "none",
-            "flatten": True,
         }
         final_kwargs.update(kwargs)
         if (
@@ -53,15 +51,11 @@ def sine_matrix(**kwargs):
     ],
 )
 def test_number_of_features(permutation, n_features):
-    assert_n_features(sine_matrix(permutation=permutation, flatten=True), n_features)
+    assert_n_features(sine_matrix(permutation=permutation), n_features)
 
 
 def test_matrix_descriptor_exceptions():
     assert_matrix_descriptor_exceptions(sine_matrix)
-
-
-def test_matrix_descriptor_flatten():
-    assert_matrix_descriptor_flatten(sine_matrix)
 
 
 def test_matrix_descriptor_sorted():
@@ -78,9 +72,8 @@ def test_matrix_descriptor_random():
 
 @pytest.mark.parametrize("n_jobs", (1, 2))
 @pytest.mark.parametrize("sparse", (True, False))
-@pytest.mark.parametrize("flatten", (True, False))
-def test_parallellization(n_jobs, sparse, flatten):
-    assert_parallellization(sine_matrix, n_jobs, sparse, flatten=flatten)
+def test_parallellization(n_jobs, sparse):
+    assert_parallellization(sine_matrix, n_jobs, sparse)
 
 
 def test_no_system_modification():
@@ -125,17 +118,9 @@ def test_derivatives_exclude(method):
 
 # =============================================================================
 # Tests that are specific to this descriptor.
-@pytest.mark.parametrize(
-    "permutation",
-    [
-        ("none"),
-        ("eigenspectrum"),
-        ("sorted_l2"),
-    ],
-)
-def test_features(permutation):
+def test_features():
     """Tests that the correct features are present in the desciptor."""
-    desc = SineMatrix(n_atoms_max=2, permutation="none", flatten=False)
+    desc = SineMatrix(n_atoms_max=2, permutation="none")
 
     # Test that without cell the matrix cannot be calculated
     system = Atoms(
@@ -160,6 +145,7 @@ def test_features(permutation):
     # from ase.visualize import view
     # view(system)
     matrix = desc.create(system)
+    matrix = desc.unflatten(matrix, 1)
 
     # The interaction between atoms 1 and 2 should be infinite due to
     # periodic boundaries.
@@ -173,7 +159,7 @@ def test_features(permutation):
 
 def test_unit_cells():
     """Tests if arbitrary unit cells are accepted"""
-    desc = SineMatrix(n_atoms_max=3, permutation="none", flatten=False)
+    desc = SineMatrix(n_atoms_max=3, permutation="none")
 
     molecule = water()
 

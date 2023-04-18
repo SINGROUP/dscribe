@@ -66,9 +66,8 @@ class SineMatrix(DescriptorMatrix):
 
         Returns:
             np.ndarray | sparse.COO: Sine matrix for the given systems. The
-            return type depends on the 'sparse' and 'flatten'-attributes. For
-            flattened output a single numpy array or sparse.COO is returned.
-            The first dimension is determined by the amount of systems.
+            return type depends on the 'sparse'-attribute. The first dimension
+            is determined by the amount of systems.
         """
         # Combine input arguments / check input validity
         system = [system] if isinstance(system, Atoms) else system
@@ -82,12 +81,7 @@ class SineMatrix(DescriptorMatrix):
 
         # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
-        if self.flatten:
-            static_size = [n_features]
-        elif self.permutation == "eigenspectrum":
-            static_size = [self.n_atoms_max]
-        else:
-            static_size = [self.n_atoms_max, self.n_atoms_max]
+        static_size = [n_features]
 
         # Create in parallel
         output = self.create_parallel(

@@ -576,14 +576,6 @@ class SOAP(DescriptorLocal):
         if self.average != "off":
             soap_mat = np.squeeze(soap_mat, axis=0)
 
-        # Convert to the final output precision.
-        if self.dtype != "float64":
-            soap_mat = soap_mat.astype(self.dtype)
-
-        # Make into a sparse array if requested
-        if self._sparse:
-            soap_mat = sp.COO.from_numpy(soap_mat)
-
         return soap_mat
 
     def validate_derivatives_method(self, method, attach):

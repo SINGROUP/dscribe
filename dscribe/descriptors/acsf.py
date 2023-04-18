@@ -183,11 +183,9 @@ class ACSF(DescriptorLocal):
                 for all atoms in the system.
 
         Returns:
-            np.ndarray | sparse.COO: The ACSF output for the
-            given system and positions. The return type depends on the
-            'sparse'-attribute. The first dimension is given by the number of
-            positions and the second dimension is determined by the
-            get_number_of_features()-function.
+            np.ndarray: The ACSF output for the given system and positions. The
+            first dimension is given by the number of positions and the second
+            dimension is determined by the get_number_of_features()-function.
         """
         # Check if there are types that have not been declared
         self.check_atomic_numbers(system.get_atomic_numbers())
@@ -276,14 +274,6 @@ class ACSF(DescriptorLocal):
             ),
             dtype=np.float64,
         )
-
-        # Convert to the final output precision.
-        if self.dtype != "float64":
-            output = output.astype(self.dtype)
-
-        # Make into a sparse array if requested
-        if self._sparse:
-            output = sp.COO.from_numpy(output)
 
         return output
 

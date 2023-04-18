@@ -30,7 +30,6 @@ class DescriptorMatrix(DescriptorGlobal):
         permutation="sorted_l2",
         sigma=None,
         seed=None,
-        flatten=True,
         sparse=False,
         dtype="float64",
     ):
@@ -57,8 +56,6 @@ class DescriptorMatrix(DescriptorGlobal):
             seed (int): Provide only when using the *random*-permutation
                 option. A seed to use for drawing samples from a normal
                 distribution.
-            flatten (bool): Whether the output of create() should be flattened
-                to a 1D array.
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
@@ -86,7 +83,6 @@ class DescriptorMatrix(DescriptorGlobal):
                 "as 'random'."
             )
 
-        self.flatten = flatten
         self.seed = seed
         self.random_state = RandomState(seed)
         self.n_atoms_max = n_atoms_max
@@ -110,8 +106,7 @@ class DescriptorMatrix(DescriptorGlobal):
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
 
         Returns:
-            ndarray: The zero padded matrix either as a 2D array or as
-                a 1D array depending on the setting self.flatten.
+            ndarray: The zero padded matrix either as a 1D array.
         """
         # Remove the old norm vector for the new system
         self._norm_vector = None
@@ -130,14 +125,8 @@ class DescriptorMatrix(DescriptorGlobal):
 
         # Add zero padding
         matrix = self.zero_pad(matrix)
-
         # Flatten
-        if self.permutation == "eigenspectrum" or self.flatten:
-            matrix = np.reshape(matrix, (matrix.size,))
-
-        # If a sparse matrix is requested, convert to coo_matrix
-        if self._sparse:
-            matrix = sparse.COO.from_numpy(matrix)
+        matrix = np.reshape(matrix, (matrix.size,))
 
         return matrix
 
@@ -250,3 +239,41 @@ class DescriptorMatrix(DescriptorGlobal):
         if self._norm_vector is None:
             self._norm_vector = np.linalg.norm(matrix, axis=1)
         return self._norm_vector
+
+
+    def unflatten(self, features, n_systems):
+        """
+        Can be used to "unflatten" a matrix descriptor back into a 2D array.
+        Useful for testing and visualization purposes.
+
+        Args:
+            features(np.ndarray): Flattened features.
+            n_systems(int): Number of systems.
+
+        Returns:
+            np.ndarray: The features as a 2D array.
+        """
+        if self.sparse:
+            if n_systems != 1:
+                full = sparse.zeros(
+                    (n_systems, self.n_atoms_max, self.n_atoms_max), format="dok"
+                )
+                for i_sys in range(n_systems):
+                    full[i_sys] = (
+                        features[i_sys]
+                        .reshape((self.n_atoms_max, self.n_atoms_max))
+                        .todense()
+                    )
+                full = full.to_coo()
+            else:
+                full = features.reshape((self.n_atoms_max, self.n_atoms_max))
+        else:
+            if n_systems != 1:
+                full = np.zeros((n_systems, self.n_atoms_max, self.n_atoms_max))
+                for i_sys in range(n_systems):
+                    full[i_sys] = features[i_sys].reshape(
+                        (self.n_atoms_max, self.n_atoms_max)
+                    )
+            else:
+                full = features.reshape((self.n_atoms_max, self.n_atoms_max))
+        return full
