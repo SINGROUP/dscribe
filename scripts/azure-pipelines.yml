@@ -33,25 +33,25 @@ jobs:
     displayName: 'Use Python $(python.version)'
 
   - script: |
-      cd $(Build.Repository.LocalPath)/CI && ./devtools.sh
+      cd $(Build.Repository.LocalPath)/scripts && ./devtools.sh
     displayName: 'Install development tools'
 
   - script: |
-      cd $(Build.Repository.LocalPath)/CI && ./lint.sh
+      cd $(Build.Repository.LocalPath)/scripts && ./lint.sh
     displayName: 'Lint code'
 
   - script: |
-      cd $(Build.Repository.LocalPath)/CI && ./build.sh
+      cd $(Build.Repository.LocalPath)/scripts && ./build.sh
     displayName: 'Build package'
     condition: always()
 
   - script: |
-      cd $(Build.Repository.LocalPath)/CI && ./test.sh
+      cd $(Build.Repository.LocalPath)/scripts && ./test.sh
     displayName: 'Run regression tests'
     condition: always()
 
   - script: |
-      cd $(Build.Repository.LocalPath)/CI && ./updatecoverage.sh
+      cd $(Build.Repository.LocalPath)/scripts && ./updatecoverage.sh
     env:
       COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN) # right way to map to an env variable
     displayName: 'Update coverage'
