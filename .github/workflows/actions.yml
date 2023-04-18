@@ -2,8 +2,8 @@ name: python
 on: [push]
 jobs:
   setup:
+    runs-on: ubuntu-latest
     steps:
-      runs-on: ubuntu-latest
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
     - name: Set up Python
@@ -14,8 +14,8 @@ jobs:
         cd ${GITHUB_WORKSPACE}/scripts && ./devtools.sh
   lint:
     needs: setup
+    runs-on: ubuntu-latest
     steps:
-      runs-on: ubuntu-latest
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
     - name: Set up Python
@@ -26,8 +26,8 @@ jobs:
         cd ${GITHUB_WORKSPACE}/scripts && ./lint.sh
   package:
     needs: setup
+    runs-on: ubuntu-latest
     steps:
-      runs-on: ubuntu-latest
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
     - name: Set up Python
@@ -38,8 +38,8 @@ jobs:
         cd ${GITHUB_WORKSPACE}/scripts && ./build.sh
   test:
     needs: setup
+    runs-on: ubuntu-latest
     steps:
-      runs-on: ubuntu-latest
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
     - name: Set up Python
