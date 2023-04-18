@@ -1,9 +1,9 @@
 name: python
 on: [push]
-runs-on: ubuntu-latest
 jobs:
   setup:
     steps:
+      runs-on: ubuntu-latest
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
     - name: Set up Python
@@ -15,6 +15,7 @@ jobs:
   lint:
     needs: setup
     steps:
+      runs-on: ubuntu-latest
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
     - name: Set up Python
@@ -26,6 +27,7 @@ jobs:
   package:
     needs: setup
     steps:
+      runs-on: ubuntu-latest
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
     - name: Set up Python
@@ -37,6 +39,7 @@ jobs:
   test:
     needs: setup
     steps:
+      runs-on: ubuntu-latest
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
     - name: Set up Python
