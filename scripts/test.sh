@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cd ../regtests
+cd ../tests
 export COVERAGE_FILE="../.coverage"
 coverage run --source="dscribe" testrunner.py
 unittest=$?
