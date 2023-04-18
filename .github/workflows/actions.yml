@@ -16,11 +16,14 @@ jobs:
       run: |
         cd ${GITHUB_WORKSPACE}/scripts && ./devtools.sh
     - name: lint
+      if: always()
       run: |
         cd ${GITHUB_WORKSPACE}/scripts && ./lint.sh
     - name: package
+      if: always()
       run: |
         cd ${GITHUB_WORKSPACE}/scripts && ./build.sh
     - name: test
+      if: always()
       run: |
         cd ${GITHUB_WORKSPACE}/scripts && ./test.sh
