@@ -1,14 +1,26 @@
 name: python
 on: [push]
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-    - name: Set up Python
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
       with:
-        python-version: "3.7"
+        python-version: ${{ matrix.python-version }}
     - name: install
       run: |
         cd ${GITHUB_WORKSPACE}/scripts && ./devtools.sh
+    - name: lint
+      run: |
+        cd ${GITHUB_WORKSPACE}/scripts && ./lint.sh
+    - name: package
+      run: |
+        cd ${GITHUB_WORKSPACE}/scripts && ./build.sh
+    - name: test
+      run: |
+        cd ${GITHUB_WORKSPACE}/scripts && ./test.sh
