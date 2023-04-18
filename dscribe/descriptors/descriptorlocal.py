@@ -321,9 +321,9 @@ class DescriptorLocal(Descriptor):
         return_descriptor=True,
     ):
         """Return the numerical derivatives for the given system. This is the
-        default numerical implementation using python. You should overwrite this
+        default numerical implementation with python. You should overwrite this
         with a more optimized method whenever possible.
-
+        
         Args:
             d (np.array): The derivatives array.
             c (np.array): The descriptor array.
@@ -349,27 +349,27 @@ class DescriptorLocal(Descriptor):
         h = 0.0001
         coeffs = [-1.0 / 2.0, 1.0 / 2.0]
         deltas = [-1.0, 1.0]
-        n_comp = 3
-        if positions is None:
+        if positions is None: 
             positions = range(len(system))
+        if attach:
+            centers = positions
+        else:
+            centers = system.get_positions()[positions]
 
-        n_positions = len(positions)
-        d0 = self.create_single(system, positions)
-        index = 0
-        for i_atom in indices:
-            for i_center in range(n_positions):
-                for i_comp in range(n_comp):
+        for index, i_atom in enumerate(indices):
+            for i_center, center in enumerate(centers):
+                for i_comp in range(3):
                     for i_stencil in range(2):
-                        i_cent = [positions[i_center]]
                         system_disturbed = system.copy()
                         i_pos = system_disturbed.get_positions()
                         i_pos[i_atom, i_comp] += h * deltas[i_stencil]
                         system_disturbed.set_positions(i_pos)
-                        d1 = self.create_single(system_disturbed, i_cent)
+                        d1 = self.create_single(system_disturbed, [center])
                         d[i_center, index, i_comp, :] += (
                             coeffs[i_stencil] * d1[0, :] / h
                         )
             index += 1
 
         if return_descriptor:
+            d0 = self.create_single(system, positions)
             np.copyto(c, d0)

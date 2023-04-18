@@ -16,7 +16,6 @@ from conftest import (
     assert_derivatives,
     assert_derivatives_exclude,
     assert_derivatives_include,
-    big_system,
     water,
 )
 from dscribe.descriptors import SOAP

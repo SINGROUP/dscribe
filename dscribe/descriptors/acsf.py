@@ -98,8 +98,8 @@ class ACSF(DescriptorLocal):
                 many atomic structures.
             positions (list): Positions where to calculate ACSF. Can be
                 provided as cartesian positions or atomic indices. If no
-                positions are defined, the SOAP output will be created for all
-                atoms in the system. When calculating SOAP for multiple
+                positions are defined, the output will be created for all
+                atoms in the system. When calculating output for multiple
                 systems, provide the positions as a list for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
@@ -289,6 +289,13 @@ class ACSF(DescriptorLocal):
         descsize += (wrapper.n_g4 + wrapper.n_g5) * wrapper.n_type_pairs
 
         return int(descsize)
+
+    def validate_derivatives_method(self, method, attach):
+        if not attach:
+            raise ValueError(
+                "ACSF derivatives can only be calculated with attach=True."
+            )
+        return super().validate_derivatives_method(method, attach)
 
     @property
     def species(self):

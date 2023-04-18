@@ -335,8 +335,6 @@ class LMBTR(MBTR, DescriptorLocal):
         new_atomic_numbers_k3 = []
         n_atoms = len(system)
         if positions is not None:
-            n_loc = len(positions)
-
             # Check validity of position definitions and create final cartesian
             # position list
             if len(positions) == 0:
@@ -377,7 +375,6 @@ class LMBTR(MBTR, DescriptorLocal):
         # If positions are not supplied, it is assumed that each atom is used
         # as a center
         else:
-            n_loc = n_atoms
             indices_k2 = np.arange(n_atoms)
             indices_k3 = np.arange(n_atoms)
             new_pos_k2 = system.get_positions()
@@ -414,9 +411,8 @@ class LMBTR(MBTR, DescriptorLocal):
         else:
             result = mbtr[keys[0]]
 
-        # Make into a dense array if requested
-        if not self.sparse:
-            result = result.todense()
+        # Make into a dense array
+        result = result.todense()
 
         return result
 
@@ -480,6 +476,7 @@ class LMBTR(MBTR, DescriptorLocal):
         Returns:
             1D ndarray: flattened K2 values.
         """
+        print(new_system)
         grid = self.k2["grid"]
         start = grid["min"]
         stop = grid["max"]
