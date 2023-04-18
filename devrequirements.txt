@@ -1,5 +1,4 @@
 coverage
-tqdm
 black
 coveralls
 pymatgen
