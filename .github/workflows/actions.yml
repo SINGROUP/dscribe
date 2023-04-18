@@ -1,0 +1,25 @@
+name: python
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: install
+      run: |
+        cd ${GITHUB_WORKSPACE}/scripts && ./devtools.sh
+    - name: lint
+      run: |
+        cd ${GITHUB_WORKSPACE}/scripts && ./lint.sh
+    - name: package
+      run: |
+        cd ${GITHUB_WORKSPACE}/scripts && ./build.sh
+    - name: test
+      run: |
+        cd ${GITHUB_WORKSPACE}/scripts && ./test.sh
