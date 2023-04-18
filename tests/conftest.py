@@ -218,9 +218,7 @@ def assert_derivatives(descriptor_func, method, pbc, system=big_system(), attach
             derivatives_python = np.zeros((n_atoms, n_comp, n_features))
         else:
             n_centers = len(centers)
-            derivatives_python = np.zeros(
-                (n_centers, n_atoms, n_comp, n_features)
-            )
+            derivatives_python = np.zeros((n_centers, n_atoms, n_comp, n_features))
         d0 = descriptor.create(system, centers)
         for i_atom in range(len(system)):
             for i_center in range(n_centers):
@@ -240,9 +238,9 @@ def assert_derivatives(descriptor_func, method, pbc, system=big_system(), attach
                                 coeffs[i_stencil] * d1 / h
                             )
                         else:
-                            derivatives_python[
-                                i_center, i_atom, i_comp, :
-                            ] += (coeffs[i_stencil] * d1[0, :] / h)
+                            derivatives_python[i_center, i_atom, i_comp, :] += (
+                                coeffs[i_stencil] * d1[0, :] / h
+                            )
         derivatives_cpp, d_cpp = descriptor.derivatives(
             system, positions=centers, attach=attach, method=method
         )

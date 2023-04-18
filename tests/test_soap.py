@@ -293,11 +293,11 @@ def test_basis(rbf):
     assert_basis(soap(rbf=rbf, periodic=True))
 
 
-@pytest.mark.parametrize("rbf", ("gto", ))
+@pytest.mark.parametrize("rbf", ("gto",))
 @pytest.mark.parametrize("pbc", (False, True))
 @pytest.mark.parametrize("attach", (False, True))
 @pytest.mark.parametrize("average", ("off", "inner", "outer"))
-@pytest.mark.parametrize("crossover", (True, ))
+@pytest.mark.parametrize("crossover", (True,))
 def test_derivatives_numerical(pbc, attach, average, rbf, crossover):
     descriptor_func = soap(
         r_cut=3,
@@ -311,6 +311,7 @@ def test_derivatives_numerical(pbc, attach, average, rbf, crossover):
         dtype="float64",
     )
     assert_derivatives(descriptor_func, "numerical", pbc, attach=attach)
+
 
 @pytest.mark.parametrize("pbc, attach, average, rbf", [(False, False, "off", "gto")])
 @pytest.mark.parametrize("crossover", (True, False))
@@ -443,11 +444,11 @@ def test_exceptions():
     # raises an exception
     positions = [[0.0, 0.0, 0.0]]
     with pytest.raises(ValueError):
-        args["average"] = 'inner'
+        args["average"] = "inner"
         soap = SOAP(**args)
         soap.derivatives(system, positions=positions, method="analytical")
     with pytest.raises(ValueError):
-        args["average"] = 'outer'
+        args["average"] = "outer"
         soap = SOAP(**args)
         soap.derivatives(system, positions=positions, method="analytical")
 

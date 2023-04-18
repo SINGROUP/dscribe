@@ -374,7 +374,9 @@ class DescriptorLocal(Descriptor):
                         i_pos[i_atom, i_comp] += h * deltas[i_stencil]
                         system_disturbed.set_positions(i_pos)
                         d1 = self.create_single(system_disturbed, i_cent)
-                        d[i_center, index, i_comp, :] += (coeffs[i_stencil] * d1[0, :] / h)
+                        d[i_center, index, i_comp, :] += (
+                            coeffs[i_stencil] * d1[0, :] / h
+                        )
             index += 1
 
         if return_descriptor:
