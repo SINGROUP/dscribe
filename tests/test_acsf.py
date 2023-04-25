@@ -114,8 +114,8 @@ def test_basis():
     assert_basis(acsf(periodic=True))
 
 
-@pytest.mark.parametrize("pbc", (False, ))
-@pytest.mark.parametrize("attach", (True, ))
+@pytest.mark.parametrize("pbc", (False,))
+@pytest.mark.parametrize("attach", (True,))
 def test_derivatives_numerical(pbc, attach):
     assert_derivatives(acsf(periodic=pbc), "numerical", pbc, attach=attach)
 

@@ -89,7 +89,7 @@ def test_dtype(dtype, sparse):
     assert_dtype(lmbtr_default_k2, dtype, sparse)
 
 
-@pytest.mark.parametrize("n_jobs", (1, ))
+@pytest.mark.parametrize("n_jobs", (1,))
 @pytest.mark.parametrize("sparse", (True, False))
 @pytest.mark.parametrize(
     "positions",

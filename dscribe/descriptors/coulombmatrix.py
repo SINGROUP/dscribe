@@ -142,7 +142,6 @@ class CoulombMatrix(DescriptorMatrix):
 
         return out_des
 
-
     def derivatives_numerical(
         self,
         d,

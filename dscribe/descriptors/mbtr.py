@@ -35,9 +35,7 @@ def check_k1(value):
             valid_keys = set(("geometry", "grid", "weighting"))
             if key not in valid_keys:
                 raise ValueError(
-                    "The given setup contains the following invalid key: {}".format(
-                        key
-                    )
+                    "The given setup contains the following invalid key: {}".format(key)
                 )
 
         # Check the geometry function
@@ -72,9 +70,7 @@ def check_k2(value):
             valid_keys = set(("geometry", "grid", "weighting"))
             if key not in valid_keys:
                 raise ValueError(
-                    "The given setup contains the following invalid key: {}".format(
-                        key
-                    )
+                    "The given setup contains the following invalid key: {}".format(key)
                 )
 
         # Check the geometry function
@@ -131,9 +127,7 @@ def check_k3(value):
             valid_keys = set(("geometry", "grid", "weighting"))
             if key not in valid_keys:
                 raise ValueError(
-                    "The given setup contains the following invalid key: {}".format(
-                        key
-                    )
+                    "The given setup contains the following invalid key: {}".format(key)
                 )
 
         # Check the geometry function
@@ -219,9 +213,7 @@ def check_weighting(periodic, k):
                     if function != "unity":
                         valid = True
             if not valid:
-                raise ValueError(
-                    "Periodic systems need to have a weighting function."
-                )
+                raise ValueError("Periodic systems need to have a weighting function.")
 
 
 class MBTR(DescriptorGlobal):

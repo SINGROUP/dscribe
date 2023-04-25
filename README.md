@@ -38,9 +38,9 @@ coulomb_matrices = cm_desc.create(samples, n_jobs=3)
 oxygen_indices = [np.where(x.get_atomic_numbers() == 8)[0] for x in samples]
 oxygen_soap = soap_desc.create(samples, oxygen_indices, n_jobs=3)
 
-# Some descriptors also allow calculating derivatives with respect to atomic
+# Descriptors also allow calculating derivatives with respect to atomic
 # positions
-der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
+der, des = soap_desc.derivatives(samples, return_descriptor=True)
 ```
 
 # Currently implemented descriptors
@@ -49,11 +49,11 @@ der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
  | Coulomb matrix                                | :heavy_check_mark: | :heavy_check_mark: |
  | Sine matrix                                   | :heavy_check_mark: | :heavy_check_mark: |
  | Ewald matrix                                  | :heavy_check_mark: | :heavy_check_mark: |
- | Atom-centered Symmetry Functions (ACSF)       | :heavy_check_mark: | |
+ | Atom-centered Symmetry Functions (ACSF)       | :heavy_check_mark: | :heavy_check_mark: |
  | Smooth Overlap of Atomic Positions (SOAP)     | :heavy_check_mark: | :heavy_check_mark: |
  | Many-body Tensor Representation (MBTR)        | :heavy_check_mark: | :heavy_check_mark: |
- | Local Many-body Tensor Representation (LMBTR) | :heavy_check_mark: | |
- | Valle-Oganov descriptor                       | :heavy_check_mark: | |
+ | Local Many-body Tensor Representation (LMBTR) | :heavy_check_mark: | :heavy_check_mark: |
+ | Valle-Oganov descriptor                       | :heavy_check_mark: | :heavy_check_mark: |
 
 # Installation
 In-depth installation instructions can be found [in the

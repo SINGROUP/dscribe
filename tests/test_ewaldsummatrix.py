@@ -61,9 +61,7 @@ def ewald_sum_matrix(**kwargs):
     ],
 )
 def test_number_of_features(permutation, n_features):
-    assert_n_features(
-        ewald_sum_matrix(permutation=permutation), n_features
-    )
+    assert_n_features(ewald_sum_matrix(permutation=permutation), n_features)
 
 
 def test_matrix_descriptor_exceptions():

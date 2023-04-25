@@ -323,7 +323,7 @@ class DescriptorLocal(Descriptor):
         """Return the numerical derivatives for the given system. This is the
         default numerical implementation with python. You should overwrite this
         with a more optimized method whenever possible.
-        
+
         Args:
             d (np.array): The derivatives array.
             c (np.array): The descriptor array.
@@ -349,7 +349,7 @@ class DescriptorLocal(Descriptor):
         h = 0.0001
         coeffs = [-1.0 / 2.0, 1.0 / 2.0]
         deltas = [-1.0, 1.0]
-        if positions is None: 
+        if positions is None:
             positions = range(len(system))
         if not attach and np.issubdtype(type(positions[0]), np.integer):
             positions = system.get_positions()[positions]

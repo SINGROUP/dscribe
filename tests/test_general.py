@@ -64,9 +64,7 @@ def test_distances():
     # comparing distances to neighbors or to self
     system.set_pbc([True, True, True])
     disp = system.get_displacement_tensor()
-    assumed = np.array(
-        [[[5.0, 5.0, 0.0], [5, 0, 0]], [[-5, 0, 0], [5.0, 5.0, 0.0]]]
-    )
+    assumed = np.array([[[5.0, 5.0, 0.0], [5, 0, 0]], [[-5, 0, 0], [5.0, 5.0, 0.0]]])
     assert np.allclose(assumed, disp)
 
     # Tests that the displacement tensor is found correctly even for highly
@@ -241,9 +239,9 @@ def test_cell_list():
             sort_order = np.argsort(indices)
             indices = np.array(indices)[sort_order]
             distances = np.array(distances)[sort_order]
-            indices_naive = np.where(
-                np.linalg.norm(pos - pos[idx], axis=1) <= cutoff
-            )[0]
+            indices_naive = np.where(np.linalg.norm(pos - pos[idx], axis=1) <= cutoff)[
+                0
+            ]
             indices_naive = indices_naive[indices_naive != idx]
             distances_naive = all_distances_naive[idx, indices_naive]
             assert np.array_equal(indices, indices_naive)
@@ -275,9 +273,9 @@ def test_cell_list():
             sort_order = np.argsort(indices)
             indices = np.array(indices)[sort_order]
             distances = np.array(distances)[sort_order]
-            indices_naive = np.where(
-                np.linalg.norm(pos - pos[idx], axis=1) <= cutoff
-            )[0]
+            indices_naive = np.where(np.linalg.norm(pos - pos[idx], axis=1) <= cutoff)[
+                0
+            ]
             indices_naive = indices_naive[indices_naive != idx]
             distances_naive = all_distances_naive[idx, indices_naive]
             assert np.array_equal(indices, indices_naive)

@@ -240,7 +240,6 @@ class DescriptorMatrix(DescriptorGlobal):
             self._norm_vector = np.linalg.norm(matrix, axis=1)
         return self._norm_vector
 
-
     def unflatten(self, features, n_systems):
         """
         Can be used to "unflatten" a matrix descriptor back into a 2D array.
