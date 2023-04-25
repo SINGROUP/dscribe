@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/SINGROUP/dscribe/master/logo/dscribe_logo.png" width="400">
 
-![Build status](https://github.com/github/docs/actions/workflows/actions.yml/badge.svg)
+![Build status](https://github.com/SINGROUP/dscribe/actions/workflows/actions.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master)](https://coveralls.io/github/SINGROUP/dscribe?branch=master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
