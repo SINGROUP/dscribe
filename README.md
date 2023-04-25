@@ -9,9 +9,15 @@ numerical fingerprints. These fingerprints are often called "descriptors" and
 they can be used in various tasks, including machine learning, visualization,
 similarity analysis, etc.
 
-# Homepage
-For more details and tutorials, visit the homepage at:
+# Documentation
+For more details and tutorials, visit our documentation at:
 [https://singroup.github.io/dscribe/](https://singroup.github.io/dscribe/)
+
+You can find even more details in our open-access articles:
+
+- [DScribe: Library of descriptors for machine learning in materials science](<https://doi.org/10.1016/j.cpc.2019.106949>)
+- [Updates to the DScribe Library: New Descriptors and Derivatives](https://doi.org/10.48550/arXiv.2303.14046)
+
 
 # Quick Example
 ```python
