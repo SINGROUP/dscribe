@@ -122,12 +122,12 @@ def test_derivatives_numerical(pbc, attach):
 
 @pytest.mark.parametrize("method", ("numerical",))
 def test_derivatives_include(method):
-    assert_derivatives_include(acsf(), method)
+    assert_derivatives_include(acsf(), method, True)
 
 
 @pytest.mark.parametrize("method", ("numerical",))
 def test_derivatives_exclude(method):
-    assert_derivatives_exclude(acsf(), method)
+    assert_derivatives_exclude(acsf(), method, True)
 
 
 # =============================================================================

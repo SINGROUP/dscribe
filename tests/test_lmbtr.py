@@ -14,6 +14,7 @@ from conftest import (
     assert_symmetries,
     assert_normalization,
     assert_positions,
+    assert_derivatives,
     assert_derivatives_exclude,
     assert_derivatives_include,
     assert_mbtr_location,
@@ -90,8 +91,18 @@ def test_dtype(dtype, sparse):
 
 @pytest.mark.parametrize("n_jobs", (1, ))
 @pytest.mark.parametrize("sparse", (True, False))
-def test_parallellization(n_jobs, sparse):
-    assert_parallellization(lmbtr_default_k2, n_jobs, sparse)
+@pytest.mark.parametrize(
+    "positions",
+    [
+        "all",
+        "indices_fixed",
+        "indices_variable",
+        "cartesian_fixed",
+        "cartesian_variable",
+    ],
+)
+def test_parallellization(n_jobs, sparse, positions):
+    assert_parallellization(lmbtr_default_k2, n_jobs, sparse, positions)
 
 
 def test_no_system_modification():
@@ -142,14 +153,20 @@ def test_symmetries():
     assert_symmetries(lmbtr(**default_k2), True, True, False)
 
 
+@pytest.mark.parametrize("pbc", (False, True))
+@pytest.mark.parametrize("attach", (False, True))
+def test_derivatives_numerical(pbc, attach):
+    assert_derivatives(lmbtr_default_k2(), "numerical", pbc, attach=attach)
+
+
 @pytest.mark.parametrize("method", ("numerical",))
 def test_derivatives_include(method):
-    assert_derivatives_include(lmbtr_default_k2(), method)
+    assert_derivatives_include(lmbtr_default_k2(), method, False)
 
 
 @pytest.mark.parametrize("method", ("numerical",))
 def test_derivatives_exclude(method):
-    assert_derivatives_exclude(lmbtr_default_k2(), method)
+    assert_derivatives_exclude(lmbtr_default_k2(), method, False)
 
 
 @pytest.mark.parametrize(

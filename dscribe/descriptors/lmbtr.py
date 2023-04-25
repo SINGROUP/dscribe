@@ -24,13 +24,13 @@ from ase import Atoms
 import ase.data
 
 from dscribe.core import System
-from dscribe.descriptors import MBTR
+from dscribe.descriptors.mbtr import check_weighting, check_k2, check_k3
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
 from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
 
 
-class LMBTR(MBTR, DescriptorLocal):
+class LMBTR(DescriptorLocal):
     """Implementation of local -- per chosen atom -- kind of the Many-body
     tensor representation up to k=3.
 
@@ -164,16 +164,84 @@ class LMBTR(MBTR, DescriptorLocal):
                     * ``"float64"``: Double precision floating point numbers.
         """
         super().__init__(
-            k1=None,
-            k2=k2,
-            k3=k3,
             periodic=periodic,
-            species=species,
-            normalization=normalization,
-            normalize_gaussians=normalize_gaussians,
             sparse=sparse,
             dtype=dtype,
         )
+        self.system = None
+        self.k2 = k2
+        self.k3 = k3
+        self.species = species
+        self.normalization = normalization
+        self.normalize_gaussians = normalize_gaussians
+
+        if self.normalization == "valle_oganov" and not periodic:
+            raise ValueError(
+                "Valle-Oganov normalization does not support non-periodic systems."
+            )
+
+        # Initializing .create() level variables
+        self._interaction_limit = None
+
+        # Check that weighting function is specified for periodic systems
+        check_weighting(self.periodic, self.k2)
+        check_weighting(self.periodic, self.k3)
+
+    @property
+    def k2(self):
+        return self._k2
+
+    @k2.setter
+    def k2(self, value):
+        check_k2(value)
+        self._k2 = value
+
+    @property
+    def k3(self):
+        return self._k3
+
+    @k3.setter
+    def k3(self, value):
+        check_k3(value)
+        self._k3 = value
+
+    @property
+    def species(self):
+        return self._species
+
+    @species.setter
+    def species(self, value):
+        """Used to check the validity of given atomic numbers and to initialize
+        the C-memory layout for them.
+
+        Args:
+            value(iterable): Chemical species either as a list of atomic
+                numbers or list of chemical symbols.
+        """
+        # The species are stored as atomic numbers for internal use.
+        self._set_species(value)
+
+        # The atomic number 0 is reserved for ghost atoms in this
+        # implementation.
+        if 0 in self._atomic_number_set:
+            raise ValueError(
+                "The atomic number 0 is reserved for the ghost atoms in this "
+                "implementation."
+            )
+        self._atomic_number_set.add(0)
+        indices = np.searchsorted(self._atomic_numbers, 0)
+        self._atomic_numbers = np.insert(self._atomic_numbers, indices, 0)
+
+        # Setup mappings between atom indices and types together with some
+        # statistics
+        self.atomic_number_to_index = {}
+        self.index_to_atomic_number = {}
+        for i_atom, atomic_number in enumerate(self._atomic_numbers):
+            self.atomic_number_to_index[atomic_number] = i_atom
+            self.index_to_atomic_number[i_atom] = atomic_number
+        self.n_elements = len(self._atomic_numbers)
+        self.max_atomic_number = max(self._atomic_numbers)
+        self.min_atomic_number = min(self._atomic_numbers)
 
     @property
     def normalization(self):
@@ -476,7 +544,6 @@ class LMBTR(MBTR, DescriptorLocal):
         Returns:
             1D ndarray: flattened K2 values.
         """
-        print(new_system)
         grid = self.k2["grid"]
         start = grid["min"]
         stop = grid["max"]
@@ -851,41 +918,3 @@ class LMBTR(MBTR, DescriptorLocal):
             end = int(offset + (m + 1) * n3)
 
         return slice(start, end)
-
-    @property
-    def species(self):
-        return self._species
-
-    @species.setter
-    def species(self, value):
-        """Used to check the validity of given atomic numbers and to initialize
-        the C-memory layout for them.
-
-        Args:
-            value(iterable): Chemical species either as a list of atomic
-                numbers or list of chemical symbols.
-        """
-        # The species are stored as atomic numbers for internal use.
-        self._set_species(value)
-
-        # The atomic number 0 is reserved for ghost atoms in this
-        # implementation.
-        if 0 in self._atomic_number_set:
-            raise ValueError(
-                "The atomic number 0 is reserved for the ghost atoms in this "
-                "implementation."
-            )
-        self._atomic_number_set.add(0)
-        indices = np.searchsorted(self._atomic_numbers, 0)
-        self._atomic_numbers = np.insert(self._atomic_numbers, indices, 0)
-
-        # Setup mappings between atom indices and types together with some
-        # statistics
-        self.atomic_number_to_index = {}
-        self.index_to_atomic_number = {}
-        for i_atom, atomic_number in enumerate(self._atomic_numbers):
-            self.atomic_number_to_index[atomic_number] = i_atom
-            self.index_to_atomic_number[i_atom] = atomic_number
-        self.n_elements = len(self._atomic_numbers)
-        self.max_atomic_number = max(self._atomic_numbers)
-        self.min_atomic_number = min(self._atomic_numbers)

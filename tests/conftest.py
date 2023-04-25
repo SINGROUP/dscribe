@@ -266,28 +266,23 @@ def assert_derivatives(descriptor_func, method, pbc, system=big_system(), attach
     # Compare descriptor values
     assert np.allclose(d0, d_cpp, atol=1e-6)
 
+    # Check that derivatives are not super small
+    assert np.max(np.abs(derivatives_cpp)) > 1e-6
+
     # Compare derivative values
     assert np.allclose(derivatives_python, derivatives_cpp, rtol=1e-4, atol=1e-4)
 
 
-def assert_derivatives_include(descriptor_func, method):
+def assert_derivatives_include(descriptor_func, method, attach=None):
     H2O = molecule("H2O")
     CO2 = molecule("CO2")
     H2O.set_cell([5, 5, 5])
     CO2.set_cell([5, 5, 5])
     descriptor = descriptor_func([H2O, CO2])
-
-    # Invalid include options
-    with pytest.raises(ValueError):
-        descriptor.derivatives(H2O, include=[], attach=True, method=method)
-    with pytest.raises(ValueError):
-        descriptor.derivatives(H2O, include=[3], attach=True, method=method)
-    with pytest.raises(ValueError):
-        descriptor.derivatives(H2O, include=[-1], attach=True, method=method)
-    with pytest.raises(ValueError):
-        descriptor.derivatives(H2O, include=[0], exclude=[0], attach=True, method=method)
+    kwargs = {"method": method}
 
     if isinstance(descriptor, DescriptorLocal):
+        kwargs["attach"] = attach
         slice_d1_a = np.index_exp[:, 0, :]
         slice_d2_a = np.index_exp[:, 2, :]
         slice_d1_b = np.index_exp[:, 1, :]
@@ -314,39 +309,45 @@ def assert_derivatives_include(descriptor_func, method):
         slice_d1_f = np.index_exp[1, 0, :]
         slice_d2_f = np.index_exp[1, 1, :]
 
+    # Invalid include options
+    with pytest.raises(ValueError):
+        descriptor.derivatives(H2O, include=[], **kwargs)
+    with pytest.raises(ValueError):
+        descriptor.derivatives(H2O, include=[3], **kwargs)
+    with pytest.raises(ValueError):
+        descriptor.derivatives(H2O, include=[-1], **kwargs)
+    with pytest.raises(ValueError):
+        descriptor.derivatives(H2O, include=[0], exclude=[0], **kwargs)
+
     # Test that correct atoms are included and in the correct order
-    D1, d1 = descriptor.derivatives(H2O, include=[2, 0], attach=True, method=method)
-    D2, d2 = descriptor.derivatives(H2O, attach=True, method=method)
+    D1, d1 = descriptor.derivatives(H2O, include=[2, 0], **kwargs)
+    D2, d2 = descriptor.derivatives(H2O, **kwargs)
     assert np.array_equal(D1[slice_d1_a], D2[slice_d2_a])
     assert np.array_equal(D1[slice_d1_b], D2[slice_d2_b])
 
     # Test that using multiple samples and single include works
-    D1, d1 = descriptor.derivatives([H2O, CO2], include=[1, 0], attach=True, method=method)
-    D2, d2 = descriptor.derivatives([H2O, CO2], attach=True, method=method)
+    D1, d1 = descriptor.derivatives([H2O, CO2], include=[1, 0], **kwargs)
+    D2, d2 = descriptor.derivatives([H2O, CO2], **kwargs)
     assert np.array_equal(D1[slice_d1_c], D2[slice_d2_c])
     assert np.array_equal(D1[slice_d1_d], D2[slice_d2_d])
 
     # Test that using multiple samples and multiple includes
-    D1, d1 = descriptor.derivatives([H2O, CO2], include=[[0], [1]], attach=True, method=method)
-    D2, d2 = descriptor.derivatives([H2O, CO2], attach=True, method=method)
+    D1, d1 = descriptor.derivatives([H2O, CO2], include=[[0], [1]], **kwargs)
+    D2, d2 = descriptor.derivatives([H2O, CO2], **kwargs)
     assert np.array_equal(D1[slice_d1_e], D2[slice_d2_e])
     assert np.array_equal(D1[slice_d1_f], D2[slice_d2_f])
 
 
-def assert_derivatives_exclude(descriptor_func, method):
+def assert_derivatives_exclude(descriptor_func, method, attach=None):
     H2O = molecule("H2O")
     CO2 = molecule("CO2")
     H2O.set_cell([5, 5, 5])
     CO2.set_cell([5, 5, 5])
     descriptor = descriptor_func([H2O, CO2])
-
-    # Invalid exclude options
-    with pytest.raises(ValueError):
-        descriptor.derivatives(H2O, exclude=[3], attach=True, method=method)
-    with pytest.raises(ValueError):
-        descriptor.derivatives(H2O, exclude=[-1], attach=True, method=method)
+    kwargs = {"method": method}
 
     if isinstance(descriptor, DescriptorLocal):
+        kwargs["attach"] = attach
         slice_d1_a = np.index_exp[:, 0, :]
         slice_d2_a = np.index_exp[:, 0, :]
         slice_d1_b = np.index_exp[:, 1, :]
@@ -365,15 +366,21 @@ def assert_derivatives_exclude(descriptor_func, method):
         slice_d1_d = np.index_exp[:, 1, :]
         slice_d2_d = np.index_exp[:, 2, :]
 
+    # Invalid exclude options
+    with pytest.raises(ValueError):
+        descriptor.derivatives(H2O, exclude=[3], **kwargs)
+    with pytest.raises(ValueError):
+        descriptor.derivatives(H2O, exclude=[-1], **kwargs)
+
     # Test that correct atoms are excluded and in the correct order
-    D1, d1 = descriptor.derivatives(H2O, exclude=[1], attach=True, method=method)
-    D2, d2 = descriptor.derivatives(H2O, attach=True, method=method)
+    D1, d1 = descriptor.derivatives(H2O, exclude=[1], **kwargs)
+    D2, d2 = descriptor.derivatives(H2O, **kwargs)
     assert np.array_equal(D1[slice_d1_a], D2[slice_d2_a])
     assert np.array_equal(D1[slice_d1_b], D2[slice_d2_b])
 
     # Test that using single list and multiple samples works
-    D1, d1 = descriptor.derivatives([H2O, CO2], exclude=[1], attach=True, method=method)
-    D2, d2 = descriptor.derivatives([H2O, CO2], attach=True, method=method)
+    D1, d1 = descriptor.derivatives([H2O, CO2], exclude=[1], **kwargs)
+    D2, d2 = descriptor.derivatives([H2O, CO2], **kwargs)
     assert np.array_equal(D1[slice_d1_c], D2[slice_d2_c])
     assert np.array_equal(D1[slice_d1_d], D2[slice_d2_d])
 
@@ -487,9 +494,13 @@ def assert_parallellization(descriptor_func, n_jobs, sparse, positions=None, **k
             a = desc.create(samples[0], **a_kwargs)
             b = desc.create(samples[1], **b_kwargs)
         elif func == "derivatives":
-            output, _ = desc.derivatives(samples, n_jobs=n_jobs, attach=True, **all_kwargs)
-            a, _ = desc.derivatives(samples[0], attach=True, **a_kwargs)
-            b, _ = desc.derivatives(samples[1], attach=True, **b_kwargs)
+            if isinstance(desc, DescriptorLocal):
+                all_kwargs["attach"] = True
+                a_kwargs["attach"] = True
+                b_kwargs["attach"] = True
+            output, _ = desc.derivatives(samples, n_jobs=n_jobs, **all_kwargs)
+            a, _ = desc.derivatives(samples[0], **a_kwargs)
+            b, _ = desc.derivatives(samples[1], **b_kwargs)
 
         # The output may be a list or an array.
         if isinstance(output, list):

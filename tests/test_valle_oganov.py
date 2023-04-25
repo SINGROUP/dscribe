@@ -6,6 +6,7 @@ from conftest import (
     assert_sparse,
     assert_parallellization,
     assert_symmetries,
+    assert_derivatives,
     assert_derivatives_include,
     assert_derivatives_exclude,
     water,
@@ -15,8 +16,8 @@ from dscribe.descriptors import ValleOganov, MBTR
 
 # =============================================================================
 # Utilities
-default_k2 = {"sigma": 10 ** (-0.625), "n": 100, "r_cut": 10}
-default_k3 = {"sigma": 10 ** (-0.625), "n": 100, "r_cut": 10}
+default_k2 = {"sigma": 10 ** (-0.625), "n": 10, "r_cut": 2}
+default_k3 = {"sigma": 10 ** (-0.625), "n": 10, "r_cut": 2}
 
 
 def valle_oganov(**kwargs):
@@ -44,9 +45,9 @@ def valle_oganov(**kwargs):
 @pytest.mark.parametrize(
     "k2, k3, n_features",
     [
-        (default_k2, None, 1 / 2 * 2 * (2 + 1) * 100),  # K2
-        (None, default_k3, 1 / 2 * 2 * 2 * (2 + 1) * 100),  # K3
-        (default_k2, default_k3, 1 / 2 * 2 * (2 + 1) * 100 * (1 + 2)),  # K2 + K3
+        (default_k2, None, 1 / 2 * 2 * (2 + 1) * 10),  # K2
+        (None, default_k3, 1 / 2 * 2 * 2 * (2 + 1) * 10),  # K3
+        (default_k2, default_k3, 1 / 2 * 2 * (2 + 1) * 10 * (1 + 2)),  # K2 + K3
     ],
 )
 def test_number_of_features(k2, k3, n_features):
@@ -70,6 +71,10 @@ def test_sparse():
 def test_symmetries():
     """Tests the symmetries of the descriptor."""
     assert_symmetries(valle_oganov())
+
+
+def test_derivatives_numerical():
+    assert_derivatives(valle_oganov(), "numerical", False)
 
 
 @pytest.mark.parametrize("method", ("numerical",))

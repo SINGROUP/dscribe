@@ -28,6 +28,202 @@ from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
 
 
+def check_k1(value):
+    if value is not None:
+        # Check that only valid keys are used in the setups
+        for key in value.keys():
+            valid_keys = set(("geometry", "grid", "weighting"))
+            if key not in valid_keys:
+                raise ValueError(
+                    "The given setup contains the following invalid key: {}".format(
+                        key
+                    )
+                )
+
+        # Check the geometry function
+        geom_func = value["geometry"].get("function")
+        if geom_func is not None:
+            valid_geom_func = set(("atomic_number",))
+            if geom_func not in valid_geom_func:
+                raise ValueError(
+                    "Unknown geometry function specified for k=1. Please use one of"
+                    " the following: {}".format(sorted(list(valid_geom_func)))
+                )
+
+        # Check the weighting function
+        weighting = value.get("weighting")
+        if weighting is not None:
+            valid_weight_func = set(("unity",))
+            weight_func = weighting.get("function")
+            if weight_func not in valid_weight_func:
+                raise ValueError(
+                    "Unknown weighting function specified for k=1. Please use one of"
+                    " the following: {}".format(sorted(list(valid_weight_func)))
+                )
+
+        # Check grid
+        check_grid(value["grid"])
+
+
+def check_k2(value):
+    if value is not None:
+        # Check that only valid keys are used in the setups
+        for key in value.keys():
+            valid_keys = set(("geometry", "grid", "weighting"))
+            if key not in valid_keys:
+                raise ValueError(
+                    "The given setup contains the following invalid key: {}".format(
+                        key
+                    )
+                )
+
+        # Check the geometry function
+        geom_func = value["geometry"].get("function")
+        if geom_func is not None:
+            valid_geom_func = set(("distance", "inverse_distance"))
+            if geom_func not in valid_geom_func:
+                raise ValueError(
+                    "Unknown geometry function specified for k=2. Please use one of"
+                    " the following: {}".format(sorted(list(valid_geom_func)))
+                )
+
+        # Check the weighting function
+        weighting = value.get("weighting")
+        if weighting is not None:
+            valid_weight_func = set(("unity", "exp", "inverse_square"))
+            weight_func = weighting.get("function")
+            if weight_func not in valid_weight_func:
+                raise ValueError(
+                    "Unknown weighting function specified for k=2. Please use one of"
+                    " the following: {}".format(sorted(list(valid_weight_func)))
+                )
+            else:
+                if weight_func == "exp":
+                    threshold = weighting.get("threshold")
+                    if threshold is None:
+                        raise ValueError(
+                            "Missing value for 'threshold' in the k=2 weighting."
+                        )
+                    scale = weighting.get("scale")
+                    r_cut = weighting.get("r_cut")
+                    if scale is not None and r_cut is not None:
+                        raise ValueError(
+                            "Provide either 'scale' or 'r_cut', not both in the k=2 weighting."
+                        )
+                    if scale is None and r_cut is None:
+                        raise ValueError(
+                            "Provide either 'scale' or 'r_cut' in the k=2 weighting."
+                        )
+                elif weight_func == "inverse_square":
+                    if weighting.get("r_cut") is None:
+                        raise ValueError(
+                            "Missing value for 'r_cut' in the k=2 weighting."
+                        )
+
+        # Check grid
+        check_grid(value["grid"])
+
+
+def check_k3(value):
+    if value is not None:
+        # Check that only valid keys are used in the setups
+        for key in value.keys():
+            valid_keys = set(("geometry", "grid", "weighting"))
+            if key not in valid_keys:
+                raise ValueError(
+                    "The given setup contains the following invalid key: {}".format(
+                        key
+                    )
+                )
+
+        # Check the geometry function
+        geom_func = value["geometry"].get("function")
+        if geom_func is not None:
+            valid_geom_func = set(("angle", "cosine"))
+            if geom_func not in valid_geom_func:
+                raise ValueError(
+                    "Unknown geometry function specified for k=2. Please use one of"
+                    " the following: {}".format(sorted(list(valid_geom_func)))
+                )
+
+        # Check the weighting function
+        weighting = value.get("weighting")
+        if weighting is not None:
+            valid_weight_func = set(("unity", "exp", "smooth_cutoff"))
+            weight_func = weighting.get("function")
+            if weight_func not in valid_weight_func:
+                raise ValueError(
+                    "Unknown weighting function specified for k=3. Please use one of"
+                    " the following: {}".format(sorted(list(valid_weight_func)))
+                )
+            else:
+                if weight_func == "exp":
+                    threshold = weighting.get("threshold")
+                    if threshold is None:
+                        raise ValueError(
+                            "Missing value for 'threshold' in the k=3 weighting."
+                        )
+                    scale = weighting.get("scale")
+                    r_cut = weighting.get("r_cut")
+                    if scale is not None and r_cut is not None:
+                        raise ValueError(
+                            "Provide either 'scale' or 'r_cut', not both in the k=3 weighting."
+                        )
+                    if scale is None and r_cut is None:
+                        raise ValueError(
+                            "Provide either 'scale' or 'r_cut' in the k=3 weighting."
+                        )
+                elif weight_func == "smooth_cutoff":
+                    if weighting.get("r_cut") is None:
+                        raise ValueError(
+                            "Missing value for 'r_cut' in the k=3 weighting."
+                        )
+        # Check grid
+        check_grid(value["grid"])
+
+
+def check_grid(grid):
+    """Used to ensure that the given grid settings are valid.
+
+    Args:
+        grid(dict): Dictionary containing the grid setup.
+    """
+    msg = "The grid information is missing the value for {}"
+    val_names = ["min", "max", "sigma", "n"]
+    for val_name in val_names:
+        try:
+            grid[val_name]
+        except Exception:
+            raise KeyError(msg.format(val_name))
+
+    # Make the n into integer
+    grid["n"] = int(grid["n"])
+    if grid["min"] >= grid["max"]:
+        raise ValueError("The min value should be smaller than the max value.")
+
+
+def check_weighting(periodic, k):
+    """Used to ensure that the given weighting settings are valid.
+
+    Args:
+        grid(dict): Dictionary containing the weighting setup.
+    """
+    # Check that weighting function is specified for periodic systems
+    if periodic:
+        if k is not None:
+            valid = False
+            weighting = k.get("weighting")
+            if weighting is not None:
+                function = weighting.get("function")
+                if function is not None:
+                    if function != "unity":
+                        valid = True
+            if not valid:
+                raise ValueError(
+                    "Periodic systems need to have a weighting function."
+                )
+
+
 class MBTR(DescriptorGlobal):
     """Implementation of the Many-body tensor representation up to :math:`k=3`.
 
@@ -190,10 +386,7 @@ class MBTR(DescriptorGlobal):
         self.k1 = k1
         self.k2 = k2
         self.k3 = k3
-
-        # Setup the involved chemical species
         self.species = species
-
         self.normalization = normalization
         self.normalize_gaussians = normalize_gaussians
 
@@ -206,52 +399,8 @@ class MBTR(DescriptorGlobal):
         self._interaction_limit = None
 
         # Check that weighting function is specified for periodic systems
-        if self.periodic:
-            if self.k2 is not None:
-                valid = False
-                weighting = self.k2.get("weighting")
-                if weighting is not None:
-                    function = weighting.get("function")
-                    if function is not None:
-                        if function != "unity":
-                            valid = True
-                if not valid:
-                    raise ValueError(
-                        "Periodic systems need to have a weighting function."
-                    )
-
-            if self.k3 is not None:
-                valid = False
-                weighting = self.k3.get("weighting")
-                if weighting is not None:
-                    function = weighting.get("function")
-                    if function is not None:
-                        if function != "unity":
-                            valid = True
-
-                if not valid:
-                    raise ValueError(
-                        "Periodic systems need to have a weighting function."
-                    )
-
-    def check_grid(self, grid):
-        """Used to ensure that the given grid settings are valid.
-
-        Args:
-            grid(dict): Dictionary containing the grid setup.
-        """
-        msg = "The grid information is missing the value for {}"
-        val_names = ["min", "max", "sigma", "n"]
-        for val_name in val_names:
-            try:
-                grid[val_name]
-            except Exception:
-                raise KeyError(msg.format(val_name))
-
-        # Make the n into integer
-        grid["n"] = int(grid["n"])
-        if grid["min"] >= grid["max"]:
-            raise ValueError("The min value should be smaller than the max value.")
+        check_weighting(self.periodic, self.k2)
+        check_weighting(self.periodic, self.k3)
 
     @property
     def k1(self):
@@ -259,40 +408,7 @@ class MBTR(DescriptorGlobal):
 
     @k1.setter
     def k1(self, value):
-        if value is not None:
-            # Check that only valid keys are used in the setups
-            for key in value.keys():
-                valid_keys = set(("geometry", "grid", "weighting"))
-                if key not in valid_keys:
-                    raise ValueError(
-                        "The given setup contains the following invalid key: {}".format(
-                            key
-                        )
-                    )
-
-            # Check the geometry function
-            geom_func = value["geometry"].get("function")
-            if geom_func is not None:
-                valid_geom_func = set(("atomic_number",))
-                if geom_func not in valid_geom_func:
-                    raise ValueError(
-                        "Unknown geometry function specified for k=1. Please use one of"
-                        " the following: {}".format(sorted(list(valid_geom_func)))
-                    )
-
-            # Check the weighting function
-            weighting = value.get("weighting")
-            if weighting is not None:
-                valid_weight_func = set(("unity",))
-                weight_func = weighting.get("function")
-                if weight_func not in valid_weight_func:
-                    raise ValueError(
-                        "Unknown weighting function specified for k=1. Please use one of"
-                        " the following: {}".format(sorted(list(valid_weight_func)))
-                    )
-
-            # Check grid
-            self.check_grid(value["grid"])
+        check_k1(value)
         self._k1 = value
 
     @property
@@ -301,62 +417,7 @@ class MBTR(DescriptorGlobal):
 
     @k2.setter
     def k2(self, value):
-        if value is not None:
-            # Check that only valid keys are used in the setups
-            for key in value.keys():
-                valid_keys = set(("geometry", "grid", "weighting"))
-                if key not in valid_keys:
-                    raise ValueError(
-                        "The given setup contains the following invalid key: {}".format(
-                            key
-                        )
-                    )
-
-            # Check the geometry function
-            geom_func = value["geometry"].get("function")
-            if geom_func is not None:
-                valid_geom_func = set(("distance", "inverse_distance"))
-                if geom_func not in valid_geom_func:
-                    raise ValueError(
-                        "Unknown geometry function specified for k=2. Please use one of"
-                        " the following: {}".format(sorted(list(valid_geom_func)))
-                    )
-
-            # Check the weighting function
-            weighting = value.get("weighting")
-            if weighting is not None:
-                valid_weight_func = set(("unity", "exp", "inverse_square"))
-                weight_func = weighting.get("function")
-                if weight_func not in valid_weight_func:
-                    raise ValueError(
-                        "Unknown weighting function specified for k=2. Please use one of"
-                        " the following: {}".format(sorted(list(valid_weight_func)))
-                    )
-                else:
-                    if weight_func == "exp":
-                        threshold = weighting.get("threshold")
-                        if threshold is None:
-                            raise ValueError(
-                                "Missing value for 'threshold' in the k=2 weighting."
-                            )
-                        scale = weighting.get("scale")
-                        r_cut = weighting.get("r_cut")
-                        if scale is not None and r_cut is not None:
-                            raise ValueError(
-                                "Provide either 'scale' or 'r_cut', not both in the k=2 weighting."
-                            )
-                        if scale is None and r_cut is None:
-                            raise ValueError(
-                                "Provide either 'scale' or 'r_cut' in the k=2 weighting."
-                            )
-                    elif weight_func == "inverse_square":
-                        if weighting.get("r_cut") is None:
-                            raise ValueError(
-                                "Missing value for 'r_cut' in the k=2 weighting."
-                            )
-
-            # Check grid
-            self.check_grid(value["grid"])
+        check_k2(value)
         self._k2 = value
 
     @property
@@ -365,61 +426,7 @@ class MBTR(DescriptorGlobal):
 
     @k3.setter
     def k3(self, value):
-        if value is not None:
-            # Check that only valid keys are used in the setups
-            for key in value.keys():
-                valid_keys = set(("geometry", "grid", "weighting"))
-                if key not in valid_keys:
-                    raise ValueError(
-                        "The given setup contains the following invalid key: {}".format(
-                            key
-                        )
-                    )
-
-            # Check the geometry function
-            geom_func = value["geometry"].get("function")
-            if geom_func is not None:
-                valid_geom_func = set(("angle", "cosine"))
-                if geom_func not in valid_geom_func:
-                    raise ValueError(
-                        "Unknown geometry function specified for k=2. Please use one of"
-                        " the following: {}".format(sorted(list(valid_geom_func)))
-                    )
-
-            # Check the weighting function
-            weighting = value.get("weighting")
-            if weighting is not None:
-                valid_weight_func = set(("unity", "exp", "smooth_cutoff"))
-                weight_func = weighting.get("function")
-                if weight_func not in valid_weight_func:
-                    raise ValueError(
-                        "Unknown weighting function specified for k=3. Please use one of"
-                        " the following: {}".format(sorted(list(valid_weight_func)))
-                    )
-                else:
-                    if weight_func == "exp":
-                        threshold = weighting.get("threshold")
-                        if threshold is None:
-                            raise ValueError(
-                                "Missing value for 'threshold' in the k=3 weighting."
-                            )
-                        scale = weighting.get("scale")
-                        r_cut = weighting.get("r_cut")
-                        if scale is not None and r_cut is not None:
-                            raise ValueError(
-                                "Provide either 'scale' or 'r_cut', not both in the k=3 weighting."
-                            )
-                        if scale is None and r_cut is None:
-                            raise ValueError(
-                                "Provide either 'scale' or 'r_cut' in the k=3 weighting."
-                            )
-                    elif weight_func == "smooth_cutoff":
-                        if weighting.get("r_cut") is None:
-                            raise ValueError(
-                                "Missing value for 'r_cut' in the k=3 weighting."
-                            )
-            # Check grid
-            self.check_grid(value["grid"])
+        check_k3(value)
         self._k3 = value
 
     @property

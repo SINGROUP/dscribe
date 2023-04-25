@@ -351,13 +351,11 @@ class DescriptorLocal(Descriptor):
         deltas = [-1.0, 1.0]
         if positions is None: 
             positions = range(len(system))
-        if attach:
-            centers = positions
-        else:
-            centers = system.get_positions()[positions]
+        if not attach and np.issubdtype(type(positions[0]), np.integer):
+            positions = system.get_positions()[positions]
 
         for index, i_atom in enumerate(indices):
-            for i_center, center in enumerate(centers):
+            for i_center, center in enumerate(positions):
                 for i_comp in range(3):
                     for i_stencil in range(2):
                         system_disturbed = system.copy()

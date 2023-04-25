@@ -22,8 +22,6 @@ from ase import Atoms
 import ase.geometry.cell
 import ase.data
 
-import sparse as sp
-
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
 import dscribe.ext
 
@@ -65,10 +63,6 @@ class SOAP(DescriptorLocal):
         periodic=False,
         sparse=False,
         dtype="float64",
-        # For backwards compatibility with < v1.2.2
-        rcut=None,
-        nmax=None,
-        lmax=None,
     ):
         """
         Args:
@@ -169,22 +163,6 @@ class SOAP(DescriptorLocal):
                     * ``"float64"``: Double precision floating point numbers.
 
         """
-        var_dict = {}
-        for var_new in ["r_cut", "n_max", "l_max"]:
-            loc = locals()
-            var_old = "".join(var_new.split("_"))
-            if loc.get(var_old) is not None:
-                var_dict[var_new] = loc[var_old]
-                if loc.get(var_new) is not None:
-                    raise ValueError(
-                        "Please provide only either {} or {}.".format(var_new, var_old)
-                    )
-            else:
-                var_dict[var_new] = loc[var_new]
-        r_cut = var_dict["r_cut"]
-        n_max = var_dict["n_max"]
-        l_max = var_dict["l_max"]
-
         supported_dtype = set(("float32", "float64"))
         if dtype not in supported_dtype:
             raise ValueError(
@@ -298,7 +276,7 @@ class SOAP(DescriptorLocal):
         self.average = average
         self.crossover = crossover
 
-    def prepare_centers(self, system, cutoff_padding, positions=None):
+    def prepare_centers(self, system, positions=None):
         """Validates and prepares the centers for the C++ extension."""
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
@@ -503,7 +481,7 @@ class SOAP(DescriptorLocal):
             get_number_of_features()-function.
         """
         cutoff_padding = self.get_cutoff_padding()
-        centers, _ = self.prepare_centers(system, cutoff_padding, positions)
+        centers, _ = self.prepare_centers(system, positions)
         n_centers = centers.shape[0]
         pos = system.get_positions()
         Z = system.get_atomic_numbers()
@@ -653,9 +631,7 @@ class SOAP(DescriptorLocal):
         cell = ase.geometry.cell.complete_cell(system.get_cell())
         pbc = np.asarray(system.get_pbc(), dtype=bool)
         cutoff_padding = self.get_cutoff_padding()
-        centers, center_indices = self.prepare_centers(
-            system, cutoff_padding, positions
-        )
+        centers, center_indices = self.prepare_centers(system, positions)
 
         if self._rbf == "gto":
             alphas = self._alphas.flatten()
@@ -755,7 +731,7 @@ class SOAP(DescriptorLocal):
         cell = ase.geometry.cell.complete_cell(system.get_cell())
         pbc = np.asarray(system.get_pbc(), dtype=bool)
         cutoff_padding = self.get_cutoff_padding()
-        centers, _ = self.prepare_centers(system, cutoff_padding, positions)
+        centers, _ = self.prepare_centers(system, positions)
         sorted_species = self._atomic_numbers
         n_species = len(sorted_species)
         n_centers = centers.shape[0]

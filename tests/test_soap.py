@@ -331,12 +331,12 @@ def test_derivatives_analytical(pbc, attach, average, rbf, crossover):
 
 @pytest.mark.parametrize("method", ("numerical", "analytical"))
 def test_derivatives_include(method):
-    assert_derivatives_include(soap(), method)
+    assert_derivatives_include(soap(), method, False)
 
 
 @pytest.mark.parametrize("method", ("numerical", "analytical"))
 def test_derivatives_exclude(method):
-    assert_derivatives_exclude(soap(), method)
+    assert_derivatives_exclude(soap(), method, False)
 
 
 # =============================================================================
