@@ -327,6 +327,9 @@ void MBTR::getK3(py::array_t<double> &descriptor, py::array_t<double> &derivativ
                 } else if (weightFunc == "smooth_cutoff") {
                     double sharpness = parameters.at("sharpness");
                     double cutoff = parameters.at("cutoff");
+                    if (d_ji > cutoff || d_jk > cutoff){
+                        continue;
+                    }
                     weight = k3WeightSmooth(i, j, k, distances, sharpness, cutoff);
                     if (return_derivatives) {
                         throw invalid_argument("Derivatives not implemented for weighting function 'smooth_cutoff'.");

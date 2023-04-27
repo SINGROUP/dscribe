@@ -929,8 +929,13 @@ class MBTR(DescriptorGlobal):
                     sharpness = weighting["sharpness"]
                 except Exception:
                     sharpness = 2
-                r_cut = weighting["r_cut"]
-                parameters = {b"sharpness": sharpness, b"cutoff": r_cut}
+                parameters = {b"sharpness": sharpness, b"cutoff": weighting["r_cut"]}
+                # Evaluating smooth-cutoff weighting values requires distances
+                # between two neighbours of an atom, and the maximum distance
+                # between them is twice the cutoff radius. To include the 
+                # neighbour-to-neighbour distances in the distance matrix, the 
+                # neighbour list is generated with the double radius.
+                r_cut = 2 * weighting["r_cut"]
         else:
             weighting_function = "unity"
 
