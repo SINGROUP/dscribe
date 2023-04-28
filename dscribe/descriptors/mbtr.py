@@ -1072,12 +1072,6 @@ class MBTR(DescriptorGlobal):
                 )
             # Derivatives are not currently implemented for all k3 options
             if self.k3 is not None:
-                if self.k3.get("weighting") is not None:
-                    if self.k3["weighting"]["function"] == "smooth_cutoff":
-                        raise ValueError(
-                            "Analytical derivatives not implemented for k3 weighting function 'smooth_cutoff'."
-                        )
-
                 # "angle" function is not differentiable
                 if self.k3["geometry"]["function"] == "angle":
                     raise ValueError(
