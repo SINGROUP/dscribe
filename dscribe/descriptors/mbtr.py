@@ -881,9 +881,10 @@ class MBTR(DescriptorGlobal):
                     m = int(j + i * n_elem - i * (i + 1) / 2)
                     start = m * n
                     end = (m + 1) * n
-                    y_normed = (k2[start:end] * volume) / (count_product * 4 * np.pi)
+                    norm_factor = volume / (count_product * 4 * np.pi)
 
-                    k2[start:end] = y_normed
+                    k2[start:end] *= norm_factor
+                    k2_d[:, :, start:end] *= norm_factor
 
         # Convert to the final output precision.
         if self.dtype == "float32":
@@ -932,9 +933,9 @@ class MBTR(DescriptorGlobal):
                 parameters = {b"sharpness": sharpness, b"cutoff": weighting["r_cut"]}
                 # Evaluating smooth-cutoff weighting values requires distances
                 # between two neighbours of an atom, and the maximum distance
-                # between them is twice the cutoff radius. To include the 
-                # neighbour-to-neighbour distances in the distance matrix, the 
-                # neighbour list is generated with the double radius.
+                # between them is twice the cutoff radius. To include the
+                # neighbour-to-neighbour distances in the distance matrix, the
+                # neighbour list is generated with double radius.
                 r_cut = 2 * weighting["r_cut"]
         else:
             weighting_function = "unity"
@@ -1038,8 +1039,10 @@ class MBTR(DescriptorGlobal):
                         start = m * n
                         end = (m + 1) * n
                         count_product = counts[i_z] * counts[j_z] * counts[k_z]
-                        y_normed = (k3[start:end] * volume) / count_product
-                        k3[start:end] = y_normed
+                        norm_factor = volume / count_product
+
+                        k3[start:end] *= norm_factor
+                        k3_d[:, :, start:end] *= norm_factor
 
         # Convert to the final output precision.
         if self.dtype == "float32":
@@ -1063,7 +1066,7 @@ class MBTR(DescriptorGlobal):
 
         # Check if analytical derivatives can be used
         try:
-            supported_normalization = ["none", "n_atoms"]
+            supported_normalization = ["none", "n_atoms", "valle_oganov"]
             if self.normalization not in supported_normalization:
                 raise ValueError(
                     "Analytical derivatives not implemented for normalization option '{}'. Please choose from: {}".format(
