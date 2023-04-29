@@ -16,8 +16,8 @@ from dscribe.descriptors import ValleOganov, MBTR
 
 # =============================================================================
 # Utilities
-default_k2 = {"sigma": 10 ** (-0.625), "n": 10, "r_cut": 2}
-default_k3 = {"sigma": 10 ** (-0.625), "n": 10, "r_cut": 2}
+default_k2 = {"sigma": 10 ** (-0.625), "n": 10, "r_cut": 2.1}
+default_k3 = {"sigma": 10 ** (-0.625), "n": 10, "r_cut": 2.1}
 
 
 def valle_oganov(**kwargs):
@@ -75,6 +75,10 @@ def test_symmetries():
 
 def test_derivatives_numerical():
     assert_derivatives(valle_oganov(), "numerical", False)
+
+
+def test_derivatives_analytical():
+    assert_derivatives(valle_oganov(k3=None), "analytical", False)
 
 
 @pytest.mark.parametrize("method", ("numerical",))
