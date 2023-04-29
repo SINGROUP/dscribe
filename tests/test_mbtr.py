@@ -95,6 +95,8 @@ def k3_dict(weighting_function):
 
     if weighting_function == "exp":
         d["weighting"] = {"function": "exp", "scale": 1.0, "threshold": 1e-3}
+    elif weighting_function == "smooth_cutoff":
+        d["weighting"] = {"function": "smooth_cutoff", "sharpness": 2.0, "r_cut": 6.0}
 
     return d
 
@@ -220,7 +222,21 @@ def test_symmetries():
         (
             "analytical",
             True,
+            "none",
+            k2_dict("distance", "exp"),
+            k3_dict("smooth_cutoff"),
+        ),
+        (
+            "analytical",
+            True,
             "n_atoms",
+            k2_dict("inverse_distance", "exp"),
+            k3_dict("exp"),
+        ),
+        (
+            "analytical",
+            True,
+            "valle_oganov",
             k2_dict("inverse_distance", "exp"),
             k3_dict("exp"),
         ),
