@@ -1,6 +1,5 @@
 import pytest
 import numpy as np
-from numpy.random import RandomState
 from ase import Atoms
 from conftest import (
     assert_n_features,

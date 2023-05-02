@@ -15,8 +15,9 @@ from conftest import (
     assert_derivatives,
     assert_derivatives_include,
     assert_derivatives_exclude,
-    get_complex_system,
-    get_simple_system,
+    get_complex_periodic,
+    get_simple_periodic,
+    get_simple_finite,
 )
 from dscribe.descriptors import CoulombMatrix
 
@@ -179,11 +180,12 @@ def test_derivatives_exclude(method):
         ("sorted_l2"),
     ],
 )
-def test_features(permutation, H2O):
+def test_features(permutation):
     n_atoms_max = 5
+    system = get_simple_finite()
     desc = CoulombMatrix(n_atoms_max=n_atoms_max, permutation=permutation)
-    cm = desc.create(H2O)
-    cm_assumed = cm_python(H2O, n_atoms_max, permutation, False)
+    cm = desc.create(system)
+    cm_assumed = cm_python(system, n_atoms_max, permutation, False)
     assert np.allclose(cm, cm_assumed)
 
 
@@ -192,7 +194,7 @@ def test_periodicity():
     even if the system is set as periodic.
     """
     desc = CoulombMatrix(n_atoms_max=5, permutation="none")
-    bulk_system = get_simple_system()
+    bulk_system = get_simple_periodic()
     cm = desc.create(bulk_system)
     pos = bulk_system.get_positions()
     assumed = 1 * 1 / np.linalg.norm((pos[0] - pos[1]))
@@ -211,7 +213,7 @@ def test_periodicity():
 def test_performance(permutation):
     """Tests that the C++ code performs better than the numpy version."""
     n_iter = 10
-    system = get_complex_system()
+    system = get_complex_periodic()
     start = time
     n_atoms_max = len(system)
     descriptor = coulomb_matrix(permutation=permutation)([system])

@@ -20,7 +20,7 @@ from conftest import (
     assert_derivatives,
     assert_derivatives_include,
     assert_derivatives_exclude,
-    get_simple_system,
+    get_simple_periodic,
     get_simple_finite,
 )
 from dscribe.descriptors import EwaldSumMatrix
@@ -115,7 +115,7 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
 
 @pytest.mark.parametrize("permutation", ("none", "eigenspectrum", "sorted_l2"))
 def test_derivatives_numerical(permutation):
-    system = get_simple_system()
+    system = get_simple_periodic()
     system *= [2, 2, 2]
     assert_derivatives(
         ewald_sum_matrix(permutation=permutation), "numerical", False, system=system

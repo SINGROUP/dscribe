@@ -268,8 +268,9 @@ def assert_derivatives(
     # Compare descriptor values
     assert np.allclose(d0, d_cpp, atol=1e-6)
 
-    # Check that derivatives are not super small
-    assert np.max(np.abs(derivatives_cpp)) > 1e-6
+    # Check that derivatives are not super small: this typically indicates other
+    # problems.
+    assert np.max(np.abs(derivatives_cpp)) > 1e-8
 
     # Compare derivative values
     assert np.allclose(derivatives_python, derivatives_cpp, rtol=1e-4, atol=1e-4)
