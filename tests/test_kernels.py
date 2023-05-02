@@ -11,9 +11,9 @@ def test_difference():
     # Create SOAP features for a system
     desc = SOAP(
         species=[1, 6, 7, 8],
-        rcut=5.0,
-        nmax=2,
-        lmax=2,
+        r_cut=5.0,
+        n_max=2,
+        l_max=2,
         sigma=0.2,
         periodic=False,
         crossover=True,
@@ -49,9 +49,9 @@ def test_metrics():
     # Create SOAP features for a system
     desc = SOAP(
         species=[1, 8],
-        rcut=5.0,
-        nmax=2,
-        lmax=2,
+        r_cut=5.0,
+        n_max=2,
+        l_max=2,
         sigma=0.2,
         periodic=False,
         crossover=True,
@@ -81,9 +81,9 @@ def test_xy():
     # Create SOAP features for a system
     desc = SOAP(
         species=[1, 8],
-        rcut=5.0,
-        nmax=2,
-        lmax=2,
+        r_cut=5.0,
+        n_max=2,
+        l_max=2,
         sigma=0.2,
         periodic=False,
         crossover=True,
@@ -109,9 +109,9 @@ def test_sparse():
     # Create SOAP features for a system
     desc = SOAP(
         species=[1, 8],
-        rcut=5.0,
-        nmax=2,
-        lmax=2,
+        r_cut=5.0,
+        n_max=2,
+        l_max=2,
         sigma=0.2,
         periodic=False,
         crossover=True,
@@ -128,9 +128,9 @@ def test_difference():
     # Create SOAP features for a system
     desc = SOAP(
         species=[1, 6, 7, 8],
-        rcut=5.0,
-        nmax=2,
-        lmax=2,
+        r_cut=5.0,
+        n_max=2,
+        l_max=2,
         sigma=0.2,
         periodic=False,
         crossover=True,
@@ -168,9 +168,9 @@ def test_convergence_infinity():
     # Create SOAP features for a system
     desc = SOAP(
         species=[1, 8],
-        rcut=5.0,
-        nmax=2,
-        lmax=2,
+        r_cut=5.0,
+        n_max=2,
+        l_max=2,
         sigma=0.2,
         periodic=False,
         crossover=True,
@@ -198,9 +198,9 @@ def test_metrics():
     # Create SOAP features for a system
     desc = SOAP(
         species=[1, 8],
-        rcut=5.0,
-        nmax=2,
-        lmax=2,
+        r_cut=5.0,
+        n_max=2,
+        l_max=2,
         sigma=0.2,
         periodic=False,
         crossover=True,
@@ -230,9 +230,9 @@ def test_xy():
     # Create SOAP features for a system
     desc = SOAP(
         species=[1, 8],
-        rcut=5.0,
-        nmax=2,
-        lmax=2,
+        r_cut=5.0,
+        n_max=2,
+        l_max=2,
         sigma=0.2,
         periodic=False,
         crossover=True,
@@ -258,9 +258,9 @@ def test_sparse():
     # Create SOAP features for a system
     desc = SOAP(
         species=[1, 8],
-        rcut=5.0,
-        nmax=2,
-        lmax=2,
+        r_cut=5.0,
+        n_max=2,
+        l_max=2,
         sigma=0.2,
         periodic=False,
         crossover=True,

@@ -71,9 +71,6 @@ class EwaldSumMatrix(DescriptorMatrix):
         n_jobs=1,
         only_physical_cores=False,
         verbose=False,
-        # For backwards compatibility with < v1.2.2
-        rcut=None,
-        gcut=None,
     ):
         """Return the Ewald sum matrix for the given systems.
 

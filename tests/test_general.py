@@ -517,7 +517,5 @@ def test_mixed_number_species():
 
 def test_verbose_create():
     """Tests the verbose flag in create."""
-    lmax = 5
-    nmax = 5
-    desc = SOAP(species=[1, 8], r_cut=3, n_max=nmax, l_max=lmax, periodic=True)
+    desc = SOAP(species=[1, 8], r_cut=3, n_max=5, l_max=5, periodic=True)
     desc.create([H2O, H2O], verbose=True)

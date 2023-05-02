@@ -20,9 +20,9 @@ from dscribe.descriptors import SOAP
 soap = SOAP(
     species=species,
     periodic=False,
-    rcut=5,
-    nmax=8,
-    lmax=8,
+    r_cut=5,
+    n_max=8,
+    l_max=8,
     average="outer",
     sparse=False
 )

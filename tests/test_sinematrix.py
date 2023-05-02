@@ -145,7 +145,7 @@ def test_features():
     # from ase.visualize import view
     # view(system)
     matrix = desc.create(system)
-    matrix = desc.unflatten(matrix, 1)
+    matrix = desc.unflatten(matrix)
 
     # The interaction between atoms 1 and 2 should be infinite due to
     # periodic boundaries.

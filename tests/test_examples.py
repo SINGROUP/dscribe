@@ -1,4 +1,5 @@
 import sys, os
+from pathlib import Path
 from importlib import import_module
 
 
@@ -16,7 +17,7 @@ def test_examples():
         "./clustering/training.py",
     }
     old_cwd = os.getcwd()
-    os.chdir("../examples")
+    os.chdir(Path(__file__).parent.parent / "examples")
     example_root = os.getcwd()
     paths = set()
     for root, dirs, files in list(os.walk("./")):

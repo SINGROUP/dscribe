@@ -1,14 +1,7 @@
 from dscribe.descriptors import CoulombMatrix
 
-atomic_numbers = [1, 8]
-rcut = 6.0
-nmax = 8
-lmax = 6
-
 # Setting up the CM descriptor
-cm = CoulombMatrix(
-    n_atoms_max=6,
-)
+cm = CoulombMatrix(n_atoms_max=6)
 
 # Creation
 from ase.build import molecule

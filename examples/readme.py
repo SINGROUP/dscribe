@@ -8,7 +8,7 @@ samples = [molecule("H2O"), molecule("NO2"), molecule("CO2")]
 
 # Setup descriptors
 cm_desc = CoulombMatrix(n_atoms_max=3, permutation="sorted_l2")
-soap_desc = SOAP(species=["C", "H", "O", "N"], rcut=5, nmax=8, lmax=6, crossover=True)
+soap_desc = SOAP(species=["C", "H", "O", "N"], r_cut=5, n_max=8, l_max=6, crossover=True)
 
 # Create descriptors as numpy arrays or sparse arrays
 water = samples[0]

@@ -467,45 +467,6 @@ class MBTR(DescriptorGlobal):
             )
         self._normalization = value
 
-    def get_k1_axis(self):
-        """Used to get the discretized axis for geometry function of the k=1
-        term.
-
-        Returns:
-            np.ndarray: The discretized axis for the k=1 term.
-        """
-        start = self.k1["grid"]["min"]
-        stop = self.k1["grid"]["max"]
-        n = self.k1["grid"]["n"]
-
-        return np.linspace(start, stop, n)
-
-    def get_k2_axis(self):
-        """Used to get the discretized axis for geometry function of the k=2
-        term.
-
-        Returns:
-            np.ndarray: The discretized axis for the k=2 term.
-        """
-        start = self.k2["grid"]["min"]
-        stop = self.k2["grid"]["max"]
-        n = self.k2["grid"]["n"]
-
-        return np.linspace(start, stop, n)
-
-    def get_k3_axis(self):
-        """Used to get the discretized axis for geometry function of the k=3
-        term.
-
-        Returns:
-            np.ndarray: The discretized axis for the k=3 term.
-        """
-        start = self.k3["grid"]["min"]
-        stop = self.k3["grid"]["max"]
-        n = self.k3["grid"]["n"]
-
-        return np.linspace(start, stop, n)
-
     def create(self, system, n_jobs=1, only_physical_cores=False, verbose=False):
         """Return MBTR output for the given systems.
 

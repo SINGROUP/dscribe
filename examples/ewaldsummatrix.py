@@ -3,11 +3,6 @@ import scipy
 
 from dscribe.descriptors import EwaldSumMatrix
 
-atomic_numbers = [1, 8]
-r_cut = 6.0
-nmax = 8
-lmax = 6
-
 # Setting up the Ewald sum matrix descriptor
 esm = EwaldSumMatrix(n_atoms_max=6)
 

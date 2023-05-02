@@ -240,18 +240,22 @@ class DescriptorMatrix(DescriptorGlobal):
             self._norm_vector = np.linalg.norm(matrix, axis=1)
         return self._norm_vector
 
-    def unflatten(self, features, n_systems):
+    def unflatten(self, features, n_systems=None):
         """
         Can be used to "unflatten" a matrix descriptor back into a 2D array.
         Useful for testing and visualization purposes.
 
         Args:
             features(np.ndarray): Flattened features.
-            n_systems(int): Number of systems.
+            n_systems(int): Number of systems. If not specified a value will be
+                guessed from the input features.
 
         Returns:
             np.ndarray: The features as a 2D array.
         """
+        if n_systems is None:
+            n_dim = len(features.shape)
+            n_systems = 1 if n_dim == 1 else features.shape[0]
         if self.sparse:
             if n_systems != 1:
                 full = sparse.zeros(

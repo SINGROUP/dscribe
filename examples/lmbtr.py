@@ -65,7 +65,7 @@ sites = lmbtr.create(
 
 # Plot the site-aluminum distributions for each site
 al_slice = lmbtr.get_location(("X", "Al"))
-x = lmbtr.get_k2_axis()
+x = np.linspace(1, 5, 200)
 mpl.plot(x, sites[0, al_slice], label="top")
 mpl.plot(x, sites[1, al_slice], label="bridge")
 mpl.plot(x, sites[2, al_slice], label="hcp")

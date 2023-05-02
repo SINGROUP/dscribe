@@ -661,7 +661,7 @@ def assert_matrix_descriptor_sorted(descriptor_func):
     system = molecule_complex()
     desc = descriptor_func(permutation="sorted_l2")([system])
     features = desc.create(system)
-    features = desc.unflatten(features, 1)
+    features = desc.unflatten(features)
 
     # Check that norms are ordered correctly
     lens = np.linalg.norm(features, axis=1)
@@ -719,7 +719,7 @@ def assert_matrix_descriptor_random(descriptor_func):
     sigma = 5
     desc = descriptor_func(permutation="sorted_l2")([HHe])
     features = desc.create(HHe)
-    features = desc.unflatten(features, 1)
+    features = desc.unflatten(features)
     means = np.linalg.norm(features, axis=1)
     mu2 = means[0]
     mu1 = means[1]
@@ -733,7 +733,7 @@ def assert_matrix_descriptor_random(descriptor_func):
     rand_instances = 20000
     for i in range(0, rand_instances):
         features = desc.create(HHe)
-        features = desc.unflatten(features, 1)
+        features = desc.unflatten(features)
         i_means = np.linalg.norm(features, axis=1)
         if i_means[0] < i_means[1]:
             count += 1
