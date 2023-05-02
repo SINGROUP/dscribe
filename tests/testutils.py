@@ -1,5 +1,6 @@
 import numpy as np
 import scipy
+from pathlib import Path
 from scipy.integrate import tplquad
 from scipy.linalg import sqrtm
 from ase import Atoms
@@ -8,7 +9,9 @@ from ase import Atoms
 # from pymatgen.core.structure import Structure
 from dscribe.descriptors import SOAP
 from joblib import Parallel, delayed
-from conftest import water
+from conftest import get_simple_finite
+
+folder = Path(__file__).parent 
 
 
 def get_soap_default_setup():
@@ -119,7 +122,7 @@ def get_soap_polynomial_l_max_setup():
 
 def get_ewald_sum_matrix_default_setup():
     """Returns an atomic system and Ewald sum matrix parameters for testing."""
-    system = water()
+    system = get_simple_finite()
     ewald_arguments = {"n_atoms_max": 3, "permutation": "none"}
     create_arguments = {
         "a": 0.5,
@@ -134,7 +137,7 @@ def get_ewald_sum_matrix_automatic_setup():
     """Returns an atomic system and Ewald sum matrix parameters using accuracy
     to determine parameters.
     """
-    system = water()
+    system = get_simple_finite()
     ewald_arguments = {"n_atoms_max": 3, "permutation": "none"}
     create_arguments = {
         "a": None,
@@ -228,16 +231,8 @@ def coefficients_polynomial(system, centers, args):
     with polynomial radial basis.
     """
     n_max = args["n_max"]
-    l_max = args["l_max"]
     r_cut = args["r_cut"]
-    sigma = args["sigma"]
-    weighting = args.get("weighting")
-
-    positions = system.get_positions()
-    symbols = system.get_chemical_symbols()
     atomic_numbers = system.get_atomic_numbers()
-    species_ordered = sorted(list(set(atomic_numbers)))
-    n_elems = len(species_ordered)
 
     # Calculate the overlap of the different polynomial functions in a
     # matrix S. These overlaps defined through the dot product over the
@@ -267,17 +262,12 @@ def soap_integration(system, centers, args, rbf_function):
     """
     n_max = args["n_max"]
     l_max = args["l_max"]
-    r_cut = args["r_cut"]
-    sigma = args["sigma"]
-    weighting = args.get("weighting")
 
     positions = system.get_positions()
-    symbols = system.get_chemical_symbols()
     atomic_numbers = system.get_atomic_numbers()
     species_ordered = sorted(list(set(atomic_numbers)))
     n_elems = len(species_ordered)
 
-    n_steps = len(centers) * len(species_ordered) * n_max * (l_max + 1) ** 2
     p_args = []
     p_index = []
     for i, ipos in enumerate(centers):
@@ -301,8 +291,6 @@ def soap_integration(system, centers, args, rbf_function):
 
 
 def integral(args, n, l, m, elem_pos, rbf_function):
-    n_max = args["n_max"]
-    l_max = args["l_max"]
     r_cut = args["r_cut"]
     sigma = args["sigma"]
     weighting = args.get("weighting")
@@ -395,7 +383,7 @@ def save_gto_coefficients():
     system, centers, args = get_soap_gto_l_max_setup()
     coeffs = coefficients_gto(system, centers, args)
     np.save(
-        "gto_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args),
+        folder / "gto_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args),
         coeffs,
     )
 
@@ -405,23 +393,11 @@ def save_poly_coefficients():
     system. Calculating these takes a significant amount of time, so during
     tests these preloaded values are used.
     """
-    system, centers, args = get_soap_polynomial()
+    system, centers, args = get_soap_polynomial_l_max_setup()
     coeffs = coefficients_polynomial(system, centers, args)
     np.save(
-        "polynomial_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args),
+        folder / "polynomial_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args),
         coeffs,
-    )
-
-
-def load_gto_coefficients(args):
-    return np.load(
-        "gto_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args)
-    )
-
-
-def load_polynomial_coefficients(args):
-    return np.load(
-        "polynomial_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args)
     )
 
 
@@ -466,11 +442,11 @@ def calculate_ewald(system, a=None, r_cut=None, g_cut=None, accuracy=None):
 
 def save_ewald(system, args):
     coeffs = calculate_ewald(system, **args)
-    np.save("ewald_{a}_{r_cut}_{g_cut}_{accuracy}.npy".format(**args), coeffs)
+    np.save(folder / "ewald_{a}_{r_cut}_{g_cut}_{accuracy}.npy".format(**args), coeffs)
 
 
 def load_ewald(args):
-    return np.load("ewald_{a}_{r_cut}_{g_cut}_{accuracy}.npy".format(**args))
+    return np.load(folder / "ewald_{a}_{r_cut}_{g_cut}_{accuracy}.npy".format(**args))
 
 
 if __name__ == "__main__":

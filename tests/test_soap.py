@@ -1,4 +1,5 @@
 import pytest
+from pathlib import Path
 import itertools
 import numpy as np
 from ase import Atoms
@@ -16,7 +17,7 @@ from conftest import (
     assert_derivatives,
     assert_derivatives_exclude,
     assert_derivatives_include,
-    water,
+    get_simple_finite,
 )
 from dscribe.descriptors import SOAP
 
@@ -26,6 +27,7 @@ from dscribe.descriptors import SOAP
 default_r_cut = 3
 default_n_max = 3
 default_l_max = 6
+folder = Path(__file__).parent 
 
 
 def soap(**kwargs):
@@ -207,13 +209,13 @@ def get_power_spectrum(coeffs, crossover=True, average="off"):
 
 def load_gto_coefficients(args):
     return np.load(
-        "gto_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args)
+        folder / "gto_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args)
     )
 
 
 def load_polynomial_coefficients(args):
     return np.load(
-        "polynomial_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args)
+        folder / "polynomial_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args)
     )
 
 
@@ -345,7 +347,7 @@ def test_exceptions():
     """Tests different invalid parameters that should raise an
     exception.
     """
-    system = water()
+    system = get_simple_finite()
 
     # Invalid sigma width
     with pytest.raises(ValueError):
@@ -502,7 +504,7 @@ def test_crossover(crossover, rbf):
     species = [1, 8]
     n_max = 5
     l_max = 5
-    system = water()
+    system = get_simple_finite()
     pos = [system.get_center_of_mass()]
 
     desc = SOAP(
@@ -612,7 +614,7 @@ def test_weighting(rbf, weighting):
     analytical_power_spectrum = soap.create(system, positions=centers)
 
     # Calculate and save the numerical power spectrum to disk
-    filename = "{rbf}_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}_{func}.npy".format(
+    filename = folder / "{rbf}_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}_{func}.npy".format(
         **args, rbf=rbf, func=weighting["function"]
     )
     # coeffs = getattr(self, "coefficients_{}".format(rbf))(

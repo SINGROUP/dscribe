@@ -22,7 +22,7 @@ from conftest import (
     assert_mbtr_peak,
     assert_systems,
     assert_systems,
-    water,
+    get_simple_finite,
 )
 
 # =============================================================================
@@ -206,7 +206,7 @@ def test_location_exceptions(location):
     "system,k,geometry,grid,weighting,periodic,peaks,prominence",
     [
         pytest.param(
-            water(),
+            get_simple_finite(),
             2,
             {"function": "distance"},
             {"min": -1, "max": 3, "sigma": 0.5, "n": 1000},
@@ -240,7 +240,7 @@ def test_location_exceptions(location):
             id="k2 periodic",
         ),
         pytest.param(
-            water(),
+            get_simple_finite(),
             3,
             {"function": "angle"},
             {"min": -10, "max": 180, "sigma": 5, "n": 2000},

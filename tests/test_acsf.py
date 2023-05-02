@@ -16,7 +16,7 @@ from conftest import (
     assert_derivatives,
     assert_derivatives_include,
     assert_derivatives_exclude,
-    water,
+    get_simple_finite,
 )
 from dscribe.descriptors import ACSF
 
@@ -163,7 +163,7 @@ def test_exceptions():
 
 def test_features():
     """Tests that the correct features are present in the descriptor."""
-    system = water()
+    system = get_simple_finite()
     rs = math.sqrt(2)
     kappa = math.sqrt(3)
     eta = math.sqrt(5)

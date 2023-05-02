@@ -9,7 +9,7 @@ from conftest import (
     assert_derivatives,
     assert_derivatives_include,
     assert_derivatives_exclude,
-    water,
+    get_simple_finite,
 )
 from dscribe.descriptors import ValleOganov, MBTR
 
@@ -140,7 +140,7 @@ def test_vs_mbtr():
     """Tests that the ValleOganov subclass gives the same output as MBTR with
     the corresponding parameters.
     """
-    system = water()
+    system = get_simple_finite()
     desc = ValleOganov(
         species=[1, 8],
         k2={"sigma": 0.1, "n": 20, "r_cut": 5},

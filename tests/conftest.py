@@ -38,9 +38,9 @@ setup_k3 = {
 }
 
 
-def big_system():
-    """ "Elaborate test system with multiple species, non-cubic cell, and
-    close-by atoms.
+def get_complex_periodic():
+    """Elaborate test system with multiple species, non-cubic cell, and close-by
+    atoms.
     """
     a = 1
     return Atoms(
@@ -55,13 +55,20 @@ def big_system():
     ) * (3, 3, 3)
 
 
-@pytest.fixture()
-def H2O():
-    """The H2O molecule."""
-    return water()
+def get_simple_periodic():
+    """Simple bulk system."""
+    return Atoms(
+        cell=[5, 5, 5],
+        scaled_positions=[
+            [0.1, 0, 0],
+            [0.9, 0, 0],
+        ],
+        symbols=["H", "H"],
+        pbc=True,
+    )
 
 
-def water():
+def get_simple_finite():
     """The H2O molecule in a cell."""
     return Atoms(
         cell=[[5.0, 0.0, 0.0], [0.0, 5.0, 0.0], [0.0, 0.0, 5.0]],
@@ -77,8 +84,7 @@ def water():
         symbols=["H", "O", "H"],
     )
 
-
-def molecule_complex():
+def get_complex_finite():
     """Acetyl fluoride molecule in a cell with no periodicity."""
     mol = molecule("CH3COF")
     mol.set_cell([5, 5, 5])
@@ -86,18 +92,6 @@ def molecule_complex():
     return mol
 
 
-@pytest.fixture()
-def bulk_system():
-    """Simple bulk system."""
-    return Atoms(
-        cell=[5, 5, 5],
-        scaled_positions=[
-            [0.1, 0, 0],
-            [0.9, 0, 0],
-        ],
-        symbols=["H", "H"],
-        pbc=True,
-    )
 
 
 def assert_symmetries(
@@ -115,7 +109,7 @@ def assert_symmetry_rotation(descriptor_func):
     """Tests whether the descriptor output is invariant to rotations of the
     original system.
     """
-    system = water()
+    system = get_simple_finite()
     descriptor = descriptor_func([system])
     features = descriptor.create(system)
     is_rot_sym = True
@@ -139,7 +133,7 @@ def assert_symmetry_translation(descriptor_func):
         create(function): A function that when given an Atoms object
         returns a final descriptor vector for it.
     """
-    system = water()
+    system = get_simple_finite()
     descriptor = descriptor_func([system])
     features = descriptor.create(system)
     is_trans_sym = True
@@ -160,7 +154,7 @@ def assert_symmetry_permutation(descriptor_func):
     """Tests whether the descriptor output is invariant to permutation of
     atom indexing.
     """
-    system = water()
+    system = get_simple_finite()
     descriptor = descriptor_func([system])
     features = descriptor.create(system)
     is_perm_sym = True
@@ -196,7 +190,7 @@ def assert_periodic(descriptor_func):
     assert np.allclose(feat_ref, feat_periodic)
 
 
-def assert_derivatives(descriptor_func, method, pbc, system=big_system(), attach=None):
+def assert_derivatives(descriptor_func, method, pbc, system=get_complex_periodic(), attach=None, create_args=None):
     # Test values against a naive python implementation.
     system.set_pbc(pbc)
     h = 0.0001
@@ -206,6 +200,8 @@ def assert_derivatives(descriptor_func, method, pbc, system=big_system(), attach
     n_features = descriptor.get_number_of_features()
     coeffs = [-1.0 / 2.0, 1.0 / 2.0]
     deltas = [-1.0, 1.0]
+    if create_args is None:
+        create_args = {}
 
     if isinstance(descriptor, DescriptorLocal):
         if attach:
@@ -219,7 +215,7 @@ def assert_derivatives(descriptor_func, method, pbc, system=big_system(), attach
         else:
             n_centers = len(centers)
             derivatives_python = np.zeros((n_centers, n_atoms, n_comp, n_features))
-        d0 = descriptor.create(system, centers)
+        d0 = descriptor.create(system, centers, **create_args)
         for i_atom in range(len(system)):
             for i_center in range(n_centers):
                 for i_comp in range(3):
@@ -232,7 +228,7 @@ def assert_derivatives(descriptor_func, method, pbc, system=big_system(), attach
                         i_pos = system_disturbed.get_positions()
                         i_pos[i_atom, i_comp] += h * deltas[i_stencil]
                         system_disturbed.set_positions(i_pos)
-                        d1 = descriptor.create(system_disturbed, i_cent)
+                        d1 = descriptor.create(system_disturbed, i_cent, **create_args)
                         if average != "off":
                             derivatives_python[i_atom, i_comp, :] += (
                                 coeffs[i_stencil] * d1 / h
@@ -246,7 +242,7 @@ def assert_derivatives(descriptor_func, method, pbc, system=big_system(), attach
         )
     else:
         derivatives_python = np.zeros((n_atoms, n_comp, n_features))
-        d0 = descriptor.create(system)
+        d0 = descriptor.create(system, **create_args)
         for i_atom in range(len(system)):
             for i_comp in range(3):
                 for i_stencil in range(2):
@@ -254,7 +250,7 @@ def assert_derivatives(descriptor_func, method, pbc, system=big_system(), attach
                     i_pos = system_disturbed.get_positions()
                     i_pos[i_atom, i_comp] += h * deltas[i_stencil]
                     system_disturbed.set_positions(i_pos)
-                    d1 = descriptor.create(system_disturbed)
+                    d1 = descriptor.create(system_disturbed, **create_args)
                     derivatives_python[i_atom, i_comp, :] += coeffs[i_stencil] * d1 / h
         derivatives_cpp, d_cpp = descriptor.derivatives(system, method=method)
 
@@ -387,7 +383,7 @@ def assert_derivatives_exclude(descriptor_func, method, attach=None):
 
 def assert_cell(descriptor_func, cell):
     """Test that different types of cells are handled correctly."""
-    system = water()
+    system = get_simple_finite()
     # Error is raised if there is no cell when periodicity=True
     if cell == "collapsed_periodic":
         system.set_pbc(True)
@@ -408,7 +404,7 @@ def assert_systems(descriptor_func, pbc, cell):
     """Tests that the descriptor can correctly handle differently described
     systems
     """
-    system = water()
+    system = get_simple_finite()
     system.set_pbc(pbc)
     system.set_cell(cell)
     descriptor = descriptor_func([system])
@@ -417,15 +413,15 @@ def assert_systems(descriptor_func, pbc, cell):
 
 def assert_dtype(descriptor_func, dtype, sparse):
     """Test that the requested data type is respected"""
-    system = water()
+    system = get_simple_finite()
     desc = descriptor_func(dtype=dtype, sparse=sparse)([system])
-    features = desc.create(water())
+    features = desc.create(get_simple_finite())
     assert features.dtype == dtype
 
 
 def assert_sparse(descriptor_func):
     """Test that sparse output is created upon request in the correct format."""
-    system = water()
+    system = get_simple_finite()
 
     # Dense
     desc = descriptor_func(sparse=False)([system])
@@ -442,7 +438,7 @@ def assert_n_features(descriptor_func, n_features):
     """Test that the reported number of features matches the actual number of
     features and the expected value.
     """
-    system = water()
+    system = get_simple_finite()
     desc = descriptor_func([system])
     n_features_reported = desc.get_number_of_features()
     n_features_actual = desc.create(system).shape[-1]
@@ -538,7 +534,7 @@ def assert_no_system_modification(descriptor_func):
 
     # Try separately for periodic and non-periodic systems
     check_modifications(bulk("Cu", "fcc", a=3.6))
-    check_modifications(water())
+    check_modifications(get_simple_finite())
 
 
 def assert_basis(descriptor_func):
@@ -622,7 +618,7 @@ def assert_normalization(
 
 def assert_positions(descriptor_func):
     """Tests that local descriptors handle the position argument correctly."""
-    system = water()
+    system = get_simple_finite()
     desc = descriptor_func()([system])
     positions = [
         ([0, 1, 2], 3),
@@ -642,7 +638,7 @@ def assert_positions(descriptor_func):
 
 
 def assert_matrix_descriptor_exceptions(descriptor_func):
-    system = water()
+    system = get_simple_finite()
 
     # Unknown permutation option
     with pytest.raises(ValueError):
@@ -658,7 +654,7 @@ def assert_matrix_descriptor_exceptions(descriptor_func):
 
 def assert_matrix_descriptor_sorted(descriptor_func):
     """Tests that sorting using row norm works as expected"""
-    system = molecule_complex()
+    system = get_complex_finite()
     desc = descriptor_func(permutation="sorted_l2")([system])
     features = desc.create(system)
     features = desc.unflatten(features)
@@ -678,7 +674,7 @@ def assert_matrix_descriptor_eigenspectrum(descriptor_func):
     """Tests that the eigenvalues are sorted correctly and that the output is
     zero-padded.
     """
-    system = water()
+    system = get_simple_finite()
     desc = descriptor_func(n_atoms_max=5, permutation="eigenspectrum")([system])
     features = desc.create(system)
 

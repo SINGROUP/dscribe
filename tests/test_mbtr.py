@@ -23,7 +23,7 @@ from conftest import (
     assert_mbtr_location,
     assert_mbtr_location_exception,
     assert_mbtr_peak,
-    water,
+    get_simple_finite,
 )
 
 # =============================================================================
@@ -228,7 +228,7 @@ def test_symmetries():
 )
 def test_derivatives(method, periodic, normalization, k2, k3):
     mbtr_func = mbtr(normalization=normalization, periodic=periodic, k2=k2, k3=k3)
-    assert_derivatives(mbtr_func, method, periodic, water())
+    assert_derivatives(mbtr_func, method, periodic, get_simple_finite())
 
 
 @pytest.mark.parametrize("method", ("numerical", "analytical"))
@@ -272,7 +272,7 @@ def test_location_exceptions(location):
     assert_mbtr_location_exception(mbtr(**default_k3, species=["H"])(), location)
 
 
-water_periodic = water()
+water_periodic = get_simple_finite()
 water_periodic.set_pbc(True)
 
 
@@ -280,7 +280,7 @@ water_periodic.set_pbc(True)
     "system,k,geometry,grid,weighting,periodic,peaks,prominence",
     [
         pytest.param(
-            water(),
+            get_simple_finite(),
             1,
             {"function": "atomic_number"},
             {"min": 0, "max": 9, "sigma": 0.5, "n": 1000},
@@ -302,7 +302,7 @@ water_periodic.set_pbc(True)
             id="k1 periodic",
         ),
         pytest.param(
-            water(),
+            get_simple_finite(),
             2,
             {"function": "distance"},
             {"min": -1, "max": 3, "sigma": 0.5, "n": 1000},
@@ -336,7 +336,7 @@ water_periodic.set_pbc(True)
             id="k2 periodic",
         ),
         pytest.param(
-            water(),
+            get_simple_finite(),
             3,
             {"function": "angle"},
             {"min": -10, "max": 180, "sigma": 5, "n": 2000},
@@ -608,7 +608,7 @@ def test_gaussian_distribution(normalize_gaussians):
         },
         normalize_gaussians=normalize_gaussians,
     )
-    system = water()
+    system = get_simple_finite()
     y = desc.create(system)
     x = np.linspace(start, stop, n)
 

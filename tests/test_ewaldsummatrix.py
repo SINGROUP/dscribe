@@ -2,8 +2,6 @@ import math
 import pytest
 import numpy as np
 import scipy.constants
-from numpy.random import RandomState
-from ase import Atoms
 from testutils import (
     get_ewald_sum_matrix_default_setup,
     get_ewald_sum_matrix_automatic_setup,
@@ -22,7 +20,8 @@ from conftest import (
     assert_derivatives,
     assert_derivatives_include,
     assert_derivatives_exclude,
-    water,
+    get_simple_system,
+    get_simple_finite,
 )
 from dscribe.descriptors import EwaldSumMatrix
 
@@ -116,7 +115,9 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
 
 @pytest.mark.parametrize("permutation", ("none", "eigenspectrum", "sorted_l2"))
 def test_derivatives_numerical(permutation):
-    assert_derivatives(ewald_sum_matrix(permutation=permutation), "numerical", False)
+    system = get_simple_system()
+    system *= [2, 2, 2]
+    assert_derivatives(ewald_sum_matrix(permutation=permutation), "numerical", False, system=system)
 
 
 @pytest.mark.parametrize("method", ("numerical",))
@@ -133,7 +134,7 @@ def test_derivatives_exclude(method):
 # Tests that are specific to this descriptor.
 def test_create():
     """Tests different valid and invalid create values."""
-    system = water()
+    system = get_simple_finite()
     with pytest.raises(ValueError):
         desc = EwaldSumMatrix(n_atoms_max=5)
         desc.create(system, r_cut=10)
@@ -159,7 +160,7 @@ def test_a_independence():
     """
     r_cut = 40
     g_cut = 30
-    system = water()
+    system = get_simple_finite()
     prev_array = None
     for i, a in enumerate([0.1, 0.5, 1, 2, 3]):
         desc = EwaldSumMatrix(n_atoms_max=5, permutation="none")
@@ -191,6 +192,7 @@ def test_electrostatics(setup):
     # i and j. Here we construct the total electrostatic energy for a
     # system consisting of atoms i and j.
     matrix = desc.create(system, **create_args)
+    matrix = desc.unflatten(matrix)
     energy_matrix = np.zeros(matrix.shape)
     for i in range(n_atoms):
         for j in range(n_atoms):
@@ -214,7 +216,7 @@ def test_electrostatics(setup):
 def test_unit_cells():
     """Tests if arbitrary unit cells are accepted"""
     desc = EwaldSumMatrix(n_atoms_max=3, permutation="none")
-    molecule = water()
+    molecule = get_simple_finite()
 
     # A system without cell should produce an error
     molecule.set_cell([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])

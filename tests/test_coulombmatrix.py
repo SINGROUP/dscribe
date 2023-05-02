@@ -15,7 +15,8 @@ from conftest import (
     assert_derivatives,
     assert_derivatives_include,
     assert_derivatives_exclude,
-    big_system,
+    get_complex_system,
+    get_simple_system
 )
 from dscribe.descriptors import CoulombMatrix
 
@@ -186,11 +187,12 @@ def test_features(permutation, H2O):
     assert np.allclose(cm, cm_assumed)
 
 
-def test_periodicity(bulk_system):
+def test_periodicity():
     """Tests that periodicity is not taken into account in Coulomb matrix
     even if the system is set as periodic.
     """
     desc = CoulombMatrix(n_atoms_max=5, permutation="none")
+    bulk_system = get_simple_system()
     cm = desc.create(bulk_system)
     pos = bulk_system.get_positions()
     assumed = 1 * 1 / np.linalg.norm((pos[0] - pos[1]))
@@ -209,7 +211,7 @@ def test_periodicity(bulk_system):
 def test_performance(permutation):
     """Tests that the C++ code performs better than the numpy version."""
     n_iter = 10
-    system = big_system()
+    system = get_complex_system()
     start = time
     n_atoms_max = len(system)
     descriptor = coulomb_matrix(permutation=permutation)([system])

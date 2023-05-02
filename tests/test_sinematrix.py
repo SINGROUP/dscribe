@@ -15,7 +15,7 @@ from conftest import (
     assert_derivatives,
     assert_derivatives_include,
     assert_derivatives_exclude,
-    water,
+    get_simple_finite,
 )
 from dscribe.descriptors import SineMatrix
 
@@ -161,7 +161,7 @@ def test_unit_cells():
     """Tests if arbitrary unit cells are accepted"""
     desc = SineMatrix(n_atoms_max=3, permutation="none")
 
-    molecule = water()
+    molecule = get_simple_finite()
 
     molecule.set_cell([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
     with pytest.raises(ValueError):
