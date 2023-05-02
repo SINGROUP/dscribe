@@ -16,7 +16,7 @@ from conftest import (
     assert_derivatives_include,
     assert_derivatives_exclude,
     get_complex_system,
-    get_simple_system
+    get_simple_system,
 )
 from dscribe.descriptors import CoulombMatrix
 

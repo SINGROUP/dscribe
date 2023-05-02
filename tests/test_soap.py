@@ -27,7 +27,7 @@ from dscribe.descriptors import SOAP
 default_r_cut = 3
 default_n_max = 3
 default_l_max = 6
-folder = Path(__file__).parent 
+folder = Path(__file__).parent
 
 
 def soap(**kwargs):
@@ -215,7 +215,8 @@ def load_gto_coefficients(args):
 
 def load_polynomial_coefficients(args):
     return np.load(
-        folder / "polynomial_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args)
+        folder
+        / "polynomial_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args)
     )
 
 
@@ -614,8 +615,11 @@ def test_weighting(rbf, weighting):
     analytical_power_spectrum = soap.create(system, positions=centers)
 
     # Calculate and save the numerical power spectrum to disk
-    filename = folder / "{rbf}_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}_{func}.npy".format(
-        **args, rbf=rbf, func=weighting["function"]
+    filename = (
+        folder
+        / "{rbf}_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}_{func}.npy".format(
+            **args, rbf=rbf, func=weighting["function"]
+        )
     )
     # coeffs = getattr(self, "coefficients_{}".format(rbf))(
     # system_num,

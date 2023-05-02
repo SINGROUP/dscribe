@@ -117,7 +117,9 @@ def test_symmetries(permutation_option, translation, rotation, permutation):
 def test_derivatives_numerical(permutation):
     system = get_simple_system()
     system *= [2, 2, 2]
-    assert_derivatives(ewald_sum_matrix(permutation=permutation), "numerical", False, system=system)
+    assert_derivatives(
+        ewald_sum_matrix(permutation=permutation), "numerical", False, system=system
+    )
 
 
 @pytest.mark.parametrize("method", ("numerical",))

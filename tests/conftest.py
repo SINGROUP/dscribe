@@ -84,14 +84,13 @@ def get_simple_finite():
         symbols=["H", "O", "H"],
     )
 
+
 def get_complex_finite():
     """Acetyl fluoride molecule in a cell with no periodicity."""
     mol = molecule("CH3COF")
     mol.set_cell([5, 5, 5])
     mol.center()
     return mol
-
-
 
 
 def assert_symmetries(
@@ -190,7 +189,14 @@ def assert_periodic(descriptor_func):
     assert np.allclose(feat_ref, feat_periodic)
 
 
-def assert_derivatives(descriptor_func, method, pbc, system=get_complex_periodic(), attach=None, create_args=None):
+def assert_derivatives(
+    descriptor_func,
+    method,
+    pbc,
+    system=get_complex_periodic(),
+    attach=None,
+    create_args=None,
+):
     # Test values against a naive python implementation.
     system.set_pbc(pbc)
     h = 0.0001

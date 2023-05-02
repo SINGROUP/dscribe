@@ -11,7 +11,7 @@ from dscribe.descriptors import SOAP
 from joblib import Parallel, delayed
 from conftest import get_simple_finite
 
-folder = Path(__file__).parent 
+folder = Path(__file__).parent
 
 
 def get_soap_default_setup():
@@ -396,7 +396,8 @@ def save_poly_coefficients():
     system, centers, args = get_soap_polynomial_l_max_setup()
     coeffs = coefficients_polynomial(system, centers, args)
     np.save(
-        folder / "polynomial_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args),
+        folder
+        / "polynomial_coefficients_{n_max}_{l_max}_{r_cut}_{sigma}.npy".format(**args),
         coeffs,
     )
 
