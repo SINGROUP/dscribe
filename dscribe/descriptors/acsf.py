@@ -449,3 +449,45 @@ class ACSF(DescriptorLocal):
                 raise ValueError("3-body G5 eta parameters should be positive numbers.")
 
         self.acsf_wrapper.g5_params = value.tolist()
+
+
+
+    def derivatives_analytical(self):
+
+        # TODO: copy call signature from the SOAP one
+
+        # memory layout of d (derivatives tensor)
+        # [n_centers, n_atoms, 3, n_features]
+        #
+        # n_centers (positions) = number of positions where we want the ACSF gradients to be calculated
+        # n_atoms (indices) = atoms with respect to which the derivatives are calculated
+        # 3 = cartesian directions
+        # n_features = each feature
+        #
+        # d[i,j,k,l] = derivative of l-th ACSF of atom i, w.r.t. atom j coordinate k
+        #
+        # 
+
+        '''
+
+        py::array_t<double> derivatives, this is the numpy array in C++
+        
+          const int totalAN = atomicNumbersArr.shape(0);
+          const int nCenters = centers.shape(0);
+          auto derivatives_mu = derivatives.mutable_unchecked<4>(); THIS IS A HANDLER THAT CAN BE USED TO CHANGE THE NUMBERS"
+            
+            unchecked_reference is used for reading
+            mutable_reference can also write
+            
+            SEE soapGTO.cpp example!
+
+            to install the package with pip
+            pip install -e <folder with setup.py>
+            after editing the cpp source i need to run pip install -e to get it to recompile
+            
+
+        '''
+
+
+
+        pass
