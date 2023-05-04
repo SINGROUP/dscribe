@@ -2034,12 +2034,13 @@ void getCD(
   double  preValX3;
   double  preValY3;
   double  preValZ3;
-  double* preExponentArrya = (double*) malloc(Ns*Asize*sizeof(double));
-// l=0-------------------------------------------------------------------------------------------------
+  double* preExponentArray = (double*) malloc(Ns*Asize*sizeof(double));
+
+  // l=0-------------------------------------------------------------------------------------------------
   int shift = 0;
   for (int k = 0; k < Ns; k++) {
     for (int i = 0; i < Asize; i++) {
-      preExponentArrya[shift] = weights[i]*1.5707963267948966*exp(aOa[k]*r2[i]);
+      preExponentArray[shift] = weights[i]*1.5707963267948966*exp(aOa[k]*r2[i]);
       shift++;
     }
   }
@@ -2048,7 +2049,7 @@ void getCD(
   for (int k = 0; k < Ns; k++) {
     sumMe = 0;
     for (int i = 0; i < Asize; i++) {
-      preExp = preExponentArrya[shift];
+      preExp = preExponentArray[shift];
       sumMe += preExp;
       shift++;
     }
@@ -2061,13 +2062,13 @@ void getCD(
   if (return_derivatives) {
     for (int k = 0; k < Ns; k++) {
       for (int i = 0; i < Asize; i++) {
-        preExp = preExponentArrya[shift];
+        preExp = preExponentArray[shift];
         shift++;
         preVal = 2.0*aOa[k]*preExp;
         preValX = preVal*x[i];
         preValY = preVal*y[i];
         preValZ = preVal*z[i];
-        for(int n = 0; n < Ns; n++){
+        for (int n = 0; n < Ns; n++) {
           CDevX_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValX;
           CDevY_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValY;
           CDevZ_mu(indices[i], posI, typeJ, n, 0) += bOa[n*Ns + k]*preValZ;
@@ -2075,149 +2076,151 @@ void getCD(
       } 
     }
   }
-// l=1-------------------------------------------------------------------------------------------------
-  if(lMax > 0) { LNsNs=NsNs; LNs=Ns;
-    shift = 0 ;
 
-    for(int k = 0; k < Ns; k++){
-      for(int i = 0; i < Asize; i++){
-        preExponentArrya[shift] = weights[i]*2.7206990463849543*exp(aOa[LNs + k]*r2[i]);
+  // l=1-------------------------------------------------------------------------------------------------
+  if (lMax > 0) { 
+    LNsNs = NsNs;
+    LNs = Ns;
+
+    shift = 0 ;
+    for (int k = 0; k < Ns; k++) {
+      for (int i = 0; i < Asize; i++) {
+        preExponentArray[shift] = weights[i]*2.7206990463849543*exp(aOa[LNs + k]*r2[i]);
         shift++;
-      }}
+      }
+    }
     
     shift = 0 ;
     double sumMe1;
     double sumMe2;
     double sumMe3;
-    for(int k = 0; k < Ns; k++){
+    for (int k = 0; k < Ns; k++) {
     sumMe1 = 0;
     sumMe2 = 0;
     sumMe3 = 0;
-      for(int i = 0; i < Asize; i++){
-        preExp = preExponentArrya[shift];
+      for (int i = 0; i < Asize; i++) {
+        preExp = preExponentArray[shift];
         sumMe1 += preExp*z[i];
         sumMe2 += preExp*x[i];
         sumMe3 += preExp*y[i];
         shift++;
       }
-        for(int n = 0; n < Ns; n++){
-          C_mu( posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*sumMe1;
-          C_mu( posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*sumMe2;
-          C_mu( posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*sumMe3;
-          }
-    }
-
-          if(return_derivatives){
-            shift = 0;
-    for(int k = 0; k < Ns; k++){
-      for(int i = 0; i < Asize; i++){
-        preExp = preExponentArrya[shift];
-        shift++;
-          preVal = 2.0*aOa[LNs + k]*preExp;
-          if(return_derivatives){
-          preVal1 = preVal*z[i];
-          preVal2 = preVal*x[i];
-          preVal3 = preVal*y[i];
-         
-          preValX1 = preVal1*x[i];
-          preValY1 = preVal1*y[i];
-          preValZ1 = preVal1*z[i] + preExp;
-
-          preValX2 = preVal2*x[i] + preExp;
-          preValY2 = preVal2*y[i];
-          preValZ2 = preVal2*z[i];
-
-          preValX3 = preVal3*x[i];
-          preValY3 = preVal3*y[i] + preExp;
-          preValZ3 = preVal3*z[i];
-}
-        for(int n = 0; n < Ns; n++){
-          CDevX_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValX1;
-          CDevY_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValY1;
-          CDevZ_mu(indices[i], posI, typeJ,n,1) += bOa[LNsNs + n*Ns + k]*preValZ1;
-
-
-          CDevX_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValX2;
-          CDevY_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValY2;
-          CDevZ_mu(indices[i], posI, typeJ,n,2) += bOa[LNsNs + n*Ns + k]*preValZ2;
-
-
-          CDevX_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValX3;
-          CDevY_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValY3;
-          CDevZ_mu(indices[i], posI, typeJ,n,3) += bOa[LNsNs + n*Ns + k]*preValZ3;
-          
-          
-          }
-
+      for (int n = 0; n < Ns; n++) {
+        C_mu(posI, typeJ, n, 1) += bOa[LNsNs + n*Ns + k]*sumMe1;
+        C_mu(posI, typeJ, n, 2) += bOa[LNsNs + n*Ns + k]*sumMe2;
+        C_mu(posI, typeJ, n, 3) += bOa[LNsNs + n*Ns + k]*sumMe3;
       }
     }
-  }}
-// l>2------------------------------------------------------------------------------------------------------
-//
-//[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
-//
-  if(lMax > 1) { 
-    for(int restOfLs = 2; restOfLs <= lMax; restOfLs++){	 
-    LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; 
-shift = 0;
-      for(int k = 0; k < Ns; k++){
-        for(int i = 0; i < Asize; i++){
-          double expSholder = aOa[LNs + k]*r2[i];
-          preExponentArrya[shift] = weights[i]*exp(expSholder);
+
+    if (return_derivatives) {
+      shift = 0;
+      for (int k = 0; k < Ns; k++) {
+        for (int i = 0; i < Asize; i++) {
+          preExp = preExponentArray[shift];
           shift++;
-        }}
+          preVal = 2.0*aOa[LNs + k]*preExp;
+          if (return_derivatives) {
+            preVal1 = preVal*z[i];
+            preVal2 = preVal*x[i];
+            preVal3 = preVal*y[i];
+           
+            preValX1 = preVal1*x[i];
+            preValY1 = preVal1*y[i];
+            preValZ1 = preVal1*z[i] + preExp;
 
-      //double*  sumS = (double*) malloc(sizeof(double)*(restOfLs+1)*(restOfLs+1))
-shift = 0;
-      for(int k = 0; k < Ns; k++){
-          for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
-        sumMe = 0;
-      for(int i = 0; i < Asize; i++){
-        preExp = preExponentArrya[Asize*k+i];
-        sumMe += preExp*preCoef[totalAN*(m-4)+i];
-        shift++;
-      }
-            for(int n = 0; n < Ns; n++){
-              C_mu( posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*sumMe;
-             }
+            preValX2 = preVal2*x[i] + preExp;
+            preValY2 = preVal2*y[i];
+            preValZ2 = preVal2*z[i];
+
+            preValX3 = preVal3*x[i];
+            preValY3 = preVal3*y[i] + preExp;
+            preValZ3 = preVal3*z[i];
           }
-      }
+          for (int n = 0; n < Ns; n++) {
+            CDevX_mu(indices[i], posI, typeJ, n, 1) += bOa[LNsNs + n*Ns + k]*preValX1;
+            CDevY_mu(indices[i], posI, typeJ, n, 1) += bOa[LNsNs + n*Ns + k]*preValY1;
+            CDevZ_mu(indices[i], posI, typeJ, n, 1) += bOa[LNsNs + n*Ns + k]*preValZ1;
 
-           if(return_derivatives){
-             shift = 0;
-      for(int k = 0; k < Ns; k++){
-        for(int i = 0; i < Asize; i++){
-          preExp = preExponentArrya[shift];
-            shift++;
-          for(int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++){
-            preVal = 2.0*aOa[LNs + k]*preExp*preCoef[totalAN*(m-4)+i];
-            preValX = x[i]*preVal + preExp*prCofDX[totalAN*(m-4)+i];
-            preValY = y[i]*preVal + preExp*prCofDY[totalAN*(m-4)+i];
-            preValZ = z[i]*preVal + preExp*prCofDZ[totalAN*(m-4)+i];
-            for(int n = 0; n < Ns; n++){
-          CDevX_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValX;
-          CDevY_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValY;
-          CDevZ_mu(indices[i], posI, typeJ,n,m) += bOa[LNsNs + n*Ns + k]*preValZ;
-          
-               }
-            }
+            CDevX_mu(indices[i], posI, typeJ, n, 2) += bOa[LNsNs + n*Ns + k]*preValX2;
+            CDevY_mu(indices[i], posI, typeJ, n, 2) += bOa[LNsNs + n*Ns + k]*preValY2;
+            CDevZ_mu(indices[i], posI, typeJ, n, 2) += bOa[LNsNs + n*Ns + k]*preValZ2;
+
+            CDevX_mu(indices[i], posI, typeJ, n, 3) += bOa[LNsNs + n*Ns + k]*preValX3;
+            CDevY_mu(indices[i], posI, typeJ, n, 3) += bOa[LNsNs + n*Ns + k]*preValY3;
+            CDevZ_mu(indices[i], posI, typeJ, n, 3) += bOa[LNsNs + n*Ns + k]*preValZ3;
+          }
         }
       }
     }
   }
-}
-free(preExponentArrya);
+
+// l>2------------------------------------------------------------------------------------------------------
+//
+//[NsTs100*i_center*totalAN + Ns100*jd*totalAN + buffShift*totalAN*Ns + kd*totalAN + i_atom]
+//
+  if (lMax > 1) { 
+    for (int restOfLs = 2; restOfLs <= lMax; restOfLs++) {	 
+      LNsNs=restOfLs*NsNs; LNs=restOfLs*Ns; 
+      shift = 0;
+      for (int k = 0; k < Ns; k++) {
+        for (int i = 0; i < Asize; i++) {
+          double expSholder = aOa[LNs + k]*r2[i];
+          preExponentArray[shift] = weights[i]*exp(expSholder);
+          shift++;
+        }
+      }
+
+      //double*  sumS = (double*) malloc(sizeof(double)*(restOfLs+1)*(restOfLs+1))
+      shift = 0;
+      for (int k = 0; k < Ns; k++) {
+        for (int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++) {
+          sumMe = 0;
+          for (int i = 0; i < Asize; i++) {
+            preExp = preExponentArray[Asize*k+i];
+            sumMe += preExp*preCoef[totalAN*(m-4)+i];
+            shift++;
+          }
+          for (int n = 0; n < Ns; n++) {
+            C_mu(posI, typeJ, n, m) += bOa[LNsNs + n*Ns + k]*sumMe;
+          }
+        }
+      }
+
+      if (return_derivatives) {
+        shift = 0;
+        for (int k = 0; k < Ns; k++) {
+          for (int i = 0; i < Asize; i++) {
+            preExp = preExponentArray[shift];
+            shift++;
+            for (int m = restOfLs*restOfLs; m < (restOfLs+1)*(restOfLs+1); m++) {
+              preVal = 2.0*aOa[LNs + k]*preExp*preCoef[totalAN*(m-4)+i];
+              preValX = x[i]*preVal + preExp*prCofDX[totalAN*(m-4)+i];
+              preValY = y[i]*preVal + preExp*prCofDY[totalAN*(m-4)+i];
+              preValZ = z[i]*preVal + preExp*prCofDZ[totalAN*(m-4)+i];
+              for (int n = 0; n < Ns; n++) {
+                CDevX_mu(indices[i], posI, typeJ, n, m) += bOa[LNsNs + n*Ns + k]*preValX;
+                CDevY_mu(indices[i], posI, typeJ, n, m) += bOa[LNsNs + n*Ns + k]*preValY;
+                CDevZ_mu(indices[i], posI, typeJ, n, m) += bOa[LNsNs + n*Ns + k]*preValZ;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  free(preExponentArray);
+
   // If attach=True, the derivative with respect to the center atom coordinates
   // is the negative sum of derivatives with respect to coordinates of other
   // atoms in the the neighbourhood.
-  if(return_derivatives && attach && (posAtomI >= 0)){
-    for(int m = 0; m < (lMax+1)*(lMax+1); m++){
-      for(int n = 0; n < Ns; n++){
+  if (return_derivatives && attach && (posAtomI >= 0)) {
+    for (int m = 0; m < (lMax+1)*(lMax+1); m++) {
+      for (int n = 0; n < Ns; n++) {
         double sumX = 0;
         double sumY = 0;
         double sumZ = 0;
-        for(int i = 0; i < Asize; i++){
-          if(indices[i] != posAtomI){
+        for (int i = 0; i < Asize; i++) {
+          if (indices[i] != posAtomI) {
             sumX += CDevX_mu(indices[i], posI, typeJ,n,m);
             sumY += CDevY_mu(indices[i], posI, typeJ,n,m);
             sumZ += CDevZ_mu(indices[i], posI, typeJ,n,m);
