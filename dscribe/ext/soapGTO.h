@@ -37,6 +37,7 @@ void soapGTO(
     py::array_t<double> cdevZ,
     py::array_t<double> positions,
     py::array_t<double> centers,
+    py::array_t<int> center_indices,
     py::array_t<double> alphasArr,
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
@@ -50,6 +51,7 @@ void soapGTO(
     const bool crossover,
     string average,
     py::array_t<int> indices,
+    const bool attach,
     const bool return_descriptor,
     const bool return_derivatives,
     CellList cell_list

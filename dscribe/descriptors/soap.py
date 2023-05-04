@@ -579,10 +579,6 @@ class SOAP(DescriptorLocal):
                 raise ValueError(
                     "Analytical derivatives not currently available for averaged output."
                 )
-            if attach:
-                raise ValueError(
-                    "Analytical derivatives not currently available when attach=True."
-                )
             if self.periodic:
                 raise ValueError(
                     "Analytical derivatives are currently not available for periodic systems."
@@ -731,7 +727,7 @@ class SOAP(DescriptorLocal):
         cell = ase.geometry.cell.complete_cell(system.get_cell())
         pbc = np.asarray(system.get_pbc(), dtype=bool)
         cutoff_padding = self.get_cutoff_padding()
-        centers, _ = self.prepare_centers(system, positions)
+        centers, center_indices = self.prepare_centers(system, positions)
         sorted_species = self._atomic_numbers
         n_species = len(sorted_species)
         n_centers = centers.shape[0]
@@ -781,7 +777,9 @@ class SOAP(DescriptorLocal):
             cell,
             pbc,
             centers,
+            center_indices,
             indices,
+            attach,
             return_descriptor,
         )
 

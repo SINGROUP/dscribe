@@ -2003,8 +2003,10 @@ void getCD(
     int Ntypes,
     int lMax,
     int posI,
+    int posAtomI,
     int typeJ,
     const vector<int> &indices,
+    bool attach,
     bool return_derivatives) {
   if (Asize == 0) {
     return;
@@ -2205,6 +2207,28 @@ shift = 0;
   }
 }
 free(preExponentArrya);
+  // If attach=True, the derivative with respect to the center atom coordinates
+  // is the negative sum of derivatives with respect to coordinates of other
+  // atoms in the the neighbourhood.
+  if(return_derivatives && attach && (posAtomI >= 0)){
+    for(int m = 0; m < (lMax+1)*(lMax+1); m++){
+      for(int n = 0; n < Ns; n++){
+        double sumX = 0;
+        double sumY = 0;
+        double sumZ = 0;
+        for(int i = 0; i < Asize; i++){
+          if(indices[i] != posAtomI){
+            sumX += CDevX_mu(indices[i], posI, typeJ,n,m);
+            sumY += CDevY_mu(indices[i], posI, typeJ,n,m);
+            sumZ += CDevZ_mu(indices[i], posI, typeJ,n,m);
+          }
+        }
+        CDevX_mu(posAtomI, posI, typeJ,n,m) = -sumX;
+        CDevY_mu(posAtomI, posI, typeJ,n,m) = -sumY;
+        CDevZ_mu(posAtomI, posI, typeJ,n,m) = -sumZ;
+      }
+    }
+  }
 }
 //================================================================================================
 /**
@@ -2351,6 +2375,7 @@ void soapGTO(
     py::array_t<double> cdevZ,
     py::array_t<double> positions,
     py::array_t<double> centers,
+    py::array_t<int> center_indices,
     py::array_t<double> alphasArr,
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
@@ -2364,6 +2389,7 @@ void soapGTO(
     const bool crossover,
     string average,
     py::array_t<int> indices,
+    const bool attach,
     const bool return_descriptor,
     const bool return_derivatives,
     CellList cell_list_atoms
@@ -2381,6 +2407,7 @@ void soapGTO(
   double oOeta3O2 = sqrt(oOeta*oOeta*oOeta);
   double nMax2 = nMax*nMax;
   auto centers_u = centers.unchecked<2>(); 
+  auto center_indices_u = center_indices.unchecked<1>(); 
   auto positions_u = positions.unchecked<2>(); 
   const int nFeatures = crossover
         ? (nSpecies*nMax)*(nSpecies*nMax+1)/2*(lMax+1) 
@@ -2454,6 +2481,8 @@ void soapGTO(
 
   // Loop through the centers
   for (int i = 0; i < nCenters; i++) {
+    // If computing derivatives with attach=True, index of the center atom is needed
+    int centerAtomI = (return_derivatives && attach) ? center_indices_u(i) : -1;
 
     // Get all neighbouring atoms for the center i
     double ix = centers_u(i, 0); double iy = centers_u(i, 1); double iz = centers_u(i, 2);
@@ -2475,7 +2504,7 @@ void soapGTO(
       getRsZsD(dx, x2, x4, x6, x8, x10, x12, x14, x16, x18, dy, y2, y4, y6, y8, y10, y12, y14, y16, y18, dz, r2, r4, r6, r8, r10, r12, r14, r16, r18,  z2, z4, z6, z8, z10, z12, z14, z16, z18, r20, x20, y20, z20, n_neighbours, lMax);
       getWeights(n_neighbours, r1, r2, true, weighting, weights);
       getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18,r20, x20,y20,z20, totalAN, lMax, return_derivatives);
-      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, j, ZIndexPair.second, return_derivatives);
+      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, centerAtomI, j, ZIndexPair.second, attach, return_derivatives);
     }
   }
   free(dx); free(x2); free(x4); free(x6); free(x8); free(x10); free(x12); free(x14); free(x16); free(x18);
