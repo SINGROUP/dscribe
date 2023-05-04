@@ -315,7 +315,8 @@ def test_derivatives_numerical(pbc, attach, average, rbf, crossover):
     assert_derivatives(descriptor_func, "numerical", pbc, attach=attach)
 
 
-@pytest.mark.parametrize("pbc, attach, average, rbf", [(False, False, "off", "gto")])
+@pytest.mark.parametrize("pbc, average, rbf", [(False, "off", "gto")])
+@pytest.mark.parametrize("attach", (False, True))
 @pytest.mark.parametrize("crossover", (True, False))
 def test_derivatives_analytical(pbc, attach, average, rbf, crossover):
     descriptor_func = soap(
