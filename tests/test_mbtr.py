@@ -478,7 +478,7 @@ water_periodic.set_pbc(True)
                     [1, 0, 0],
                     [0, 1, 0],
                 ],
-                symbols=3*["H"],
+                symbols=3 * ["H"],
                 pbc=True,
             ),
             3,
