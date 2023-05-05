@@ -471,6 +471,31 @@ water_periodic.set_pbc(True)
             0.00001,
             id="k3 periodic non-cubic",
         ),
+        pytest.param(
+            Atoms(
+                positions=[
+                    [0, 0, 0],
+                    [1, 0, 0],
+                    [0, 1, 0],
+                ],
+                symbols=3*["H"],
+                pbc=True,
+            ),
+            3,
+            {"function": "angle"},
+            {"min": 0, "max": 180, "sigma": 1, "n": 1801},
+            {"function": "smooth_cutoff", "sharpness": 2.0, "r_cut": 1.1},
+            False,
+            [
+                (
+                    ("H", "H", "H"),
+                    [90.0],
+                    [0.00021632],
+                )
+            ],
+            0.0001,
+            id="k3 smooth_cutoff",
+        ),
     ],
 )
 def test_peaks(system, k, geometry, grid, weighting, periodic, peaks, prominence):
