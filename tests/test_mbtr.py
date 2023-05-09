@@ -29,27 +29,21 @@ from conftest import (
 # =============================================================================
 # Utilities
 default_k1 = {
-    "k1": {
-        "geometry": {"function": "atomic_number"},
-        "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50},
-        "weighting": {"function": "unity"},
-    }
+    "geometry": {"function": "atomic_number"},
+    "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50},
+    "weighting": {"function": "unity"},
 }
 
 default_k2 = {
-    "k2": {
-        "geometry": {"function": "inverse_distance"},
-        "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
-        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
-    }
+    "geometry": {"function": "inverse_distance"},
+    "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
+    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
 }
 
 default_k3 = {
-    "k3": {
-        "geometry": {"function": "angle"},
-        "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
-        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
-    }
+    "geometry": {"function": "angle"},
+    "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
+    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
 }
 
 
@@ -104,13 +98,13 @@ def k3_dict(weighting_function):
 @pytest.mark.parametrize(
     "setup, n_features",
     [
-        pytest.param(default_k1, 2 * default_k1["k1"]["grid"]["n"], id="K1"),
+        pytest.param(default_k1, 2 * default_k1["grid"]["n"], id="K1"),
         pytest.param(
-            default_k2, 2 * default_k2["k2"]["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"
+            default_k2, 2 * default_k2["grid"]["n"] * 1 / 2 * (2 + 1), id="K2"
         ),
         pytest.param(
             default_k3,
-            2 * default_k3["k3"]["grid"]["n"] * 1 / 2 * (2 + 1) * 2,
+            2 * default_k3["grid"]["n"] * 1 / 2 * (2 + 1) * 2,
             id="K3",
         ),
     ],
@@ -180,55 +174,106 @@ def test_symmetries():
 
 
 @pytest.mark.parametrize(
-    "method, periodic, normalization, k2, k3",
+    "geometry, grid, weighting, periodic",
     [
-        (
-            "numerical",
+        pytest.param(
+            {"function": "distance"},
+            {"min": 0, "max": 5.0, "sigma": 0.02, "n": 100},
+            {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
             True,
-            "none",
-            k2_dict("inverse_distance", "exp"),
-            k3_dict("exp"),
+            id="distance, exp, periodic"
         ),
-        (
-            "numerical",
+        pytest.param(
+            {"function": "inverse_distance"},
+            {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100},
+            {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
+            True,
+            id="inverse_distance, exp, periodic"
+        ),
+        pytest.param(
+            {"function": "cosine"},
+            {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100},
+            {"function": "exp", "scale": 1.0, "threshold": 1e-3},
+            True,
+            id="cosine, exp, periodic"
+        ),
+        pytest.param(
+            {"function": "distance"},
+            {"min": 0, "max": 5.0, "sigma": 0.02, "n": 100},
+            {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
             False,
-            "none",
-            k2_dict("inverse_distance", "exp"),
-            k3_dict("exp"),
+            id="distance, exp, finite"
         ),
-        (
-            "analytical",
-            True,
-            "none",
-            k2_dict("inverse_distance", "exp"),
-            k3_dict("exp"),
-        ),
-        (
-            "analytical",
+        pytest.param(
+            {"function": "inverse_distance"},
+            {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100},
+            {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
             False,
-            "none",
-            k2_dict("inverse_distance", "none"),
-            k3_dict("none"),
+            id="inverse_distance, exp, finite"
         ),
-        (
-            "analytical",
-            True,
-            "none",
-            k2_dict("distance", "exp"),
-            k3_dict("exp"),
+        pytest.param(
+            {"function": "cosine"},
+            {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100},
+            {"function": "exp", "scale": 1.0, "threshold": 1e-3},
+            False,
+            id="cosine, exp, finite"
         ),
-        (
-            "analytical",
-            True,
-            "n_atoms",
-            k2_dict("inverse_distance", "exp"),
-            k3_dict("exp"),
+        pytest.param(
+            {"function": "distance"},
+            {"min": 0, "max": 5.0, "sigma": 0.02, "n": 100},
+            None,
+            False,
+            id="distance, unity, finite"
+        ),
+        pytest.param(
+            {"function": "inverse_distance"},
+            {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100},
+            None,
+            False,
+            id="inverse_distance, unity, finite"
+        ),
+        pytest.param(
+            {"function": "cosine"},
+            {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100},
+            None,
+            False,
+            id="cosine, unity, finite"
         ),
     ],
 )
-def test_derivatives(method, periodic, normalization, k2, k3):
-    mbtr_func = mbtr(normalization=normalization, periodic=periodic, k2=k2, k3=k3)
-    assert_derivatives(mbtr_func, method, periodic, get_simple_finite())
+@pytest.mark.parametrize("normalization", ["none", "n_atoms"])
+def test_derivatives_analytical(normalization, geometry, grid, weighting, periodic):
+    mbtr_func = mbtr(geometry=geometry, grid=grid, weighting=weighting, normalization=normalization, periodic=periodic)
+    assert_derivatives(mbtr_func, "analytical", periodic, get_simple_finite())
+
+@pytest.mark.parametrize(
+    "geometry, grid, weighting",
+    [
+        pytest.param(
+            {"function": "distance"},
+            {"min": 0, "max": 5.0, "sigma": 0.02, "n": 100},
+            {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
+            id="distance"
+        ),
+        pytest.param(
+            {"function": "inverse_distance"},
+            {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100},
+            {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
+            id="inverse_distance"
+        ),
+        pytest.param(
+            {"function": "cosine"},
+            {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100},
+            {"function": "exp", "scale": 1.0, "threshold": 1e-3},
+            id="cosine"
+        ),
+    ],
+)
+@pytest.mark.parametrize("periodic", [True, False])
+@pytest.mark.parametrize("normalization", ["none", "n_atoms", "l2"])
+def test_derivatives_numerical(periodic, normalization, geometry, grid, weighting):
+    mbtr_func = mbtr(geometry=geometry, grid=grid, weighting=weighting, normalization=normalization, periodic=periodic)
+    assert_derivatives(mbtr_func, "numerical", periodic, get_simple_finite())
 
 
 @pytest.mark.parametrize("method", ("numerical", "analytical"))
@@ -481,60 +526,55 @@ def test_exceptions():
     """
     # Weighting needs to be provided for periodic system and terms k>1
     with pytest.raises(ValueError) as excinfo:
+        setup = copy.copy(default_k2)
+        setup["weighting"] = None
         MBTR(
             species=["H"],
-            k2={
-                **default_k2["k2"],
-                "weighting": None,
-            },
+            **setup,
             periodic=True,
         )
     msg = "Periodic systems need to have a weighting function."
     assert msg == str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
+        setup = copy.copy(default_k2)
+        setup["weighting"] = {"function": "unity"}
         MBTR(
             species=["H"],
-            k2={
-                **default_k2["k2"],
-                "weighting": {"function": "unity"},
-            },
+            **setup,
             periodic=True,
         )
     assert msg == str(excinfo.value)
 
     # Invalid weighting function
     with pytest.raises(ValueError) as excinfo:
+        setup = copy.copy(default_k1)
+        setup["weighting"] = {"function": "exp", "threshold": 1, "scale": 1}
         MBTR(
             species=[1],
-            k1={
-                **default_k1["k1"],
-                "weighting": {"function": "exp", "threshold": 1, "scale": 1},
-            },
+            **setup,
             periodic=True,
         )
     msg = "Unknown weighting function specified for k=1. Please use one of the following: ['unity']"
     assert msg == str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
+        setup = copy.copy(default_k2)
+        setup["weighting"] = {"function": "none"}
         MBTR(
             species=[1],
-            k2={
-                **default_k2["k2"],
-                "weighting": {"function": "none"},
-            },
+            **setup,
             periodic=True,
         )
     msg = "Unknown weighting function specified for k=2. Please use one of the following: ['exp', 'inverse_square', 'unity']"
     assert msg == str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
+        setup = copy.copy(default_k3)
+        setup["weighting"] = {"function": "none"}
         MBTR(
             species=[1],
-            k3={
-                **default_k3["k3"],
-                "weighting": {"function": "none"},
-            },
+            **setup,
             periodic=True,
         )
     msg = "Unknown weighting function specified for k=3. Please use one of the following: ['exp', 'smooth_cutoff', 'unity']"
@@ -544,45 +584,43 @@ def test_exceptions():
     with pytest.raises(ValueError) as excinfo:
         MBTR(
             species=[1],
-            k1={
-                "geometry": {"function": "none"},
-                "grid": {"min": 0, "max": 1, "n": 10, "sigma": 0.1},
-            },
+            geometry={"function": "none"},
+            grid={"min": 0, "max": 1, "n": 10, "sigma": 0.1},
             periodic=False,
         )
 
-    msg = "Unknown geometry function specified for k=1. Please use one of the following: ['atomic_number']"
+    msg = "Unknown geometry function. Please use one of the following: ['angle', 'atomic_number', 'cosine', 'distance', 'inverse_distance']"
     assert msg == str(excinfo.value)
 
     # Missing threshold
     with pytest.raises(ValueError) as excinfo:
         setup = copy.deepcopy(default_k2)
-        del setup["k2"]["weighting"]["threshold"]
+        del setup["weighting"]["threshold"]
         MBTR(**setup, species=[1], periodic=True)
-    msg = "Missing value for 'threshold' in the k=2 weighting."
+    msg = "Missing value for 'threshold' in the weighting."
     assert msg == str(excinfo.value)
 
     # Missing scale or r_cut
     with pytest.raises(ValueError) as excinfo:
         setup = copy.deepcopy(default_k2)
-        del setup["k2"]["weighting"]["scale"]
+        del setup["weighting"]["scale"]
         MBTR(**setup, species=[1], periodic=True)
-    msg = "Provide either 'scale' or 'r_cut' in the k=2 weighting."
+    msg = "Provide either 'scale' or 'r_cut' in the weighting."
     assert msg == str(excinfo.value)
 
     # Both scale and r_cut provided
     with pytest.raises(ValueError) as excinfo:
         setup = copy.deepcopy(default_k2)
-        setup["k2"]["weighting"]["scale"] = 1
-        setup["k2"]["weighting"]["r_cut"] = 1
+        setup["weighting"]["scale"] = 1
+        setup["weighting"]["r_cut"] = 1
         MBTR(**setup, species=[1], periodic=True)
-    msg = "Provide either 'scale' or 'r_cut', not both in the k=2 weighting."
+    msg = "Provide either 'scale' or 'r_cut', not both in the weighting."
     assert msg == str(excinfo.value)
 
     # Unknown normalization
     with pytest.raises(ValueError) as excinfo:
         MBTR(**default_k2, species=[1], normalization="l2_test", periodic=True)
-    msg = "Unknown normalization option given. Please use one of the following: l2, l2_each, n_atoms, none, valle_oganov."
+    msg = "Unknown normalization option given. Please use one of the following: l2, n_atoms, none, valle_oganov."
     assert msg == str(excinfo.value)
 
 
@@ -602,10 +640,8 @@ def test_gaussian_distribution(normalize_gaussians):
     n = 500
     desc = MBTR(
         species=["H", "O"],
-        k1={
-            "geometry": {"function": "atomic_number"},
-            "grid": {"min": start, "max": stop, "sigma": std, "n": n},
-        },
+        geometry={"function": "atomic_number"},
+        grid={"min": start, "max": stop, "sigma": std, "n": n},
         normalize_gaussians=normalize_gaussians,
     )
     system = get_simple_finite()
@@ -690,38 +726,32 @@ def test_periodic_translation(setup):
     [
         pytest.param(
             {
-                "k1": {
-                    "geometry": {"function": "atomic_number"},
-                    "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
-                }
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
             },
             id="K1",
         ),
         pytest.param(
             {
-                "k2": {
-                    "geometry": {"function": "inverse_distance"},
-                    "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
-                    "weighting": {
-                        "function": "exp",
-                        "scale": 1,
-                        "threshold": 1e-3,
-                    },
-                }
+                "geometry": {"function": "inverse_distance"},
+                "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+                "weighting": {
+                    "function": "exp",
+                    "scale": 1,
+                    "threshold": 1e-3,
+                },
             },
             id="K2",
         ),
         pytest.param(
             {
-                "k3": {
-                    "geometry": {"function": "cosine"},
-                    "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
-                    "weighting": {
-                        "function": "exp",
-                        "scale": 1,
-                        "threshold": 1e-3,
-                    },
-                }
+                "geometry": {"function": "cosine"},
+                "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
+                "weighting": {
+                    "function": "exp",
+                    "scale": 1,
+                    "threshold": 1e-3,
+                },
             },
             id="K3",
         ),
@@ -736,7 +766,7 @@ def test_periodic_supercell_similarity(setup):
         periodic=True,
         **setup,
         sparse=False,
-        normalization="l2_each",
+        normalization="l2",
     )
 
     # Create various supercells for the FCC structure
@@ -765,30 +795,24 @@ def test_periodic_supercell_similarity(setup):
     [
         pytest.param(
             {
-                "k1": {
-                    "geometry": {"function": "atomic_number"},
-                    "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 21},
-                }
+                "geometry": {"function": "atomic_number"},
+                "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 21},
             },
             id="K1",
         ),
         pytest.param(
             {
-                "k2": {
-                    "geometry": {"function": "inverse_distance"},
-                    "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 21},
-                    "weighting": {"function": "exp", "scale": 1, "threshold": 1e-4},
-                }
+                "geometry": {"function": "inverse_distance"},
+                "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 21},
+                "weighting": {"function": "exp", "scale": 1, "threshold": 1e-4},
             },
             id="K2",
         ),
         pytest.param(
             {
-                "k3": {
-                    "geometry": {"function": "cosine"},
-                    "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 21},
-                    "weighting": {"function": "exp", "scale": 1, "threshold": 1e-4},
-                }
+                "geometry": {"function": "cosine"},
+                "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 21},
+                "weighting": {"function": "exp", "scale": 1, "threshold": 1e-4},
             },
             id="K3",
         ),
@@ -801,7 +825,7 @@ def test_periodic_images_1(setup):
         species=[1],
         periodic=True,
         **setup,
-        normalization="l2_each",
+        normalization="l2",
     )
 
     # Tests that a system has the same spectrum as the supercell of the same

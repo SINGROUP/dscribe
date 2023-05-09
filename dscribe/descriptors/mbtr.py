@@ -17,8 +17,6 @@ import sys
 import math
 import numpy as np
 
-import sparse
-
 from ase import Atoms
 import ase.data
 
@@ -28,155 +26,12 @@ from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
 
 
-def check_k1(value):
-    if value is not None:
-        # Check that only valid keys are used in the setups
-        for key in value.keys():
-            valid_keys = set(("geometry", "grid", "weighting"))
-            if key not in valid_keys:
-                raise ValueError(
-                    "The given setup contains the following invalid key: {}".format(key)
-                )
-
-        # Check the geometry function
-        geom_func = value["geometry"].get("function")
-        if geom_func is not None:
-            valid_geom_func = set(("atomic_number",))
-            if geom_func not in valid_geom_func:
-                raise ValueError(
-                    "Unknown geometry function specified for k=1. Please use one of"
-                    " the following: {}".format(sorted(list(valid_geom_func)))
-                )
-
-        # Check the weighting function
-        weighting = value.get("weighting")
-        if weighting is not None:
-            valid_weight_func = set(("unity",))
-            weight_func = weighting.get("function")
-            if weight_func not in valid_weight_func:
-                raise ValueError(
-                    "Unknown weighting function specified for k=1. Please use one of"
-                    " the following: {}".format(sorted(list(valid_weight_func)))
-                )
-
-        # Check grid
-        check_grid(value["grid"])
+k1_geometry_functions = set(["atomic_number"])
+k2_geometry_functions = set(["distance", "inverse_distance"])
+k3_geometry_functions = set(["angle", "cosine"])
 
 
-def check_k2(value):
-    if value is not None:
-        # Check that only valid keys are used in the setups
-        for key in value.keys():
-            valid_keys = set(("geometry", "grid", "weighting"))
-            if key not in valid_keys:
-                raise ValueError(
-                    "The given setup contains the following invalid key: {}".format(key)
-                )
-
-        # Check the geometry function
-        geom_func = value["geometry"].get("function")
-        if geom_func is not None:
-            valid_geom_func = set(("distance", "inverse_distance"))
-            if geom_func not in valid_geom_func:
-                raise ValueError(
-                    "Unknown geometry function specified for k=2. Please use one of"
-                    " the following: {}".format(sorted(list(valid_geom_func)))
-                )
-
-        # Check the weighting function
-        weighting = value.get("weighting")
-        if weighting is not None:
-            valid_weight_func = set(("unity", "exp", "inverse_square"))
-            weight_func = weighting.get("function")
-            if weight_func not in valid_weight_func:
-                raise ValueError(
-                    "Unknown weighting function specified for k=2. Please use one of"
-                    " the following: {}".format(sorted(list(valid_weight_func)))
-                )
-            else:
-                if weight_func == "exp":
-                    threshold = weighting.get("threshold")
-                    if threshold is None:
-                        raise ValueError(
-                            "Missing value for 'threshold' in the k=2 weighting."
-                        )
-                    scale = weighting.get("scale")
-                    r_cut = weighting.get("r_cut")
-                    if scale is not None and r_cut is not None:
-                        raise ValueError(
-                            "Provide either 'scale' or 'r_cut', not both in the k=2 weighting."
-                        )
-                    if scale is None and r_cut is None:
-                        raise ValueError(
-                            "Provide either 'scale' or 'r_cut' in the k=2 weighting."
-                        )
-                elif weight_func == "inverse_square":
-                    if weighting.get("r_cut") is None:
-                        raise ValueError(
-                            "Missing value for 'r_cut' in the k=2 weighting."
-                        )
-
-        # Check grid
-        check_grid(value["grid"])
-
-
-def check_k3(value):
-    if value is not None:
-        # Check that only valid keys are used in the setups
-        for key in value.keys():
-            valid_keys = set(("geometry", "grid", "weighting"))
-            if key not in valid_keys:
-                raise ValueError(
-                    "The given setup contains the following invalid key: {}".format(key)
-                )
-
-        # Check the geometry function
-        geom_func = value["geometry"].get("function")
-        if geom_func is not None:
-            valid_geom_func = set(("angle", "cosine"))
-            if geom_func not in valid_geom_func:
-                raise ValueError(
-                    "Unknown geometry function specified for k=2. Please use one of"
-                    " the following: {}".format(sorted(list(valid_geom_func)))
-                )
-
-        # Check the weighting function
-        weighting = value.get("weighting")
-        if weighting is not None:
-            valid_weight_func = set(("unity", "exp", "smooth_cutoff"))
-            weight_func = weighting.get("function")
-            if weight_func not in valid_weight_func:
-                raise ValueError(
-                    "Unknown weighting function specified for k=3. Please use one of"
-                    " the following: {}".format(sorted(list(valid_weight_func)))
-                )
-            else:
-                if weight_func == "exp":
-                    threshold = weighting.get("threshold")
-                    if threshold is None:
-                        raise ValueError(
-                            "Missing value for 'threshold' in the k=3 weighting."
-                        )
-                    scale = weighting.get("scale")
-                    r_cut = weighting.get("r_cut")
-                    if scale is not None and r_cut is not None:
-                        raise ValueError(
-                            "Provide either 'scale' or 'r_cut', not both in the k=3 weighting."
-                        )
-                    if scale is None and r_cut is None:
-                        raise ValueError(
-                            "Provide either 'scale' or 'r_cut' in the k=3 weighting."
-                        )
-                elif weight_func == "smooth_cutoff":
-                    if weighting.get("r_cut") is None:
-                        raise ValueError(
-                            "Missing value for 'r_cut' in the k=3 weighting."
-                        )
-        # Check grid
-        check_grid(value["grid"])
-
-
-def check_grid(grid):
+def check_grid(grid: dict):
     """Used to ensure that the given grid settings are valid.
 
     Args:
@@ -196,113 +51,81 @@ def check_grid(grid):
         raise ValueError("The min value should be smaller than the max value.")
 
 
-def check_weighting(periodic, k):
+def check_geometry(geometry: dict):
+    """Used to ensure that the given geometry settings are valid.
+
+    Args:
+        geometry: Dictionary containing the geometry setup.
+    """
+
+    if "function" in geometry:
+        function = geometry["function"]
+        valid_functions = k1_geometry_functions | k2_geometry_functions | k3_geometry_functions
+        if function not in valid_functions:
+            raise ValueError(f"Unknown geometry function. Please use one of the following: {sorted(list(valid_functions))}")
+    else:
+        raise ValueError("Please specify a geometry function.")
+
+
+def check_weighting(k: int, weighting: dict, periodic: bool):
     """Used to ensure that the given weighting settings are valid.
 
     Args:
-        grid(dict): Dictionary containing the weighting setup.
+        k: The MBTR degree.
+        weighting: Dictionary containing the weighting setup.
+        periodic: Whether the descriptor is periodic or not.
     """
+    if weighting is not None:
+        if k == 1:
+            valid_functions = set(["unity"])
+        elif k == 2:
+            valid_functions = set(["unity", "exp", "inverse_square"])
+        elif k == 3:
+            valid_functions = set(["unity", "exp", "smooth_cutoff"])
+        function = weighting.get("function")
+        if function not in valid_functions:
+            raise ValueError(f"Unknown weighting function specified for k={k}. Please use one of the following: {sorted(list(valid_functions))}")
+        else:
+            if function == "exp":
+                if "threshold" not in weighting:
+                    raise ValueError("Missing value for 'threshold' in the weighting.")
+                if "scale" not in weighting and "r_cut" not in weighting:
+                    raise ValueError("Provide either 'scale' or 'r_cut' in the weighting.")
+                if "scale" in weighting and "r_cut" in weighting:
+                    raise ValueError("Provide either 'scale' or 'r_cut', not both in the weighting.")
+            elif function == "inverse_square":
+                if "r_cut" not in weighting:
+                    raise ValueError("Missing value for 'r_cut' in the weighting.")
+            elif function == "smooth_cutoff":
+                if "r_cut" not in weighting:
+                    raise ValueError("Missing value for 'r_cut' in the weighting.")
+
     # Check that weighting function is specified for periodic systems
-    if periodic:
-        if k is not None:
-            valid = False
-            weighting = k.get("weighting")
-            if weighting is not None:
-                function = weighting.get("function")
-                if function is not None:
-                    if function != "unity":
-                        valid = True
-            if not valid:
-                raise ValueError("Periodic systems need to have a weighting function.")
+    if periodic and k > 1:
+        valid = False
+        if weighting is not None:
+            function = weighting.get("function")
+            if function is not None:
+                if function != "unity":
+                    valid = True
+        if not valid:
+            raise ValueError("Periodic systems need to have a weighting function.")
 
 
 class MBTR(DescriptorGlobal):
-    """Implementation of the Many-body tensor representation up to :math:`k=3`.
-
-    You can choose which terms to include by providing a dictionary in the
-    k1, k2 or k3 arguments. This dictionary should contain information
-    under three keys: "geometry", "grid" and "weighting". See the examples
-    below for how to format these dictionaries.
+    """Implementation of the Many-body tensor representation.
 
     You can use this descriptor for finite and periodic systems. When dealing
     with periodic systems or when using machine learning models that use the
     Euclidean norm to measure distance between vectors, it is advisable to use
-    some form of normalization.
-
-    For the geometry functions the following choices are available:
-
-    * :math:`k=1`:
-
-       * "atomic_number": The atomic numbers.
-
-    * :math:`k=2`:
-
-       * "distance": Pairwise distance in angstroms.
-       * "inverse_distance": Pairwise inverse distance in 1/angstrom.
-
-    * :math:`k=3`:
-
-       * "angle": Angle in degrees.
-       * "cosine": Cosine of the angle.
-
-    For the weighting the following functions are available:
-
-    * :math:`k=1`:
-
-       * "unity": No weighting.
-
-    * :math:`k=2`:
-
-       * "unity": No weighting.
-       * "exp": Weighting of the form :math:`e^{-sx}`
-       * "inverse_square": Weighting of the form :math:`1/(x^2)`
-
-    * :math:`k=3`:
-
-       * "unity": No weighting.
-       * "exp": Weighting of the form :math:`e^{-sx}`
-       * "smooth_cutoff": Weighting of the form :math:`f_{ij}f_{ik}`,
-         where :math:`f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}`
-
-    The exponential weighting is motivated by the exponential decay of screened
-    Coulombic interactions in solids. In the exponential weighting the
-    parameters **threshold** determines the value of the weighting function after
-    which the rest of the terms will be ignored. Either the parameter **scale**
-    or **r_cut** can be used to determine the parameter :math:`s`: **scale**
-    directly corresponds to this value whereas **r_cut** can be used to
-    indirectly determine it through :math:`s=-\log()`:. The meaning of
-    :math:`x` changes for different terms as follows:
-
-    * :math:`k=2`: :math:`x` = Distance between A->B
-    * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
-
-    The inverse square and smooth cutoff function weightings use a cutoff
-    parameter **r_cut**, which is a radial distance after which the rest of
-    the atoms will be ignored. For both, :math:`x` means the distance between
-    A->B. For the smooth cutoff function, additional weighting key **sharpness**
-    can be added, which changes the value of :math:`y`. If not, it defaults to `2`.
-
-    In the grid setup *min* is the minimum value of the axis, *max* is the
-    maximum value of the axis, *sigma* is the standard deviation of the
-    gaussian broadening and *n* is the number of points sampled on the
-    grid.
-
-    A sparse.COO sparse matrix is returned. This sparse matrix is of size
-    (n_features,), where n_features is given by get_number_of_features(). This
-    vector is ordered so that the different k-terms are ordered in ascending
-    order, and within each k-term the distributions at each entry (i, j, h) of
-    the tensor are ordered in an ascending order by (i * n_elements) + (j *
-    n_elements) + (h * n_elements).
-
-    This implementation does not support the use of a non-identity correlation
-    matrix.
+    some form of normalization. This implementation does not support the use of
+    a non-identity correlation matrix.
     """
-
     def __init__(
         self,
-        k1=None,
-        k2=None,
-        k3=None,
+        geometry=None,
+        grid=None,
+        weighting=None,
         normalize_gaussians=True,
         normalization="none",
         species=None,
@@ -312,32 +135,72 @@ class MBTR(DescriptorGlobal):
     ):
         """
         Args:
-            k1 (dict): Setup for the k=1 term. For example::
+            geometry (dict): Setup the geometry function. The geometry function
+                determines the degree :math:`k` for MBTR. The order :math:`k`
+                tells how many atoms are involved in the calculation and thus
+                also heavily influence the computational time. For example::
 
-                k1 = {
-                    "geometry": {"function": "atomic_number"},
-                    "grid": {"min": 1, "max": 10, "sigma": 0.1, "n": 50}
-                }
+                "geometry": {"function": "atomic_number"}
 
-            k2 (dict): Dictionary containing the setup for the k=2 term.
-                Contains setup for the used geometry function, discretization and
-                weighting function. For example::
+                The following geometry functions are available:
 
-                    k2 = {
-                        "geometry": {"function": "inverse_distance"},
-                        "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50},
-                        "weighting": {"function": "exp", "r_cut": 10, "threshold": 1e-2}
-                    }
+                * :math:`k=1`
+                    * "atomic_number":  The atomic number.
+                * :math:`k=2`
+                    * "distance": Pairwise distance in angstroms.
+                    * "inverse_distance": Pairwise inverse distance in 1/angstrom.
+                * :math:`k=3`
+                    * "angle": Angle in degrees.
+                    * "cosine": Cosine of the angle.
 
-            k3 (dict): Dictionary containing the setup for the k=3 term.
-                Contains setup for the used geometry function, discretization and
-                weighting function. For example::
+            grid (dict): Setup the discretization grid. For example::
 
-                    k3 = {
-                        "geometry": {"function": "angle"},
-                        "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
-                        "weighting" : {"function": "exp", "r_cut": 10, "threshold": 1e-3}
-                    }
+                "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50}
+
+                In the grid setup *min* is the minimum value of the axis, *max*
+                is the maximum value of the axis, *sigma* is the standard
+                deviation of the gaussian broadening and *n* is the number of
+                points sampled on the grid.
+
+            weighting (dict): Setup the weighting function and its parameters.
+                For example::
+
+                "weighting" : {"function": "exp", "r_cut": 10, "threshold": 1e-3}
+
+                The following weighting functions are available:
+
+                * :math:`k=1`
+                    * "unity": No weighting.
+                * :math:`k=2`
+                    * "unity": No weighting.
+                    * "exp": Weighting of the form :math:`e^{-sx}`
+                    * "inverse_square": Weighting of the form :math:`1/(x^2)`
+                * :math:`k=3`
+                    * "unity": No weighting.
+                    * "exp": Weighting of the form :math:`e^{-sx}`
+                    * "smooth_cutoff": Weighting of the form :math:`f_{ij}f_{ik}`,
+                        where :math:`f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}`
+
+                The meaning of :math:`x` changes for different terms as follows:
+
+                * For :math:`k=2`: :math:`x` = Distance between A->B
+                * For :math:`k=3`: :math:`x` = Distance from A->B->C->A.
+
+                The exponential weighting is motivated by the exponential decay
+                of screened Coulombic interactions in solids. In the exponential
+                weighting the parameters **threshold** determines the value of
+                the weighting function after which the rest of the terms will be
+                ignored. Either the parameter **scale** or **r_cut** can be used
+                to determine the parameter :math:`s`: **scale** directly
+                corresponds to this value whereas **r_cut** can be used to
+                indirectly determine it through :math:`s=-\log()`:.
+
+                The inverse square and smooth cutoff function weightings use a
+                cutoff parameter **r_cut**, which is a radial distance after
+                which the rest of the atoms will be ignored. For the smooth
+                cutoff function, additional weighting key **sharpness** can be
+                added, which changes the value of :math:`y`. If a value for it
+                is not provided, it defaults to `2`.
 
             normalize_gaussians (bool): Determines whether the gaussians are
                 normalized to an area of 1. Defaults to True. If False, the
@@ -347,15 +210,12 @@ class MBTR(DescriptorGlobal):
                 output. The available options are:
 
                 * "none": No normalization.
-                * "l2": Normalize the Euclidean length to unity.
+                * "l2": Normalize the Euclidean length of the output to unity.
                 * "n_atoms": Normalize the output by dividing it with the number
                   of atoms in the system. If the system is periodic, the number
                   of atoms is determined from the given unit cell.
-                * "l2_each": Normalize the Euclidean length of each k-term
-                  individually to unity.
                 * "valle_oganov": Use Valle-Oganov descriptor normalization, with
                   system cell volume and numbers of different atoms in the cell.
-
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
@@ -375,9 +235,9 @@ class MBTR(DescriptorGlobal):
         """
         super().__init__(periodic=periodic, sparse=sparse, dtype=dtype)
         self.system = None
-        self.k1 = k1
-        self.k2 = k2
-        self.k3 = k3
+        self.geometry = geometry
+        self.grid = grid
+        self.weighting = weighting
         self.species = species
         self.normalization = normalization
         self.normalize_gaussians = normalize_gaussians
@@ -390,36 +250,40 @@ class MBTR(DescriptorGlobal):
         # Initializing .create() level variables
         self._interaction_limit = None
 
-        # Check that weighting function is specified for periodic systems
-        check_weighting(self.periodic, self.k2)
-        check_weighting(self.periodic, self.k3)
+    @property
+    def grid(self):
+        return self._grid
+
+    @grid.setter
+    def grid(self, value):
+        check_grid(value)
+        self._grid = value
 
     @property
-    def k1(self):
-        return self._k1
+    def geometry(self):
+        return self._geometry
 
-    @k1.setter
-    def k1(self, value):
-        check_k1(value)
-        self._k1 = value
+    @geometry.setter
+    def geometry(self, value):
+        check_geometry(value)
+        k_map = {
+            "atomic_number": 1,
+            "distance": 2,
+            "inverse_distance": 2,
+            "angle": 3,
+            "cosine": 3,
+        }
+        self.k = k_map[value["function"]]
+        self._geometry = value
 
     @property
-    def k2(self):
-        return self._k2
+    def weighting(self):
+        return self._weighting
 
-    @k2.setter
-    def k2(self, value):
-        check_k2(value)
-        self._k2 = value
-
-    @property
-    def k3(self):
-        return self._k3
-
-    @k3.setter
-    def k3(self, value):
-        check_k3(value)
-        self._k3 = value
+    @weighting.setter
+    def weighting(self, value):
+        check_weighting(self.k, value, self.periodic)
+        self._weighting = value
 
     @property
     def species(self):
@@ -459,7 +323,7 @@ class MBTR(DescriptorGlobal):
         Args:
             value(str): The normalization method to use.
         """
-        norm_options = set(("none", "l2", "n_atoms", "l2_each", "valle_oganov"))
+        norm_options = set(("none", "l2", "n_atoms", "valle_oganov"))
         if value not in norm_options:
             raise ValueError(
                 "Unknown normalization option given. Please use one of the "
@@ -526,37 +390,14 @@ class MBTR(DescriptorGlobal):
         # of atomic numbers
         self.check_atomic_numbers(system.get_atomic_numbers())
 
-        mbtr = {}
-        if self.k1 is not None:
-            mbtr["k1"], _ = self._get_k1(system, True, False)
-        if self.k2 is not None:
-            mbtr["k2"], _ = self._get_k2(system, True, False)
-        if self.k3 is not None:
-            mbtr["k3"], _ = self._get_k3(system, True, False)
+        mbtr, _ = getattr(self, f'_get_k{self.k}')(system, True, False)
 
         # Handle normalization
-        if self.normalization == "l2_each":
-            for key, value in mbtr.items():
-                i_data = np.array(value.data)
-                i_norm = np.linalg.norm(i_data)
-                mbtr[key] = value / i_norm
-        elif self.normalization == "l2":
-            norm = 0
-            for key, value in mbtr.items():
-                i_data = np.array(value.data)
-                norm += np.linalg.norm(i_data)
-            for key, value in mbtr.items():
-                mbtr[key] = value / norm
+        if self.normalization == "l2":
+            mbtr /= np.linalg.norm(np.array(mbtr.data))
         elif self.normalization == "n_atoms":
             n_atoms = len(system)
-            for key, value in mbtr.items():
-                mbtr[key] = value / n_atoms
-
-        keys = sorted(mbtr.keys())
-        if len(keys) > 1:
-            mbtr = np.concatenate([mbtr[key] for key in keys], axis=0)
-        else:
-            mbtr = mbtr[keys[0]]
+            mbtr /= n_atoms
 
         return mbtr
 
@@ -567,21 +408,15 @@ class MBTR(DescriptorGlobal):
         Returns:
             int: Number of features for this descriptor.
         """
-        n_features = 0
         n_elem = self.n_elements
+        n_grid = self.grid["n"]
 
-        if self.k1 is not None:
-            n_k1_grid = self.k1["grid"]["n"]
-            n_k1 = n_elem * n_k1_grid
-            n_features += n_k1
-        if self.k2 is not None:
-            n_k2_grid = self.k2["grid"]["n"]
-            n_k2 = (n_elem * (n_elem + 1) / 2) * n_k2_grid
-            n_features += n_k2
-        if self.k3 is not None:
-            n_k3_grid = self.k3["grid"]["n"]
-            n_k3 = (n_elem * n_elem * (n_elem + 1) / 2) * n_k3_grid
-            n_features += n_k3
+        if self.k == 1:
+            n_features = n_elem * n_grid
+        if self.k == 2:
+            n_features = (n_elem * (n_elem + 1) / 2) * n_grid
+        if self.k == 3:
+            n_features = (n_elem * n_elem * (n_elem + 1) / 2) * n_grid
 
         return int(n_features)
 
@@ -605,10 +440,9 @@ class MBTR(DescriptorGlobal):
         """
         # Check that the corresponding part is calculated
         k = len(species)
-        term = getattr(self, "k{}".format(k))
-        if term is None:
+        if self.k is not k:
             raise ValueError(
-                "Cannot retrieve the location for {}, as the term k{} has not "
+                "Cannot retrieve the location for {}, as the term k={} has not "
                 "been specified.".format(species, k)
             )
 
@@ -629,20 +463,18 @@ class MBTR(DescriptorGlobal):
         numbers = [self.atomic_number_to_index[x] for x in numbers]
         n_elem = self.n_elements
 
-        # k=1
-        if len(numbers) == 1:
-            n1 = self.k1["grid"]["n"]
+        n = self.grid["n"]
+        if k == 1:
             i = numbers[0]
             m = i
-            start = int(m * n1)
-            end = int((m + 1) * n1)
+            start = int(m * n)
+            end = int((m + 1) * n)
 
         # k=2
-        if len(numbers) == 2:
+        if k == 2:
             if numbers[0] > numbers[1]:
                 numbers = list(reversed(numbers))
 
-            n2 = self.k2["grid"]["n"]
             i = numbers[0]
             j = numbers[1]
 
@@ -650,20 +482,14 @@ class MBTR(DescriptorGlobal):
             # elements of an upper triangular matrix from left to right and top
             # to bottom.
             m = j + i * n_elem - i * (i + 1) / 2
-
-            offset = 0
-            if self.k1 is not None:
-                n1 = self.k1["grid"]["n"]
-                offset += n_elem * n1
-            start = int(offset + m * n2)
-            end = int(offset + (m + 1) * n2)
+            start = int(m * n)
+            end = int((m + 1) * n)
 
         # k=3
-        if len(numbers) == 3:
+        if k == 3:
             if numbers[0] > numbers[2]:
                 numbers = list(reversed(numbers))
 
-            n3 = self.k3["grid"]["n"]
             i = numbers[0]
             j = numbers[1]
             k = numbers[2]
@@ -673,16 +499,8 @@ class MBTR(DescriptorGlobal):
             # k>=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,
             # n_elem, n_elem], looping the elements in the order k, i, j.
             m = j * n_elem * (n_elem + 1) / 2 + k + i * n_elem - i * (i + 1) / 2
-
-            offset = 0
-            if self.k1 is not None:
-                n1 = self.k1["grid"]["n"]
-                offset += n_elem * n1
-            if self.k2 is not None:
-                n2 = self.k2["grid"]["n"]
-                offset += (n_elem * (n_elem + 1) / 2) * n2
-            start = int(offset + m * n3)
-            end = int(offset + (m + 1) * n3)
+            start = int(m * n)
+            end = int((m + 1) * n)
 
         return slice(start, end)
 
@@ -696,18 +514,17 @@ class MBTR(DescriptorGlobal):
             3D ndarray: K1 derivatives. If return_derivatives=False, returns an
                 array of shape (0,0,0).
         """
-        grid = self.k1["grid"]
-        start = grid["min"]
-        stop = grid["max"]
-        n = grid["n"]
-        sigma = grid["sigma"]
+        start = self.grid["min"]
+        stop = self.grid["max"]
+        n = self.grid["n"]
+        sigma = self.grid["sigma"]
 
         n_elem = self.n_elements
         n_features = n_elem * n
 
         if return_descriptor:
             # Determine the geometry function
-            geom_func_name = self.k1["geometry"]["function"]
+            geom_func_name = self.geometry["function"]
 
             cmbtr = MBTRWrapper(
                 self.atomic_number_to_index,
@@ -757,34 +574,32 @@ class MBTR(DescriptorGlobal):
             3D ndarray: K2 derivatives. If return_derivatives=False, returns an
                 array of shape (0,0,0).
         """
-        grid = self.k2["grid"]
-        start = grid["min"]
-        stop = grid["max"]
-        n = grid["n"]
-        sigma = grid["sigma"]
+        start = self.grid["min"]
+        stop = self.grid["max"]
+        n = self.grid["n"]
+        sigma = self.grid["sigma"]
 
         # Determine the weighting function and possible radial cutoff
         r_cut = None
-        weighting = self.k2.get("weighting")
         parameters = {}
-        if weighting is not None:
-            weighting_function = weighting["function"]
+        if self.weighting is not None:
+            weighting_function = self.weighting["function"]
             if weighting_function == "exp":
-                threshold = weighting["threshold"]
-                r_cut = weighting.get("r_cut")
-                scale = weighting.get("scale")
+                threshold = self.weighting["threshold"]
+                r_cut = self.weighting.get("r_cut")
+                scale = self.weighting.get("scale")
                 if scale is not None and r_cut is None:
                     r_cut = -math.log(threshold) / scale
                 elif scale is None and r_cut is not None:
                     scale = -math.log(threshold) / r_cut
                 parameters = {b"scale": scale, b"threshold": threshold}
             elif weighting_function == "inverse_square":
-                r_cut = weighting["r_cut"]
+                r_cut = self.weighting["r_cut"]
         else:
             weighting_function = "unity"
 
         # Determine the geometry function
-        geom_func_name = self.k2["geometry"]["function"]
+        geom_func_name = self.geometry["function"]
 
         # If needed, create the extended system
         if self.periodic:
@@ -901,22 +716,20 @@ class MBTR(DescriptorGlobal):
             3D ndarray: K3 derivatives. If return_derivatives=False, returns an
                 array of shape (0,0,0).
         """
-        grid = self.k3["grid"]
-        start = grid["min"]
-        stop = grid["max"]
-        n = grid["n"]
-        sigma = grid["sigma"]
+        start = self.grid["min"]
+        stop = self.grid["max"]
+        n = self.grid["n"]
+        sigma = self.grid["sigma"]
 
         # Determine the weighting function and possible radial cutoff
         r_cut = None
-        weighting = self.k3.get("weighting")
         parameters = {}
-        if weighting is not None:
-            weighting_function = weighting["function"]
+        if self.weighting is not None:
+            weighting_function = self.weighting["function"]
             if weighting_function == "exp":
-                threshold = weighting["threshold"]
-                r_cut = weighting.get("r_cut")
-                scale = weighting.get("scale")
+                threshold = self.weighting["threshold"]
+                r_cut = self.weighting.get("r_cut")
+                scale = self.weighting.get("scale")
                 # If we want to limit the triplets to a distance r_cut, we need
                 # to allow x=2*r_cut in the case of k=3.
                 if scale is not None and r_cut is None:
@@ -926,16 +739,16 @@ class MBTR(DescriptorGlobal):
                 parameters = {b"scale": scale, b"threshold": threshold}
             if weighting_function == "smooth_cutoff":
                 try:
-                    sharpness = weighting["sharpness"]
+                    sharpness = self.weighting["sharpness"]
                 except Exception:
                     sharpness = 2
-                r_cut = weighting["r_cut"]
+                r_cut = self.weighting["r_cut"]
                 parameters = {b"sharpness": sharpness, b"cutoff": r_cut}
         else:
             weighting_function = "unity"
 
         # Determine the geometry function
-        geom_func_name = self.k3["geometry"]["function"]
+        geom_func_name = self.geometry["function"]
 
         # If needed, create the extended system
         if self.periodic:
@@ -1066,15 +879,15 @@ class MBTR(DescriptorGlobal):
                     )
                 )
             # Derivatives are not currently implemented for all k3 options
-            if self.k3 is not None:
-                if self.k3.get("weighting") is not None:
-                    if self.k3["weighting"]["function"] == "smooth_cutoff":
+            if self.k == 3:
+                if self.weighting is not None:
+                    if self.weighting["function"] == "smooth_cutoff":
                         raise ValueError(
                             "Analytical derivatives not implemented for k3 weighting function 'smooth_cutoff'."
                         )
 
                 # "angle" function is not differentiable
-                if self.k3["geometry"]["function"] == "angle":
+                if self.geometry["function"] == "angle":
                     raise ValueError(
                         "Analytical derivatives not implemented for k3 geometry function 'angle'."
                     )
@@ -1098,40 +911,16 @@ class MBTR(DescriptorGlobal):
         # of atomic numbers
         self.check_atomic_numbers(system.get_atomic_numbers())
 
-        mbtr = {}
-        mbtr_d = {}
-        if self.k1 is not None:
-            k1, k1_d = self._get_k1(system, return_descriptor, True)
-            mbtr["k1"] = k1
-            mbtr_d["k1"] = k1_d
-        if self.k2 is not None:
-            k2, k2_d = self._get_k2(system, return_descriptor, True)
-            mbtr["k2"] = k2
-            mbtr_d["k2"] = k2_d
-        if self.k3 is not None:
-            k3, k3_d = self._get_k3(system, return_descriptor, True)
-            mbtr["k3"] = k3
-            mbtr_d["k3"] = k3_d
+        mbtr, mbtr_d = getattr(self, f"_get_k{self.k}")(system, return_descriptor, True)
 
         # Handle normalization
         if self.normalization == "n_atoms":
             n_atoms = len(self.system)
-            for key, value in mbtr.items():
-                mbtr[key] = value / n_atoms
-                mbtr_d[key] /= n_atoms
-
-        keys = sorted(mbtr.keys())
-        if len(keys) > 1:
-            mbtr = np.concatenate([mbtr[key] for key in keys], axis=0)
-            mbtr_d = np.concatenate([mbtr_d[key] for key in keys], axis=2)
-        else:
-            mbtr = mbtr[keys[0]]
-            mbtr_d = mbtr_d[keys[0]]
+            mbtr /= n_atoms
+            mbtr_d /= n_atoms
 
         # For now, the derivatives are calculated with regard to all atomic
         # positions. The desired indices are extracted here at the end.
-        # if len(indices) < len(self.system):
-        #     mbtr_d = mbtr_d[indices]
         i = 0
         for index in indices:
             d[i, :] = mbtr_d[index, :, :]

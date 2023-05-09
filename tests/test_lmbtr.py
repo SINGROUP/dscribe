@@ -28,19 +28,15 @@ from conftest import (
 # =============================================================================
 # Utilities
 default_k2 = {
-    "k2": {
-        "geometry": {"function": "inverse_distance"},
-        "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
-        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
-    }
+    "geometry": {"function": "inverse_distance"},
+    "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
+    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
 }
 
 default_k3 = {
-    "k3": {
-        "geometry": {"function": "angle"},
-        "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
-        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
-    }
+    "geometry": {"function": "angle"},
+    "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
+    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
 }
 
 
@@ -71,10 +67,10 @@ def lmbtr_default_k2(**kwargs):
 @pytest.mark.parametrize(
     "setup, n_features",
     [
-        pytest.param(default_k2, 3 * default_k2["k2"]["grid"]["n"], id="K2"),
+        pytest.param(default_k2, 3 * default_k2["grid"]["n"], id="K2"),
         pytest.param(
             default_k3,
-            3 * (3 * 3 - 1) * default_k3["k3"]["grid"]["n"] / 2,
+            3 * (3 * 3 - 1) * default_k3["grid"]["n"] / 2,
             id="K3",
         ),
     ],
@@ -300,10 +296,10 @@ def test_exceptions():
     with pytest.raises(ValueError) as excinfo:
         LMBTR(
             species=[1],
-            k2=default_k2["k2"],
+            **default_k2,
             periodic=False,
             normalization="n_atoms",
         )
 
-    msg = "Unknown normalization option given. Please use one of the following: l2, l2_each, none."
+    msg = "Unknown normalization option given. Please use one of the following: l2, none."
     assert msg == str(excinfo.value)

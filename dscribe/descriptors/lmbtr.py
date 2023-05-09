@@ -24,7 +24,7 @@ from ase import Atoms
 import ase.data
 
 from dscribe.core import System
-from dscribe.descriptors.mbtr import check_weighting, check_k2, check_k3
+from dscribe.descriptors.mbtr import check_geometry, check_weighting, check_grid, k1_geometry_functions
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
 from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
@@ -105,8 +105,9 @@ class LMBTR(DescriptorLocal):
 
     def __init__(
         self,
-        k2=None,
-        k3=None,
+        geometry=None,
+        grid=None,
+        weighting=None,
         normalize_gaussians=True,
         normalization="none",
         species=None,
@@ -169,8 +170,9 @@ class LMBTR(DescriptorLocal):
             dtype=dtype,
         )
         self.system = None
-        self.k2 = k2
-        self.k3 = k3
+        self.geometry = geometry
+        self.grid = grid
+        self.weighting = weighting
         self.species = species
         self.normalization = normalization
         self.normalize_gaussians = normalize_gaussians
@@ -183,27 +185,41 @@ class LMBTR(DescriptorLocal):
         # Initializing .create() level variables
         self._interaction_limit = None
 
-        # Check that weighting function is specified for periodic systems
-        check_weighting(self.periodic, self.k2)
-        check_weighting(self.periodic, self.k3)
+    @property
+    def grid(self):
+        return self._grid
+
+    @grid.setter
+    def grid(self, value):
+        check_grid(value)
+        self._grid = value
 
     @property
-    def k2(self):
-        return self._k2
+    def geometry(self):
+        return self._geometry
 
-    @k2.setter
-    def k2(self, value):
-        check_k2(value)
-        self._k2 = value
+    @geometry.setter
+    def geometry(self, value):
+        check_geometry(value)
+        if value["function"] in k1_geometry_functions:
+            raise ValueError("LMBTR does not support geometry functions for degree k=1.")
+        k_map = {
+            "distance": 2,
+            "inverse_distance": 2,
+            "angle": 3,
+            "cosine": 3,
+        }
+        self.k = k_map[value["function"]]
+        self._geometry = value
 
     @property
-    def k3(self):
-        return self._k3
+    def weighting(self):
+        return self._weighting
 
-    @k3.setter
-    def k3(self, value):
-        check_k3(value)
-        self._k3 = value
+    @weighting.setter
+    def weighting(self, value):
+        check_weighting(self.k, value, self.periodic)
+        self._weighting = value
 
     @property
     def species(self):
@@ -256,7 +272,7 @@ class LMBTR(DescriptorLocal):
         Args:
             value(str): The normalization method to use.
         """
-        norm_options = set(("none", "l2", "l2_each"))
+        norm_options = set(("none", "l2"))
         if value not in norm_options:
             raise ValueError(
                 "Unknown normalization option given. Please use one of the "
@@ -448,39 +464,27 @@ class LMBTR(DescriptorLocal):
             new_pos_k2 = system.get_positions()
             new_atomic_numbers_k2 = system.get_atomic_numbers()
 
-        # Calculate the "raw" outputs for each term.
-        mbtr = {}
-        if self.k2 is not None:
-            new_system_k2 = System(
+        # Calculate the "raw" output
+        if self.k == 2:
+            new_system = System(
                 symbols=new_atomic_numbers_k2,
                 positions=new_pos_k2,
             )
-            mbtr["k2"] = self._get_k2(system, new_system_k2, indices_k2)
-
-        if self.k3 is not None:
-            new_system_k3 = System(
+            indices = indices_k2
+        elif self.k == 3:
+            new_system = System(
                 symbols=new_atomic_numbers_k3,
                 positions=new_pos_k3,
             )
-            mbtr["k3"] = self._get_k3(system, new_system_k3, indices_k3)
+            indices = indices_k3
+        mbtr = getattr(self, f"_get_k{self.k}")(system, new_system, indices)
 
         # Handle normalization
-        if self.normalization == "l2_each":
-            for value in mbtr.values():
-                norm = np.linalg.norm(value.data)
-                value /= norm
-        elif self.normalization == "l2":
-            for value in mbtr.values():
-                normalize(value.tocsr(), norm="l2", axis=1, copy=False)
-
-        keys = sorted(mbtr.keys())
-        if len(keys) > 1:
-            result = sparse.concatenate([mbtr[key] for key in keys], axis=1)
-        else:
-            result = mbtr[keys[0]]
+        if self.normalization == "l2":
+            normalize(mbtr.tocsr(), norm="l2", axis=1, copy=False)
 
         # Make into a dense array
-        result = result.todense()
+        result = mbtr.todense()
 
         return result
 
@@ -510,17 +514,12 @@ class LMBTR(DescriptorLocal):
         """
         n_features = 0
         n_elem = self.n_elements
+        n_grid = self.grid["n"]
 
-        if self.k2 is not None:
-            n_k2_grid = self.k2["grid"]["n"]
-            n_k2 = (n_elem) * n_k2_grid
-            n_features += n_k2
-        if self.k3 is not None:
-            n_k3_grid = self.k3["grid"]["n"]
-            n_k3 = (
-                n_elem * (3 * n_elem - 1) * n_k3_grid / 2
-            )  # = (n_elem*n_elem + (n_elem-1)*n_elem/2)*n_k3_grid
-            n_features += n_k3
+        if self.k == 2:
+            n_features = (n_elem) * n_grid
+        if self.k == 3:
+            n_features = n_elem * (3 * n_elem - 1) * n_grid / 2
 
         return int(n_features)
 
@@ -544,32 +543,30 @@ class LMBTR(DescriptorLocal):
         Returns:
             1D ndarray: flattened K2 values.
         """
-        grid = self.k2["grid"]
-        start = grid["min"]
-        stop = grid["max"]
-        n = grid["n"]
-        sigma = grid["sigma"]
+        start = self.grid["min"]
+        stop = self.grid["max"]
+        n = self.grid["n"]
+        sigma = self.grid["sigma"]
 
         # Determine the weighting function and possible radial cutoff
         radial_cutoff = None
-        weighting = self.k2.get("weighting")
         parameters = {}
-        if weighting is not None:
-            weighting_function = weighting["function"]
+        if self.weighting is not None:
+            weighting_function = self.weighting["function"]
             if weighting_function == "exponential" or weighting_function == "exp":
-                scale = weighting["scale"]
-                threshold = weighting["threshold"]
+                scale = self.weighting["scale"]
+                threshold = self.weighting["threshold"]
                 if scale != 0:
                     radial_cutoff = -math.log(threshold) / scale
                 parameters = {
-                    b"scale": weighting["scale"],
-                    b"threshold": weighting["threshold"],
+                    b"scale": self.weighting["scale"],
+                    b"threshold": self.weighting["threshold"],
                 }
         else:
             weighting_function = "unity"
 
         # Determine the geometry function
-        geom_func_name = self.k2["geometry"]["function"]
+        geom_func_name = self.geometry["function"]
 
         # Calculate extended system
         if self.periodic:
@@ -660,21 +657,19 @@ class LMBTR(DescriptorLocal):
         Returns:
             1D ndarray: flattened K2 values.
         """
-        grid = self.k3["grid"]
-        start = grid["min"]
-        stop = grid["max"]
-        n = grid["n"]
-        sigma = grid["sigma"]
+        start = self.grid["min"]
+        stop = self.grid["max"]
+        n = self.grid["n"]
+        sigma = self.grid["sigma"]
 
         # Determine the weighting function and possible radial cutoff
         radial_cutoff = None
-        weighting = self.k3.get("weighting")
         parameters = {}
-        if weighting is not None:
-            weighting_function = weighting["function"]
+        if self.weighting is not None:
+            weighting_function = self.weighting["function"]
             if weighting_function == "exponential" or weighting_function == "exp":
-                scale = weighting["scale"]
-                threshold = weighting["threshold"]
+                scale = self.weighting["scale"]
+                threshold = self.weighting["threshold"]
                 if scale != 0:
                     radial_cutoff = -0.5 * math.log(threshold) / scale
                 parameters = {b"scale": scale, b"threshold": threshold}
@@ -682,7 +677,7 @@ class LMBTR(DescriptorLocal):
             weighting_function = "unity"
 
         # Determine the geometry function
-        geom_func_name = self.k3["geometry"]["function"]
+        geom_func_name = self.geometry["function"]
 
         # Calculate extended system
         if self.periodic:
@@ -851,11 +846,10 @@ class LMBTR(DescriptorLocal):
         """
         # Check that the corresponding part is calculated
         k = len(species)
-        term = getattr(self, "k{}".format(k))
-        if term is None:
+        if k is not self.k:
             raise ValueError(
-                "Cannot retrieve the location for {}, as the term {} has not "
-                "been specifed.".format(species, term)
+                "Cannot retrieve the location for {}, as the term k={} has not "
+                "been specified.".format(species, k)
             )
 
         # Change chemical elements into atomic numbers
@@ -878,24 +872,23 @@ class LMBTR(DescriptorLocal):
         # Change into internal indexing
         numbers = [self.atomic_number_to_index[x] for x in numbers]
         n_elem = self.n_elements
+        n = self.grid["n"]
 
         # k=2
-        if len(numbers) == 2:
+        if k == 2:
             if numbers[0] > numbers[1]:
                 numbers = list(reversed(numbers))
 
-            n2 = self.k2["grid"]["n"]
             j = numbers[1]
             m = j
-            start = int(m * n2)
-            end = int((m + 1) * n2)
+            start = int(m * n)
+            end = int((m + 1) * n)
 
         # k=3
-        if len(numbers) == 3:
+        if k == 3:
             if numbers[0] > numbers[2]:
                 numbers = list(reversed(numbers))
 
-            n3 = self.k3["grid"]["n"]
             i = numbers[0]
             j = numbers[1]
             k = numbers[2]
@@ -910,11 +903,7 @@ class LMBTR(DescriptorLocal):
             else:
                 m = n_elem * (n_elem + 1) / 2 + (j - 1) * n_elem + k
 
-            offset = 0
-            if self.k2 is not None:
-                n2 = self.k2["grid"]["n"]
-                offset += n_elem * n2
-            start = int(offset + m * n3)
-            end = int(offset + (m + 1) * n3)
+            start = int(m * n)
+            end = int((m + 1) * n)
 
         return slice(start, end)

@@ -14,27 +14,21 @@ from dscribe.descriptors.descriptorlocal import DescriptorLocal
 Contains a set of shared test functions.
 """
 setup_k1 = {
-    "k1": {
-        "geometry": {"function": "atomic_number"},
-        "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50},
-        "weighting": {"function": "unity"},
-    },
+    "geometry": {"function": "atomic_number"},
+    "grid": {"min": 1, "max": 8, "sigma": 0.1, "n": 50},
+    "weighting": {"function": "unity"},
 }
 
 setup_k2 = {
-    "k2": {
-        "geometry": {"function": "inverse_distance"},
-        "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
-        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
-    },
+    "geometry": {"function": "inverse_distance"},
+    "grid": {"min": 0, "max": 1 / 0.7, "sigma": 0.1, "n": 50},
+    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
 }
 
 setup_k3 = {
-    "k3": {
-        "geometry": {"function": "angle"},
-        "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
-        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
-    }
+    "geometry": {"function": "angle"},
+    "grid": {"min": 0, "max": 180, "sigma": 2, "n": 50},
+    "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-2},
 }
 
 
@@ -791,16 +785,11 @@ def assert_mbtr_peak(
     descriptor_func, system, k, grid, geometry, weighting, periodic, peaks, prominence
 ):
     """Tests that the correct peaks are present in the descriptor output."""
-    setup = {
-        f"k{k}": {
-            "grid": grid,
-            "geometry": geometry,
-            "weighting": weighting,
-        }
-    }
     desc = descriptor_func(
         species=system.get_atomic_numbers(),
-        **setup,
+        grid=grid,
+        geometry=geometry,
+        weighting=weighting,
         periodic=periodic,
         normalize_gaussians=False,
         sparse=False,
