@@ -60,9 +60,13 @@ def check_geometry(geometry: dict):
 
     if "function" in geometry:
         function = geometry["function"]
-        valid_functions = k1_geometry_functions | k2_geometry_functions | k3_geometry_functions
+        valid_functions = (
+            k1_geometry_functions | k2_geometry_functions | k3_geometry_functions
+        )
         if function not in valid_functions:
-            raise ValueError(f"Unknown geometry function. Please use one of the following: {sorted(list(valid_functions))}")
+            raise ValueError(
+                f"Unknown geometry function. Please use one of the following: {sorted(list(valid_functions))}"
+            )
     else:
         raise ValueError("Please specify a geometry function.")
 
@@ -84,15 +88,21 @@ def check_weighting(k: int, weighting: dict, periodic: bool):
             valid_functions = set(["unity", "exp", "smooth_cutoff"])
         function = weighting.get("function")
         if function not in valid_functions:
-            raise ValueError(f"Unknown weighting function specified for k={k}. Please use one of the following: {sorted(list(valid_functions))}")
+            raise ValueError(
+                f"Unknown weighting function specified for k={k}. Please use one of the following: {sorted(list(valid_functions))}"
+            )
         else:
             if function == "exp":
                 if "threshold" not in weighting:
                     raise ValueError("Missing value for 'threshold' in the weighting.")
                 if "scale" not in weighting and "r_cut" not in weighting:
-                    raise ValueError("Provide either 'scale' or 'r_cut' in the weighting.")
+                    raise ValueError(
+                        "Provide either 'scale' or 'r_cut' in the weighting."
+                    )
                 if "scale" in weighting and "r_cut" in weighting:
-                    raise ValueError("Provide either 'scale' or 'r_cut', not both in the weighting.")
+                    raise ValueError(
+                        "Provide either 'scale' or 'r_cut', not both in the weighting."
+                    )
             elif function == "inverse_square":
                 if "r_cut" not in weighting:
                     raise ValueError("Missing value for 'r_cut' in the weighting.")
@@ -121,6 +131,7 @@ class MBTR(DescriptorGlobal):
     some form of normalization. This implementation does not support the use of
     a non-identity correlation matrix.
     """
+
     def __init__(
         self,
         geometry=None,
@@ -390,7 +401,7 @@ class MBTR(DescriptorGlobal):
         # of atomic numbers
         self.check_atomic_numbers(system.get_atomic_numbers())
 
-        mbtr, _ = getattr(self, f'_get_k{self.k}')(system, True, False)
+        mbtr, _ = getattr(self, f"_get_k{self.k}")(system, True, False)
 
         # Handle normalization
         if self.normalization == "l2":

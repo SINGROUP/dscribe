@@ -301,5 +301,7 @@ def test_exceptions():
             normalization="n_atoms",
         )
 
-    msg = "Unknown normalization option given. Please use one of the following: l2, none."
+    msg = (
+        "Unknown normalization option given. Please use one of the following: l2, none."
+    )
     assert msg == str(excinfo.value)

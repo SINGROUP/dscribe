@@ -24,7 +24,12 @@ from ase import Atoms
 import ase.data
 
 from dscribe.core import System
-from dscribe.descriptors.mbtr import check_geometry, check_weighting, check_grid, k1_geometry_functions
+from dscribe.descriptors.mbtr import (
+    check_geometry,
+    check_weighting,
+    check_grid,
+    k1_geometry_functions,
+)
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
 from dscribe.ext import MBTRWrapper
 import dscribe.utils.geometry
@@ -202,7 +207,9 @@ class LMBTR(DescriptorLocal):
     def geometry(self, value):
         check_geometry(value)
         if value["function"] in k1_geometry_functions:
-            raise ValueError("LMBTR does not support geometry functions for degree k=1.")
+            raise ValueError(
+                "LMBTR does not support geometry functions for degree k=1."
+            )
         k_map = {
             "distance": 2,
             "inverse_distance": 2,

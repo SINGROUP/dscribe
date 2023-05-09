@@ -181,70 +181,77 @@ def test_symmetries():
             {"min": 0, "max": 5.0, "sigma": 0.02, "n": 100},
             {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
             True,
-            id="distance, exp, periodic"
+            id="distance, exp, periodic",
         ),
         pytest.param(
             {"function": "inverse_distance"},
             {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100},
             {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
             True,
-            id="inverse_distance, exp, periodic"
+            id="inverse_distance, exp, periodic",
         ),
         pytest.param(
             {"function": "cosine"},
             {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100},
             {"function": "exp", "scale": 1.0, "threshold": 1e-3},
             True,
-            id="cosine, exp, periodic"
+            id="cosine, exp, periodic",
         ),
         pytest.param(
             {"function": "distance"},
             {"min": 0, "max": 5.0, "sigma": 0.02, "n": 100},
             {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
             False,
-            id="distance, exp, finite"
+            id="distance, exp, finite",
         ),
         pytest.param(
             {"function": "inverse_distance"},
             {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100},
             {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
             False,
-            id="inverse_distance, exp, finite"
+            id="inverse_distance, exp, finite",
         ),
         pytest.param(
             {"function": "cosine"},
             {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100},
             {"function": "exp", "scale": 1.0, "threshold": 1e-3},
             False,
-            id="cosine, exp, finite"
+            id="cosine, exp, finite",
         ),
         pytest.param(
             {"function": "distance"},
             {"min": 0, "max": 5.0, "sigma": 0.02, "n": 100},
             None,
             False,
-            id="distance, unity, finite"
+            id="distance, unity, finite",
         ),
         pytest.param(
             {"function": "inverse_distance"},
             {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100},
             None,
             False,
-            id="inverse_distance, unity, finite"
+            id="inverse_distance, unity, finite",
         ),
         pytest.param(
             {"function": "cosine"},
             {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100},
             None,
             False,
-            id="cosine, unity, finite"
+            id="cosine, unity, finite",
         ),
     ],
 )
 @pytest.mark.parametrize("normalization", ["none", "n_atoms"])
 def test_derivatives_analytical(normalization, geometry, grid, weighting, periodic):
-    mbtr_func = mbtr(geometry=geometry, grid=grid, weighting=weighting, normalization=normalization, periodic=periodic)
+    mbtr_func = mbtr(
+        geometry=geometry,
+        grid=grid,
+        weighting=weighting,
+        normalization=normalization,
+        periodic=periodic,
+    )
     assert_derivatives(mbtr_func, "analytical", periodic, get_simple_finite())
+
 
 @pytest.mark.parametrize(
     "geometry, grid, weighting",
@@ -253,26 +260,32 @@ def test_derivatives_analytical(normalization, geometry, grid, weighting, period
             {"function": "distance"},
             {"min": 0, "max": 5.0, "sigma": 0.02, "n": 100},
             {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
-            id="distance"
+            id="distance",
         ),
         pytest.param(
             {"function": "inverse_distance"},
             {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100},
             {"function": "exp", "r_cut": 9.0, "threshold": 1e-3},
-            id="inverse_distance"
+            id="inverse_distance",
         ),
         pytest.param(
             {"function": "cosine"},
             {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100},
             {"function": "exp", "scale": 1.0, "threshold": 1e-3},
-            id="cosine"
+            id="cosine",
         ),
     ],
 )
 @pytest.mark.parametrize("periodic", [True, False])
 @pytest.mark.parametrize("normalization", ["none", "n_atoms", "l2"])
 def test_derivatives_numerical(periodic, normalization, geometry, grid, weighting):
-    mbtr_func = mbtr(geometry=geometry, grid=grid, weighting=weighting, normalization=normalization, periodic=periodic)
+    mbtr_func = mbtr(
+        geometry=geometry,
+        grid=grid,
+        weighting=weighting,
+        normalization=normalization,
+        periodic=periodic,
+    )
     assert_derivatives(mbtr_func, "numerical", periodic, get_simple_finite())
 
 
