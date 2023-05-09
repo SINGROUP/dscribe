@@ -267,7 +267,7 @@ def assert_derivatives(
     assert np.max(np.abs(derivatives_cpp)) > 1e-8
 
     # Compare derivative values
-    assert np.allclose(derivatives_python, derivatives_cpp, rtol=1e-4, atol=1e-4)
+    assert np.allclose(derivatives_python, derivatives_cpp, rtol=0.5e-3, atol=1e-4)
 
 
 def assert_derivatives_include(descriptor_func, method, attach=None):

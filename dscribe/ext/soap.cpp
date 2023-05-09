@@ -93,6 +93,7 @@ void SOAPGTO::create(
     py::array_t<double> zd({1, 1, 1, 1, 1});
     py::array_t<double> derivatives({1, 1, 1, 1});
     py::array_t<int> indices({1});
+    py::array_t<int> center_indices({1});
 
     soapGTO(
         derivatives,
@@ -102,6 +103,7 @@ void SOAPGTO::create(
         zd,
         positions,
         centers,
+        center_indices,
         this->alphas,
         this->betas,
         atomic_numbers,
@@ -115,6 +117,7 @@ void SOAPGTO::create(
         this->crossover,
         this->average,
         indices,
+        false,
         true,
         false,
         cell_list
@@ -140,7 +143,9 @@ void SOAPGTO::derivatives_analytical(
     py::array_t<double> cell,
     py::array_t<bool> pbc,
     py::array_t<double> centers,
+    py::array_t<int> center_indices,
     py::array_t<int> indices,
+    const bool attach,
     const bool return_descriptor
 ) const
 {
@@ -164,6 +169,7 @@ void SOAPGTO::derivatives_analytical(
         zd,
         positions,
         centers,
+        center_indices,
         this->alphas,
         this->betas,
         atomic_numbers,
@@ -177,6 +183,7 @@ void SOAPGTO::derivatives_analytical(
         this->crossover,
         this->average,
         indices,
+        attach,
         return_descriptor,
         true,
         cell_list

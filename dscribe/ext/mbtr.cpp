@@ -325,11 +325,28 @@ void MBTR::getK3(py::array_t<double> &descriptor, py::array_t<double> &derivativ
                         weight_d[2] = vector<double>(3,0.0);
                     }
                 } else if (weightFunc == "smooth_cutoff") {
-                    double sharpness = parameters.at("sharpness");
+                    double y = parameters.at("sharpness");
                     double cutoff = parameters.at("cutoff");
-                    weight = k3WeightSmooth(i, j, k, distances, sharpness, cutoff);
-                    if (return_derivatives) {
-                        throw invalid_argument("Derivatives not implemented for weighting function 'smooth_cutoff'.");
+                    if (d_ji > cutoff || d_jk > cutoff){
+                        continue;
+                    }
+                    //weight = k3WeightSmooth(i, j, k, distances, y, cutoff);
+                    double frac_ij = d_ji/cutoff;
+                    double frac_jk = d_jk/cutoff;
+                    double pow1_ij = pow(frac_ij, y+1);
+                    double pow2_ij = pow(frac_ij, y);
+                    double pow1_jk = pow(frac_jk, y+1);
+                    double pow2_jk = pow(frac_jk, y);
+                    double f_ij = 1 + y*pow1_ij - (y+1)*pow2_ij;
+                    double f_jk = 1 + y*pow1_jk - (y+1)*pow2_jk;
+                    weight = f_ij*f_jk;
+
+                    double c1 = y*(y+1)/(d_ji*d_ji)*(pow1_ij-pow2_ij)/f_ij;
+                    double c2 = y*(y+1)/(d_jk*d_jk)*(pow1_jk-pow2_jk)/f_jk;
+                    for(int dim=0; dim<3; ++dim){
+                        weight_d[0].push_back(-c1*r_ji[dim]);
+                        weight_d[1].push_back( c2*r_jk[dim] + c1*r_ji[dim]);
+                        weight_d[2].push_back(-c2*r_jk[dim]);
                     }
                 } else {
                     throw invalid_argument("Invalid weighting function.");
