@@ -4,16 +4,10 @@ from dscribe.descriptors import ValleOganov
 # Setup
 vo = ValleOganov(
     species=["H", "O"],
-    k2={
-        "sigma": 10**(-0.5),
-        "n": 100,
-        "r_cut": 5
-    },
-    k3={
-        "sigma": 10**(-0.5),
-        "n": 100,
-        "r_cut": 5
-    },
+    function="distance",
+    sigma=10**(-0.5),
+    n=100,
+    r_cut=5
 )
 
 # Create
@@ -47,11 +41,10 @@ from ase.build import bulk
 nacl = bulk("NaCl", "rocksalt", a=5.64)
 vo = ValleOganov(
     species=["Na", "Cl"],
-    k2={
-        "n": 200,
-        "sigma": 10**(-0.625),
-        "r_cut": 10
-    },
+    function="distance",
+    n=200,
+    sigma=10**(-0.625),
+    r_cut=10,
     sparse=False
 )
 vo_nacl = vo.create(nacl)
@@ -80,11 +73,9 @@ plt.show()
 from dscribe.descriptors import MBTR
 mbtr = MBTR(
     species=["Na", "Cl"],
-    k2={
-        "geometry": {"function": "distance"},
-        "grid": {"min": 0, "max": 10, "sigma": 10**(-0.625), "n": 200},
-        "weighting": {"function": "inverse_square", "r_cut": 10},
-    },
+    geometry={"function": "distance"},
+    grid={"min": 0, "max": 10, "sigma": 10**(-0.625), "n": 200},
+    weighting={"function": "inverse_square", "r_cut": 10},
     normalize_gaussians=True,
     normalization="valle_oganov",
     periodic=True,
@@ -99,22 +90,19 @@ nacl = bulk("NaCl", "rocksalt", a=5.64)
 decay = 0.5
 mbtr = MBTR(
     species=["Na", "Cl"],
-    k2={
-        "geometry": {"function": "distance"},
-        "grid": {"min": 0, "max": 20, "sigma": 10**(-0.625), "n": 200},
-        "weighting": {"function": "exp", "scale": decay, "threshold": 1e-3},
-    },
+    geometry={"function": "distance"},
+    grid={"min": 0, "max": 20, "sigma": 10**(-0.625), "n": 200},
+    weighting={"function": "exp", "scale": decay, "threshold": 1e-3},
     periodic=True,
     sparse=False
 )
 
 vo = ValleOganov(
     species=["Na", "Cl"],
-    k2={
-        "n": 200,
-        "sigma": 10**(-0.625),
-        "r_cut": 20
-    },
+    function="distance",
+    n=200,
+    sigma=10**(-0.625),
+    r_cut=20,
     sparse=False
 )
 

@@ -16,11 +16,9 @@ fcc = bulk("Fe", "fcc", a=a_fcc, cubic=True) * [n_xy_fcc, n_xy_fcc, n_z]
 
 # Setting up the descriptor
 descriptor = LMBTR(
-    k2={
-        "grid": {"min": 0, "max": 12, "sigma": 0.1, "n": 200},
-        "geometry": {"function": "distance"},
-        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-3}
-    },
+    grid={"min": 0, "max": 12, "sigma": 0.1, "n": 200},
+    geometry={"function": "distance"},
+    weighting={"function": "exp", "scale": 0.5, "threshold": 1e-3},
     species=["Fe"],
     periodic=True,
 )

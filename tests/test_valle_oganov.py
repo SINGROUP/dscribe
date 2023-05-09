@@ -37,6 +37,7 @@ def valle_oganov(**kwargs):
 
     return func
 
+
 def valle_oganov_default_k2(**kwargs):
     return valle_oganov(**default_k2, **kwargs)
 
@@ -94,7 +95,8 @@ def test_derivatives_exclude(method):
 # =============================================================================
 # Tests that are specific to this descriptor.
 @pytest.mark.parametrize(
-    "vo_setup, mbtr_setup", [
+    "vo_setup, mbtr_setup",
+    [
         pytest.param(
             {"function": "distance", "sigma": 0.1, "n": 20, "r_cut": 5},
             {
@@ -102,7 +104,7 @@ def test_derivatives_exclude(method):
                 "grid": {"min": 0, "max": 5, "sigma": 0.1, "n": 20},
                 "weighting": {"function": "inverse_square", "r_cut": 5},
             },
-            id="distance"
+            id="distance",
         ),
         pytest.param(
             {"function": "angle", "sigma": 0.1, "n": 20, "r_cut": 5},
@@ -111,9 +113,9 @@ def test_derivatives_exclude(method):
                 "grid": {"min": 0, "max": 180, "sigma": 0.1, "n": 20},
                 "weighting": {"function": "smooth_cutoff", "r_cut": 5},
             },
-            id="angle"
+            id="angle",
         ),
-    ]
+    ],
 )
 def test_vs_mbtr(vo_setup, mbtr_setup):
     """Tests that the ValleOganov subclass gives the same output as MBTR with

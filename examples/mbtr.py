@@ -4,22 +4,11 @@ from dscribe.descriptors import MBTR
 # Setup
 mbtr = MBTR(
     species=["H", "O"],
-    k1={
-        "geometry": {"function": "atomic_number"},
-        "grid": {"min": 0, "max": 8, "n": 100, "sigma": 0.1},
-    },
-    k2={
-        "geometry": {"function": "inverse_distance"},
-        "grid": {"min": 0, "max": 1, "n": 100, "sigma": 0.1},
-        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-3},
-    },
-    k3={
-        "geometry": {"function": "cosine"},
-        "grid": {"min": -1, "max": 1, "n": 100, "sigma": 0.1},
-        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-3},
-    },
+    geometry={"function": "inverse_distance"},
+    grid={"min": 0, "max": 1, "n": 100, "sigma": 0.1},
+    weighting={"function": "exp", "scale": 0.5, "threshold": 1e-3},
     periodic=False,
-    normalization="l2_each",
+    normalization="l2",
 )
 
 # Create
@@ -35,18 +24,13 @@ print(mbtr_water.shape)
 
 # Locations
 # The locations of specific element combinations can be retrieved like this.
-h_loc = mbtr.get_location(("H"))
 ho_loc = mbtr.get_location(("H", "O"))
-hoh_loc = mbtr.get_location(("H", "O", "H"))
 
 # These locations can be directly used to slice the corresponding part from an
 # MBTR output for e.g. plotting.
-mbtr_water[h_loc]
 mbtr_water[ho_loc]
-mbtr_water[hoh_loc]
 
 # Visualization
-import ase.data
 from ase.build import bulk
 import matplotlib.pyplot as mpl
 
@@ -54,11 +38,9 @@ nacl = bulk("NaCl", "rocksalt", a=5.64)
 decay = 0.5
 mbtr = MBTR(
     species=["Na", "Cl"],
-    k2={
-        "geometry": {"function": "inverse_distance"},
-        "grid": {"min": 0, "max": 0.5, "sigma": 0.01, "n": 200},
-        "weighting": {"function": "exp", "scale": decay, "threshold": 1e-3},
-    },
+    geometry={"function": "inverse_distance"},
+    grid={"min": 0, "max": 0.5, "sigma": 0.01, "n": 200},
+    weighting={"function": "exp", "scale": decay, "threshold": 1e-3},
     periodic=True,
     sparse=False
 )
@@ -85,13 +67,11 @@ mpl.show()
 # Finite
 desc = MBTR(
     species=["C"],
-    k2={
-        "geometry": {"function": "distance"},
-        "grid": {"min": 0.4, "max": 8, "sigma": 0.1, "n": 200},
-    },
+    geometry={"function": "distance"},
+    grid={"min": 0.4, "max": 8, "sigma": 0.1, "n": 200},
     periodic=False,
     sparse=False,
-    normalization="l2_each",
+    normalization="l2",
 )
 
 system = molecule("C60")
@@ -100,7 +80,7 @@ system = molecule("C60")
 output_no_weight = desc.create(system)
 
 # Exponential weighting
-desc.k2["weighting"] = {"function": "exp", "scale": 1.1, "threshold": 1e-2}
+desc.weighting = {"function": "exp", "scale": 1.1, "threshold": 1e-2}
 output_weight = desc.create(system)
 
 fig, ax = mpl.subplots()
@@ -117,20 +97,9 @@ mpl.show()
 desc = MBTR(
     species=["H"],
     periodic=True,
-    k1={
-        "geometry": {"function": "atomic_number"},
-        "grid": {"min": 0, "max": 2, "sigma": 0.1, "n": 100},
-    },
-    k2={
-        "geometry": {"function": "inverse_distance"},
-        "grid": {"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
-        "weighting": {"function": "exp", "scale": 1.0, "threshold": 1e-3},
-    },
-    k3={
-        "geometry": {"function": "cosine"},
-        "grid": {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 200},
-        "weighting": {"function": "exp", "scale": 1.0, "threshold": 1e-3},
-    },
+    geometry={"function": "inverse_distance"},
+    grid={"min": 0, "max": 1.0, "sigma": 0.02, "n": 200},
+    weighting={"function": "exp", "scale": 1.0, "threshold": 1e-3},
     sparse=False,
 )
 
@@ -158,7 +127,7 @@ ax.legend()
 mpl.show()
 
 # With normalization to unit euclidean length the outputs become identical
-desc.normalization = "l2_each"
+desc.normalization = "l2"
 output = desc.create([a1, a2, a3, a4])
 fig, ax = mpl.subplots()
 ax.plot(output[0, :], label="Primitive cell")

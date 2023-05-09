@@ -6,18 +6,11 @@ import matplotlib.pyplot as mpl
 # Setup
 lmbtr = LMBTR(
     species=["H", "O"],
-    k2={
-        "geometry": {"function": "distance"},
-        "grid": {"min": 0, "max": 5, "n": 100, "sigma": 0.1},
-        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-3},
-    },
-    k3={
-        "geometry": {"function": "angle"},
-        "grid": {"min": 0, "max": 180, "n": 100, "sigma": 0.1},
-        "weighting": {"function": "exp", "scale": 0.5, "threshold": 1e-3},
-    },
+    geometry={"function": "distance"},
+    grid={"min": 0, "max": 5, "n": 100, "sigma": 0.1},
+    weighting={"function": "exp", "scale": 0.5, "threshold": 1e-3},
     periodic=False,
-    normalization="l2_each",
+    normalization="l2",
 )
 
 # Create
@@ -48,11 +41,9 @@ fcc_pos = slab_ads.get_positions()[-1]
 # LMBTR Setup
 lmbtr = LMBTR(
     species=["Al"],
-    k2={
-        "geometry": {"function": "distance"},
-        "grid": {"min": 1, "max": 5, "n": 200, "sigma": 0.05},
-        "weighting": {"function": "exp", "scale": 1, "threshold": 1e-2},
-    },
+    geometry={"function": "distance"},
+    grid={"min": 1, "max": 5, "n": 200, "sigma": 0.05},
+    weighting={"function": "exp", "scale": 1, "threshold": 1e-2},
     periodic=True,
     normalization="none",
 )

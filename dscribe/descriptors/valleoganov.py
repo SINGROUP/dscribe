@@ -9,6 +9,7 @@ class ValleOganov(MBTR):
     For more information on the weighting and normalization used here as well
     as the other parameters and general usage of the descriptor, see the MBTR class.
     """
+
     def __init__(
         self,
         species,
@@ -62,7 +63,7 @@ class ValleOganov(MBTR):
             weighting = {"function": "inverse_square", "r_cut": r_cut}
         elif function == "angle":
             geometry = {"function": "angle"}
-            grid =  {"min": 0, "max": 180, "sigma": sigma, "n": n}
+            grid = {"min": 0, "max": 180, "sigma": sigma, "n": n}
             weighting = {"function": "smooth_cutoff", "r_cut": r_cut}
         else:
             raise ValueError("Invalid function. Use 'distance' or 'angle'.")
@@ -76,5 +77,5 @@ class ValleOganov(MBTR):
             sparse=sparse,
             normalization="valle_oganov",
             normalize_gaussians=True,
-            dtype=dtype
+            dtype=dtype,
         )
