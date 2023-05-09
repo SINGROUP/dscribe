@@ -67,34 +67,6 @@ def mbtr_default_k2(**kwargs):
     return mbtr(**default_k2, **kwargs)
 
 
-def k2_dict(geometry_function, weighting_function):
-    d = {}
-    if geometry_function == "inverse_distance":
-        d["geometry"] = {"function": "inverse_distance"}
-        d["grid"] = {"min": 0, "max": 1.0, "sigma": 0.02, "n": 100}
-    else:
-        d["geometry"] = {"function": "distance"}
-        d["grid"] = {"min": 0, "max": 10.0, "sigma": 0.5, "n": 100}
-
-    if weighting_function == "exp":
-        d["weighting"] = {"function": "exp", "r_cut": 9.0, "threshold": 1e-3}
-
-    return d
-
-
-def k3_dict(weighting_function):
-    d = {}
-    d["geometry"] = {"function": "cosine"}
-    d["grid"] = {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100}
-
-    if weighting_function == "exp":
-        d["weighting"] = {"function": "exp", "scale": 1.0, "threshold": 1e-3}
-    elif weighting_function == "smooth_cutoff":
-        d["weighting"] = {"function": "smooth_cutoff", "sharpness": 2.0, "r_cut": 6.0}
-
-    return d
-
-
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
 @pytest.mark.parametrize(
