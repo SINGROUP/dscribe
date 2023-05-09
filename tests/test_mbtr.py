@@ -95,6 +95,8 @@ def k3_dict(weighting_function):
 
     if weighting_function == "exp":
         d["weighting"] = {"function": "exp", "scale": 1.0, "threshold": 1e-3}
+    elif weighting_function == "smooth_cutoff":
+        d["weighting"] = {"function": "smooth_cutoff", "sharpness": 2.0, "r_cut": 6.0}
 
     return d
 
@@ -220,7 +222,21 @@ def test_symmetries():
         (
             "analytical",
             True,
+            "none",
+            k2_dict("distance", "exp"),
+            k3_dict("smooth_cutoff"),
+        ),
+        (
+            "analytical",
+            True,
             "n_atoms",
+            k2_dict("inverse_distance", "exp"),
+            k3_dict("exp"),
+        ),
+        (
+            "analytical",
+            True,
+            "valle_oganov",
             k2_dict("inverse_distance", "exp"),
             k3_dict("exp"),
         ),
@@ -454,6 +470,31 @@ water_periodic.set_pbc(True)
             ],
             0.00001,
             id="k3 periodic non-cubic",
+        ),
+        pytest.param(
+            Atoms(
+                positions=[
+                    [0, 0, 0],
+                    [1, 0, 0],
+                    [0, 1, 0],
+                ],
+                symbols=3 * ["H"],
+                pbc=True,
+            ),
+            3,
+            {"function": "angle"},
+            {"min": 0, "max": 180, "sigma": 1, "n": 1801},
+            {"function": "smooth_cutoff", "sharpness": 2.0, "r_cut": 1.1},
+            False,
+            [
+                (
+                    ("H", "H", "H"),
+                    [90.0],
+                    [0.00021632],
+                )
+            ],
+            0.0001,
+            id="k3 smooth_cutoff",
         ),
     ],
 )
