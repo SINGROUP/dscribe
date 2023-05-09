@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Derivatives &mdash; DScribe 2.0.x documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -11,11 +12,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script defer="defer" src="../_static/js/versions.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../about.html" />
@@ -30,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html">
-            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -84,9 +89,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="tutorials.html">Tutorials</a> &raquo;</li>
-      <li>Derivatives</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Derivatives</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tutorials/derivatives.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -96,7 +101,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="derivatives">
+  <section id="derivatives">
 <h1>Derivatives<a class="headerlink" href="#derivatives" title="Permalink to this heading"></a></h1>
 <p>The descriptor outputs that DScribe provides are typically vectors containing
 multiple features. Each of these features has a dependency on the positions of
@@ -107,7 +112,7 @@ system.</p>
 derivatives. The derivatives provide a way to study the effect of different
 atoms on the output, and in particular they can be used to build machine
 learning based force-fields, see <a class="reference internal" href="machine_learning/forces_and_energies.html"><span class="doc">the tutorial on building one</span></a>.</p>
-<div class="section" id="call-signature">
+<section id="call-signature">
 <h2>Call signature<a class="headerlink" href="#call-signature" title="Permalink to this heading"></a></h2>
 <p>The descriptors for which derivatives have been made available have a new
 <code class="code docutils literal notranslate"><span class="pre">derivatives</span></code>-function, see e.g. <code class="xref py py-meth docutils literal notranslate"><span class="pre">SOAP.derivatives()</span></code>. This function works
@@ -143,8 +148,8 @@ this option instead of a separate <code class="code docutils literal notranslate
 systems are provided, upon which the job is split between multiple processes.</p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="layout">
+</section>
+<section id="layout">
 <h2>Layout<a class="headerlink" href="#layout" title="Permalink to this heading"></a></h2>
 <p>We have decided to retain as much structure in the derivative output as
 possible. This approach allows you to better understand the different
@@ -181,8 +186,8 @@ In large systems the derivative array will typically become quite sparse,
 giving significant savings in storage space. Since 1.0.0 we have opted to use
 the <a class="reference external" href="https://sparse.pydata.org/en/stable/">sparse</a>-library for all of
 our sparse outputs, see the <a class="reference internal" href="machine_learning/forces_and_energies.html"><span class="doc">documentation page on sparse output</span></a>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

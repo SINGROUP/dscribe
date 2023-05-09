@@ -1,8 +1,8 @@
 DScribe
 =======
 
-.. image:: https://dev.azure.com/laurihimanen/DScribe%20CI/_apis/build/status/SINGROUP.dscribe?branchName=master
-    :target: https://dev.azure.com/laurihimanen/DScribe%20CI/_build/latest?definitionId=1&branchName=master
+.. image:: https://github.com/SINGROUP/dscribe/actions/workflows/actions.yml/badge.svg
+    :target: https://github.com/SINGROUP/dscribe/actions/workflows/actions.yml/badge.svg
 
 .. image:: https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master
     :target: https://coveralls.io/github/SINGROUP/dscribe?branch=master
@@ -39,7 +39,7 @@ DScribe currently includes the following descriptors:
      - ✓
    * - :doc:`Atom-centered Symmetry Functions (ACSF) <tutorials/descriptors/acsf>`
      - ✓
-     - 
+     - ✓
    * - :doc:`Smooth Overlap of Atomic Positions (SOAP) <tutorials/descriptors/soap>`
      - ✓
      - ✓
@@ -48,21 +48,22 @@ DScribe currently includes the following descriptors:
      - ✓
    * - :doc:`Local Many-body Tensor Representation (LMBTR) <tutorials/descriptors/lmbtr>`
      - ✓
-     - 
+     - ✓
    * - :doc:`Valle-Oganov descriptor<tutorials/descriptors/valleoganov>`
      - ✓
-     - 
+     - ✓
 
 Check the tutorials for more information.
 
 Go Deeper
 =========
-You can find more details in our open-access article: `DScribe: Library of
-descriptors for machine learning in materials science
-<https://doi.org/10.1016/j.cpc.2019.106949>`_
+You can find more details in our open-access articles:
+
+  * `DScribe: Library of descriptors for machine learning in materials science <https://doi.org/10.1016/j.cpc.2019.106949>`_
+  * `Updates to the DScribe Library: New Descriptors and Derivatives <https://doi.org/10.48550/arXiv.2303.14046>`_
 
 Documentation for the source code :doc:`can be found here <doc/modules>`. The
-full source code with examples and regression tests can be explored at `github
+full source code with examples and tests can be explored at `github
 <https://github.com/SINGROUP/dscribe>`_.
 
 .. toctree::

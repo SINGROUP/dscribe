@@ -11,11 +11,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
         <script defer="defer" src="../../../_static/js/versions.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
@@ -28,15 +28,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html">
-            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -66,9 +70,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>dscribe.descriptors.acsf</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dscribe.descriptors.acsf</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -106,7 +110,7 @@
 
 
 <div class="viewcode-block" id="ACSF"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF">[docs]</a><span class="k">class</span> <span class="nc">ACSF</span><span class="p">(</span><span class="n">DescriptorLocal</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implementation of Atom-Centered Symmetry Functions.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implementation of Atom-Centered Symmetry Functions.</span>
 
 <span class="sd">    Notice that the species of the central atom is not encoded in the output,</span>
 <span class="sd">    only the surrounding environment is encoded. In a typical application one</span>
@@ -130,7 +134,7 @@
         <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            r_cut (float): The smooth cutoff value in angstroms. This cutoff</span>
 <span class="sd">                value is used throughout the calculations for all symmetry</span>
@@ -171,15 +175,15 @@
 <div class="viewcode-block" id="ACSF.create"><a class="viewcode-back" href="../../../tutorials/descriptors/acsf.html#dscribe.descriptors.acsf.ACSF.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the ACSF output for the given systems and given positions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ACSF output for the given systems and given positions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
 <span class="sd">                many atomic structures.</span>
 <span class="sd">            positions (list): Positions where to calculate ACSF. Can be</span>
 <span class="sd">                provided as cartesian positions or atomic indices. If no</span>
-<span class="sd">                positions are defined, the SOAP output will be created for all</span>
-<span class="sd">                atoms in the system. When calculating SOAP for multiple</span>
+<span class="sd">                positions are defined, the output will be created for all</span>
+<span class="sd">                atoms in the system. When calculating output for multiple</span>
 <span class="sd">                systems, provide the positions as a list for each system.</span>
 <span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
 <span class="sd">                the calculation across samples. Defaults to serial calculation</span>
@@ -254,7 +258,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="ACSF.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates the descriptor for the given system.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates the descriptor for the given system.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
@@ -263,11 +267,9 @@
 <span class="sd">                for all atoms in the system.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            np.ndarray | sparse.COO: The ACSF output for the</span>
-<span class="sd">            given system and positions. The return type depends on the</span>
-<span class="sd">            &#39;sparse&#39;-attribute. The first dimension is given by the number of</span>
-<span class="sd">            positions and the second dimension is determined by the</span>
-<span class="sd">            get_number_of_features()-function.</span>
+<span class="sd">            np.ndarray: The ACSF output for the given system and positions. The</span>
+<span class="sd">            first dimension is given by the number of positions and the second</span>
+<span class="sd">            dimension is determined by the get_number_of_features()-function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check if there are types that have not been declared</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
@@ -357,18 +359,10 @@
             <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="c1"># Convert to the final output precision.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="s2">&quot;float64&quot;</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-
-        <span class="c1"># Make into a sparse array if requested</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="ACSF.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
 <span class="sd">        will have.</span>
 
 <span class="sd">        Returns:</span>
@@ -380,13 +374,20 @@
 
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">descsize</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="ACSF.validate_derivatives_method"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.validate_derivatives_method">[docs]</a>    <span class="k">def</span> <span class="nf">validate_derivatives_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">attach</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">attach</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;ACSF derivatives can only be calculated with attach=True.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate_derivatives_method</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">attach</span><span class="p">)</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span>
 
     <span class="nd">@species</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
 <span class="sd">        the C-memory layout for them.</span>
 
 <span class="sd">        Args:</span>
@@ -403,7 +404,7 @@
 
     <span class="nd">@r_cut</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">r_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to check the validity of given radial cutoff.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given radial cutoff.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            value(float): Radial cutoff.</span>
@@ -418,7 +419,7 @@
 
     <span class="nd">@g2_params</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">g2_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G2 parameters.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given G2 parameters.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            value(n*3 array): List of G2 parameters.</span>
@@ -450,7 +451,7 @@
 
     <span class="nd">@g3_params</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">g3_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G3 parameters and to</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given G3 parameters and to</span>
 <span class="sd">        initialize the C-memory layout for them.</span>
 
 <span class="sd">        Args:</span>
@@ -473,7 +474,7 @@
 
     <span class="nd">@g4_params</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">g4_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G4 parameters and to</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given G4 parameters and to</span>
 <span class="sd">        initialize the C-memory layout for them.</span>
 
 <span class="sd">        Args:</span>
@@ -506,7 +507,7 @@
 
     <span class="nd">@g5_params</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">g5_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to check the validity of given G5 parameters and to</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given G5 parameters and to</span>
 <span class="sd">        initialize the C-memory layout for them.</span>
 
 <span class="sd">        Args:</span>

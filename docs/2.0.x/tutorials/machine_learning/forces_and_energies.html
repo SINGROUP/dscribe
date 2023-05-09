@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Supervised Learning: Training an ML Force-field &mdash; DScribe 2.0.x documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -11,11 +12,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script defer="defer" src="../../_static/js/versions.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -31,15 +32,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html">
-            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -86,9 +91,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
-      <li>Supervised Learning: Training an ML Force-field</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Supervised Learning: Training an ML Force-field</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/tutorials/machine_learning/forces_and_energies.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -98,7 +103,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="supervised-learning-training-an-ml-force-field">
+  <section id="supervised-learning-training-an-ml-force-field">
 <h1>Supervised Learning: Training an ML Force-field<a class="headerlink" href="#supervised-learning-training-an-ml-force-field" title="Permalink to this heading"></a></h1>
 <p>This tutorial covers how descriptors can be effectively used as input for a
 machine learning model that will predict energies and forces. There are several
@@ -125,7 +130,7 @@ returns (notice that DScribe does not yet provide these derivatives for
 all descriptors).</p></li>
 </ul>
 </div></blockquote>
-<div class="section" id="setup">
+<section id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
 <p>We will use a dataset of feature vectors <span class="math notranslate nohighlight">\(\mathbf{D}\)</span>, their derivatives
 <span class="math notranslate nohighlight">\(\nabla_{\mathbf{r_i}} \mathbf{D}\)</span> and the associated system energies <span class="math notranslate nohighlight">\(E\)</span> and
@@ -160,8 +165,8 @@ course organize the output in any way you like.</p>
 error of both energies and forces. In order to better equalize the contribution
 of these two properties in the loss function their values are scaled by their
 variance in the training set.</p>
-</div>
-<div class="section" id="dataset-generation">
+</section>
+<section id="dataset-generation">
 <h2>Dataset generation<a class="headerlink" href="#dataset-generation" title="Permalink to this heading"></a></h2>
 <p>The following script generates our training dataset (full script in the GitHub
 repository: <em>examples/forces_and_energies/dataset.py</em>):</p>
@@ -175,10 +180,10 @@ repository: <em>examples/forces_and_energies/dataset.py</em>):</p>
 <span class="n">soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">],</span>
     <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">r_cut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
     <span class="n">sigma</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">nmax</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-    <span class="n">lmax</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">n_max</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">l_max</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Generate dataset of Lennard-Jones energies and forces</span>
@@ -221,8 +226,8 @@ repository: <em>examples/forces_and_energies/dataset.py</em>):</p>
 </div>
 <p>The energies will look like this:</p>
 <a class="reference internal image-reference" href="../../_images/lj.png"><img alt="Lennard-Jones energies" class="align-center" src="../../_images/lj.png" style="width: 90%;" /></a>
-</div>
-<div class="section" id="training">
+</section>
+<section id="training">
 <h2>Training<a class="headerlink" href="#training" title="Permalink to this heading"></a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -295,7 +300,7 @@ repository: <em>examples/forces_and_energies/training_pytorch.py</em>):</p>
 </div>
 <p>Then let us define our model and loss function:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FFNet</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A simple feed-forward network with one hidden layer, randomly</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A simple feed-forward network with one hidden layer, randomly</span>
 <span class="sd">    initialized weights, sigmoid activation and a linear output layer.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">n_hidden</span><span class="p">,</span> <span class="n">n_out</span><span class="p">):</span>
@@ -315,7 +320,7 @@ repository: <em>examples/forces_and_energies/training_pytorch.py</em>):</p>
 
 
 <span class="k">def</span> <span class="nf">energy_force_loss</span><span class="p">(</span><span class="n">E_pred</span><span class="p">,</span> <span class="n">E_train</span><span class="p">,</span> <span class="n">F_pred</span><span class="p">,</span> <span class="n">F_train</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Custom loss function that targets both energies and forces.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom loss function that targets both energies and forces.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">energy_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">E_pred</span> <span class="o">-</span> <span class="n">E_train</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">var_energy_train</span>
     <span class="n">force_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">F_pred</span> <span class="o">-</span> <span class="n">F_train</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">var_force_train</span>
@@ -438,8 +443,8 @@ model and produce predicted data that is saved on disk for later analysis:</p>
 <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;F_whole_pred.npy&quot;</span><span class="p">,</span> <span class="n">F_whole_pred</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="analysis">
+</section>
+<section id="analysis">
 <h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this heading"></a></h2>
 <p>In order to quickly assess the model performance, we will simply plot the model
 response in the whole dataset input domain and compare it to the correct values
@@ -492,8 +497,8 @@ response in the whole dataset input domain and compare it to the correct values
 </div>
 <p>The plots look something like this:</p>
 <a class="reference internal image-reference" href="../../_images/nn_test.png"><img alt="Lennard-Jones energies" class="align-center" src="../../_images/nn_test.png" style="width: 90%;" /></a>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

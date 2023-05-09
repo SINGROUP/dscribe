@@ -1,7 +1,7 @@
 Installation
 ============
-The newest versions of the package are compatible with Python >= 3.6 (tested on
-3.6, 3.7, 3.8, 3.9 and 3.10). DScribe versions <= 0.2.7 also support Python 2.7.
+The newest versions of the package are compatible with Python >= 3.7 (tested on
+3.7, 3.8, 3.9 and 3.10). DScribe versions <= 0.2.7 also support Python 2.7.
 We currently only support Unix-based systems, including Linux and macOS. For
 Windows-machines we suggest using the `Windows Subsystem for Linux (WSL)
 <https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux>`_. The exact list of

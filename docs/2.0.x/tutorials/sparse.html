@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sparse output &mdash; DScribe 2.0.x documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -11,11 +12,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script defer="defer" src="../_static/js/versions.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../about.html" />
@@ -30,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html">
-            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -84,9 +89,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="tutorials.html">Tutorials</a> &raquo;</li>
-      <li>Sparse output</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Sparse output</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tutorials/sparse.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -96,7 +101,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="sparse-output">
+  <section id="sparse-output">
 <h1>Sparse output<a class="headerlink" href="#sparse-output" title="Permalink to this heading"></a></h1>
 <p>Many of the descriptors become very sparse when using a large chemical space,
 or when calculating derivatives. Because of this, DScribe provides the
@@ -108,7 +113,7 @@ from the <a class="reference external" href="https://sparse.pydata.org/en/stable
 benefit compared to e.g. the sparse formats provided by scipy is that
 <code class="code docutils literal notranslate"><span class="pre">sparse.COO</span></code> supports n-dimensional sparse output with a convenient
 slicing syntax.</p>
-<div class="section" id="persistence">
+<section id="persistence">
 <h2>Persistence<a class="headerlink" href="#persistence" title="Permalink to this heading"></a></h2>
 <p>In order to save/load the sparse output you will need to use the <a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.save_npz.html">sparse.save_npz</a>/<a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.load_npz.html">sparse.load_npz</a>
 functions from the sparse library. The following example demonstrates this:</p>
@@ -122,9 +127,9 @@ functions from the sparse library. The following example demonstrates this:</p>
 <span class="n">soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
     <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">],</span>
     <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">rcut</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-    <span class="n">nmax</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
-    <span class="n">lmax</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">r_cut</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">n_max</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">l_max</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
     <span class="n">average</span><span class="o">=</span><span class="s2">&quot;off&quot;</span><span class="p">,</span>
     <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
@@ -140,8 +145,8 @@ functions from the sparse library. The following example demonstrates this:</p>
 <p>Do not confuse <code class="code docutils literal notranslate"><span class="pre">sparse.save_npz</span></code>/<code class="code docutils literal notranslate"><span class="pre">sparse.load_npz</span></code> with the
 similarly named functions in <code class="code docutils literal notranslate"><span class="pre">scipy.sparse</span></code>.</p>
 </div>
-</div>
-<div class="section" id="conversion">
+</section>
+<section id="conversion">
 <h2>Conversion<a class="headerlink" href="#conversion" title="Permalink to this heading"></a></h2>
 <p>Many external libraries still only support either dense numpy arrays or the 2D
 sparse matrices from <code class="code docutils literal notranslate"><span class="pre">scipy.sparse</span></code>. This is mostly due to the efficient
@@ -160,8 +165,8 @@ or <a class="reference external" href="https://sparse.pydata.org/en/stable/gener
 <p>Because <code class="code docutils literal notranslate"><span class="pre">scipy.sparse</span></code> only suppports 2D sparse arrays, you can only
 call the <code class="code docutils literal notranslate"><span class="pre">tocsr()</span></code>/<code class="code docutils literal notranslate"><span class="pre">tocsc()</span></code>-functions on 2D slices.</p>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

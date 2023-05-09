@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DScribe &mdash; DScribe 2.0.x documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -11,11 +12,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script defer="defer" src="_static/js/versions.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
@@ -29,15 +30,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="#">
-            <img src="_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="#">
+            
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -67,8 +72,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>DScribe</li>
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">DScribe</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -78,20 +83,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="dscribe">
+  <section id="dscribe">
 <h1>DScribe<a class="headerlink" href="#dscribe" title="Permalink to this heading"></a></h1>
-<a class="reference external image-reference" href="https://dev.azure.com/laurihimanen/DScribe%20CI/_build/latest?definitionId=1&amp;branchName=master"><img alt="https://dev.azure.com/laurihimanen/DScribe%20CI/_apis/build/status/SINGROUP.dscribe?branchName=master" src="https://dev.azure.com/laurihimanen/DScribe%20CI/_apis/build/status/SINGROUP.dscribe?branchName=master" /></a>
+<a class="reference external image-reference" href="https://github.com/SINGROUP/dscribe/actions/workflows/actions.yml/badge.svg"><img alt="https://github.com/SINGROUP/dscribe/actions/workflows/actions.yml/badge.svg" src="https://github.com/SINGROUP/dscribe/actions/workflows/actions.yml/badge.svg" /></a>
 <a class="reference external image-reference" href="https://coveralls.io/github/SINGROUP/dscribe?branch=master"><img alt="https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master" src="https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master" /></a>
 <a class="reference external image-reference" href="https://github.com/psf/black"><img alt="https://img.shields.io/badge/code%20style-black-000000.svg" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a>
 <p>DScribe is a Python package for transforming atomic structures into fixed-size
 numerical fingerprints. These fingerprints are often called “descriptors” and
 they can be used in various tasks, including machine learning, visualization,
 similarity analysis, etc. To get started you can check the <a class="reference internal" href="tutorials/basics.html"><span class="doc">basic tutorial</span></a>.</p>
-</div>
-<div class="section" id="capabilities-at-a-glance">
+</section>
+<section id="capabilities-at-a-glance">
 <h1>Capabilities at a Glance<a class="headerlink" href="#capabilities-at-a-glance" title="Permalink to this heading"></a></h1>
 <p>DScribe currently includes the following descriptors:</p>
-<table class="colwidths-given docutils align-default">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 80%" />
 <col style="width: 10%" />
@@ -118,7 +123,7 @@ similarity analysis, etc. To get started you can check the <a class="reference i
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="tutorials/descriptors/acsf.html"><span class="doc">Atom-centered Symmetry Functions (ACSF)</span></a></p></td>
 <td><p>✓</p></td>
-<td></td>
+<td><p>✓</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="tutorials/descriptors/soap.html"><span class="doc">Smooth Overlap of Atomic Positions (SOAP)</span></a></p></td>
 <td><p>✓</p></td>
@@ -130,25 +135,30 @@ similarity analysis, etc. To get started you can check the <a class="reference i
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="tutorials/descriptors/lmbtr.html"><span class="doc">Local Many-body Tensor Representation (LMBTR)</span></a></p></td>
 <td><p>✓</p></td>
-<td></td>
+<td><p>✓</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="tutorials/descriptors/valleoganov.html"><span class="doc">Valle-Oganov descriptor</span></a></p></td>
 <td><p>✓</p></td>
-<td></td>
+<td><p>✓</p></td>
 </tr>
 </tbody>
 </table>
 <p>Check the tutorials for more information.</p>
-</div>
-<div class="section" id="go-deeper">
+</section>
+<section id="go-deeper">
 <h1>Go Deeper<a class="headerlink" href="#go-deeper" title="Permalink to this heading"></a></h1>
-<p>You can find more details in our open-access article: <a class="reference external" href="https://doi.org/10.1016/j.cpc.2019.106949">DScribe: Library of
-descriptors for machine learning in materials science</a></p>
+<p>You can find more details in our open-access articles:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://doi.org/10.1016/j.cpc.2019.106949">DScribe: Library of descriptors for machine learning in materials science</a></p></li>
+<li><p><a class="reference external" href="https://doi.org/10.48550/arXiv.2303.14046">Updates to the DScribe Library: New Descriptors and Derivatives</a></p></li>
+</ul>
+</div></blockquote>
 <p>Documentation for the source code <a class="reference internal" href="doc/modules.html"><span class="doc">can be found here</span></a>. The
-full source code with examples and regression tests can be explored at <a class="reference external" href="https://github.com/SINGROUP/dscribe">github</a>.</p>
+full source code with examples and tests can be explored at <a class="reference external" href="https://github.com/SINGROUP/dscribe">github</a>.</p>
 <div class="toctree-wrapper compound">
 </div>
-</div>
+</section>
 
 
            </div>

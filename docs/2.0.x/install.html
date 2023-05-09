@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Installation &mdash; DScribe 2.0.x documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -11,11 +12,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script defer="defer" src="_static/js/versions.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
@@ -30,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html">
-            <img src="_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -74,8 +79,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Installation</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/install.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -85,10 +90,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="installation">
+  <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
-<p>The newest versions of the package are compatible with Python &gt;= 3.6 (tested on
-3.6, 3.7, 3.8, 3.9 and 3.10). DScribe versions &lt;= 0.2.7 also support Python 2.7.
+<p>The newest versions of the package are compatible with Python &gt;= 3.7 (tested on
+3.7, 3.8, 3.9 and 3.10). DScribe versions &lt;= 0.2.7 also support Python 2.7.
 We currently only support Unix-based systems, including Linux and macOS. For
 Windows-machines we suggest using the <a class="reference external" href="https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux">Windows Subsystem for Linux (WSL)</a>. The exact list of
 dependencies are given in setup.py and all of them will be automatically
@@ -97,33 +102,33 @@ installed during setup.</p>
 install. On Linux-based systems the compilation tools are typically installed
 by default, on MacOS you may need to install additional command line tools if
 facing issues during setup (see common issues below).</p>
-<div class="section" id="pip">
+<section id="pip">
 <h2>pip<a class="headerlink" href="#pip" title="Permalink to this heading"></a></h2>
 <p>The latest stable release is available through pip:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip install dscribe
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>dscribe
 </pre></div>
 </div>
-</div>
-<div class="section" id="conda">
+</section>
+<section id="conda">
 <h2>conda<a class="headerlink" href="#conda" title="Permalink to this heading"></a></h2>
 <p>We also provide a conda package through the <a class="reference external" href="https://conda-forge.org/">conda-forge</a> project. To install the package with conda, use
 the following command:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge dscribe
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>dscribe
 </pre></div>
 </div>
-</div>
-<div class="section" id="from-source">
+</section>
+<section id="from-source">
 <h2>From source<a class="headerlink" href="#from-source" title="Permalink to this heading"></a></h2>
 <p>To install the latest development version from source, clone the source code
 from github and install with pip from local file:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/SINGROUP/dscribe.git
-<span class="nb">cd</span> dscribe
-git submodule update --init
-pip install .
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/SINGROUP/dscribe.git
+<span class="nb">cd</span><span class="w"> </span>dscribe
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init
+pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
-</div>
-<div class="section" id="common-issues">
+</section>
+<section id="common-issues">
 <h2>Common issues<a class="headerlink" href="#common-issues" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><ul>
@@ -133,7 +138,7 @@ C++ extensions. Although pybind11 is specified as a requirement in setup.py,
 you may experience issues in pip correctly finding it. In this case you will
 need to install pybind11 before attempting to install dscribe by using the
 following command:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip install pybind11
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pybind11
 </pre></div>
 </div>
 </li>
@@ -142,7 +147,7 @@ C/C++ extensions that are compiled during the setup. For the compilation to
 work you will need to install the <em>pythonX.X-dev</em>-package, where X.X is the
 python version you use to run dscribe. E.g. for python 3.7 on Ubuntu this
 package could be installed with:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo apt install python3.7-dev
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3.7-dev
 </pre></div>
 </div>
 </li>
@@ -150,14 +155,14 @@ package could be installed with:</p>
 are compiled during the setup. If experiencing problems with setup on MacOS,
 you may need to install the Xcode Command Line tools package. This can be
 done with:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>xcode-select --install
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>xcode-select<span class="w"> </span>--install
 </pre></div>
 </div>
 </li>
 </ul>
 </div></blockquote>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

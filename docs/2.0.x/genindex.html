@@ -11,11 +11,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script defer="defer" src="_static/js/versions.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
@@ -28,15 +28,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html">
-            <img src="_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -66,8 +70,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Index</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Index</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -88,7 +92,6 @@
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
- | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -96,8 +99,8 @@
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
- | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="_">_</h2>
@@ -155,7 +158,11 @@
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.check_atomic_numbers">check_atomic_numbers() (dscribe.descriptors.descriptor.Descriptor method)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.check_grid">check_grid() (dscribe.descriptors.mbtr.MBTR method)</a>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.check_geometry">check_geometry() (in module dscribe.descriptors.mbtr)</a>
+</li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.check_grid">check_grid() (in module dscribe.descriptors.mbtr)</a>
+</li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.check_weighting">check_weighting() (in module dscribe.descriptors.mbtr)</a>
 </li>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.coulombmatrix.CoulombMatrix">CoulombMatrix (class in dscribe.descriptors.coulombmatrix)</a>
 
@@ -433,6 +440,10 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.format_array">format_array() (dscribe.descriptors.descriptor.Descriptor method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.core.html#dscribe.core.system.System.from_atoms">from_atoms() (dscribe.core.system.System static method)</a>
 </li>
   </ul></td>
@@ -459,6 +470,12 @@
 
       <ul>
         <li><a href="doc/dscribe.html#dscribe.ext.ACSFWrapper.g5_params">(dscribe.ext.ACSFWrapper property)</a>
+</li>
+      </ul></li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.geometry">geometry (dscribe.descriptors.lmbtr.LMBTR property)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.geometry">(dscribe.descriptors.mbtr.MBTR property)</a>
 </li>
       </ul></li>
       <li><a href="doc/dscribe.utils.html#dscribe.utils.geometry.get_adjacency_list">get_adjacency_list() (in module dscribe.utils.geometry)</a>
@@ -503,17 +520,11 @@
 </li>
       <li><a href="doc/dscribe.html#dscribe.ext.MBTRWrapper.get_k1">get_k1() (dscribe.ext.MBTRWrapper method)</a>
 </li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k1_axis">get_k1_axis() (dscribe.descriptors.mbtr.MBTR method)</a>
-</li>
       <li><a href="doc/dscribe.html#dscribe.ext.MBTRWrapper.get_k2">get_k2() (dscribe.ext.MBTRWrapper method)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k2_axis">get_k2_axis() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
       <li><a href="doc/dscribe.html#dscribe.ext.MBTRWrapper.get_k2_local">get_k2_local() (dscribe.ext.MBTRWrapper method)</a>
 </li>
       <li><a href="doc/dscribe.html#dscribe.ext.MBTRWrapper.get_k3">get_k3() (dscribe.ext.MBTRWrapper method)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_k3_axis">get_k3_axis() (dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
       <li><a href="doc/dscribe.html#dscribe.ext.MBTRWrapper.get_k3_local">get_k3_local() (dscribe.ext.MBTRWrapper method)</a>
 </li>
@@ -551,6 +562,12 @@
 </li>
       <li><a href="doc/dscribe.core.html#dscribe.core.lattice.Lattice.get_points_in_sphere">get_points_in_sphere() (dscribe.core.lattice.Lattice method)</a>
 </li>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.grid">grid (dscribe.descriptors.lmbtr.LMBTR property)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.grid">(dscribe.descriptors.mbtr.MBTR property)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -574,20 +591,6 @@
       <li><a href="doc/dscribe.utils.html#dscribe.utils.dimensionality.is1d">is1d() (in module dscribe.utils.dimensionality)</a>
 </li>
       <li><a href="doc/dscribe.utils.html#dscribe.utils.dimensionality.is2d">is2d() (in module dscribe.utils.dimensionality)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="K">K</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k1">k1 (dscribe.descriptors.mbtr.MBTR property)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k2">k2 (dscribe.descriptors.mbtr.MBTR property)</a>
-</li>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.k3">k3 (dscribe.descriptors.mbtr.MBTR property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -787,20 +790,14 @@
   </ul></td>
 </tr></table>
 
-<h2 id="U">U</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.unflatten">unflatten() (dscribe.descriptors.coulombmatrix.CoulombMatrix method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.validate_derivatives_method">validate_derivatives_method() (dscribe.descriptors.descriptor.Descriptor method)</a>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.validate_derivatives_method">validate_derivatives_method() (dscribe.descriptors.acsf.ACSF method)</a>
 
       <ul>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.validate_derivatives_method">(dscribe.descriptors.descriptor.Descriptor method)</a>
+</li>
         <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.validate_derivatives_method">(dscribe.descriptors.mbtr.MBTR method)</a>
 </li>
         <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.validate_derivatives_method">(dscribe.descriptors.soap.SOAP method)</a>
@@ -810,6 +807,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.valleoganov.ValleOganov">ValleOganov (class in dscribe.descriptors.valleoganov)</a>
 </li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.weighting">weighting (dscribe.descriptors.lmbtr.LMBTR property)</a>
+
+      <ul>
+        <li><a href="doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.weighting">(dscribe.descriptors.mbtr.MBTR property)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 

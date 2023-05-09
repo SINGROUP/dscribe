@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Coloring by Environment &mdash; DScribe 2.0.x documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -11,11 +12,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script defer="defer" src="../../_static/js/versions.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
@@ -30,15 +31,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html">
-            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -82,9 +87,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
-      <li>Coloring by Environment</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Coloring by Environment</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/tutorials/visualization/coloring_by_environment.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -94,7 +99,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="coloring-by-environment">
+  <section id="coloring-by-environment">
 <h1>Coloring by Environment<a class="headerlink" href="#coloring-by-environment" title="Permalink to this heading"></a></h1>
 <p>This tutorial demonstrates how one can visualize the abstract descriptor feature
 space by mapping it into a visual property. The goal is to give a rough idea on
@@ -105,7 +110,7 @@ much more complicated scenarios by using clustering to automatically determine
 the reference structures and by mapping reference landmarks in the descriptor
 space into any combination of different visual properties, e.g. fill color,
 opacity, outline color, size etc.</p>
-<div class="section" id="references-and-final-system">
+<section id="references-and-final-system">
 <h2>References and final system<a class="headerlink" href="#references-and-final-system" title="Permalink to this heading"></a></h2>
 <p>We start out by creating bulk systems for two different iron phases: one for
 BCC and another for FCC:</p>
@@ -131,11 +136,9 @@ the reference descriptors for these two environments directly. Here we are using
 the LMBTR descriptor, but any local descriptor would do:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setting up the descriptor</span>
 <span class="n">descriptor</span> <span class="o">=</span> <span class="n">LMBTR</span><span class="p">(</span>
-    <span class="n">k2</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
-        <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">},</span>
-        <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">}</span>
-    <span class="p">},</span>
+    <span class="n">grid</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">},</span>
+    <span class="n">geometry</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">},</span>
+    <span class="n">weighting</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
     <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Fe&quot;</span><span class="p">],</span>
     <span class="n">periodic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
@@ -143,56 +146,56 @@ the LMBTR descriptor, but any local descriptor would do:</p>
 <span class="c1"># Calculate feature references</span>
 <span class="n">bcc_features</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">bcc</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">fcc_features</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">fcc</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="c1"># Combine into one large grain boundary system with some added noise</span>
 </pre></div>
 </div>
 <p>In the more interesting case where the phases are not known in advance, one
 could perform some form of clustering (see the <a class="reference internal" href="../machine_learning/clustering.html"><span class="doc">tutorial on clustering</span></a>) to
 automatically find out meaningful reference structures from the data itself.
 Next we create a larger system that contains these two grains:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Combine into one large grain boundary system with some added noise</span>
-<span class="n">bcc</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n_z</span> <span class="o">*</span> <span class="n">a_fcc</span><span class="p">])</span>
-<span class="n">combined</span> <span class="o">=</span> <span class="n">bcc</span> <span class="o">+</span> <span class="n">fcc</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">combined</span> <span class="o">=</span> <span class="n">bcc</span> <span class="o">+</span> <span class="n">fcc</span>
 <span class="n">combined</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([</span>
     <span class="n">n_xy_bcc</span> <span class="o">*</span> <span class="n">a_bcc</span><span class="p">,</span>
     <span class="n">n_xy_bcc</span> <span class="o">*</span> <span class="n">a_bcc</span><span class="p">,</span>
     <span class="n">n_z</span> <span class="o">*</span> <span class="p">(</span><span class="n">a_bcc</span> <span class="o">+</span> <span class="n">a_fcc</span><span class="p">)</span>
 <span class="p">])</span>
 <span class="n">combined</span><span class="o">.</span><span class="n">rattle</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="c1"># Create a measure of of how similar the atoms are to the reference. Euclidean</span>
 </pre></div>
 </div>
 <p>The full structure will look like this:</p>
-<div class="figure align-center">
+<figure class="align-center">
 <a class="reference internal image-reference" href="../../_images/original.png"><img alt="FCC(111) surface" src="../../_images/original.png" style="width: 50%;" /></a>
-</div>
-</div>
-<div class="section" id="colouring">
+</figure>
+</section>
+<section id="colouring">
 <h2>Colouring<a class="headerlink" href="#colouring" title="Permalink to this heading"></a></h2>
 <p>Next we want to generate a simple metric that measures how similar the
 environment of each atom is to the reference FCC and BCC structures. In this
 example we define the metric as the Euclidean distance that is scaled to be
 between 0 and 1 from least similar to identical with reference:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a measure of of how similar the atoms are to the reference. Euclidean</span>
-<span class="c1"># distance is used and the values are scaled between 0 and 1 from least similar</span>
-<span class="c1"># to identical with reference.</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># to identical with reference.</span>
 <span class="k">def</span> <span class="nf">metric</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">reference</span><span class="p">):</span>
     <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">values</span> <span class="o">-</span> <span class="n">reference</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">dist_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
     <span class="k">return</span>  <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">dist</span> <span class="o">/</span> <span class="n">dist_max</span><span class="p">)</span>
+
+<span class="c1"># Create the features and metrics for all atoms in the sample.</span>
 </pre></div>
 </div>
 <p>Then we calculate the metrics for all atoms in the system:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create the features and metrics for all atoms in the sample.</span>
-<span class="n">combined_features</span> <span class="o">=</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
-<span class="n">fcc_metric</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">combined_features</span><span class="p">,</span> <span class="n">fcc_features</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fcc_metric</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">combined_features</span><span class="p">,</span> <span class="n">fcc_features</span><span class="p">)</span>
 <span class="n">bcc_metric</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">combined_features</span><span class="p">,</span> <span class="n">bcc_features</span><span class="p">)</span>
+
+<span class="c1"># Write an image with the atoms coloured corresponding to their similarity with</span>
 </pre></div>
 </div>
 <p>The last step is to create a figure where our custom metric is mapped into
 colors. We can create an image where the BCC-metric is tied to the blue color,
 and FCC is tied to red:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Write an image with the atoms coloured corresponding to their similarity with</span>
-<span class="c1"># BCC and FCC: BCC = blue, FCC = red</span>
-<span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
 <span class="n">colors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_atoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">):</span>
     <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fcc_metric</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">bcc_metric</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
@@ -204,17 +207,19 @@ and FCC is tied to red:</p>
     <span class="n">show_unit_cell</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">maxwidth</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="c1"># Write the original system image</span>
 </pre></div>
 </div>
 <p>The final re-colored system looks like this:</p>
-<div class="figure align-center">
+<figure class="align-center">
 <a class="reference internal image-reference" href="../../_images/colored.png"><img alt="FCC(111) surface" src="../../_images/colored.png" style="width: 50%;" /></a>
-</div>
+</figure>
 <p>In addition to being able to clearly separate the two grains, one can see
 imperfections as noise in the coloring and also how the interfaces affect the
 metric both at the FCC/BCC interface and at the vacuum interface.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

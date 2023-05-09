@@ -1,8 +1,7 @@
 Citing DScribe
 ==============
 
-If you find DScribe useful in you research, please consider citing the
-following article:
+When using versions < 2.0.0, please consider citing the article:
 
 .. code-block:: bib
 
@@ -16,4 +15,17 @@ following article:
       doi = {10.1016/j.cpc.2019.106949},
       url = {https://doi.org/10.1016/j.cpc.2019.106949},
       issn = {0010-4655}
+    }
+
+When using versions >= 2.0.0, please additionally cite:
+
+.. code-block:: bib
+
+    @misc{dscribe2,
+      title={Updates to the DScribe Library: New Descriptors and Derivatives}, 
+      author={Jarno Laakso and Lauri Himanen and Henrietta Homm and Eiaki V. Morooka and Marc O. J. Jäger and Milica Todorović and Patrick Rinke},
+      year={2023},
+      eprint={2303.14046},
+      archivePrefix={arXiv},
+      primaryClass={cond-mat.mtrl-sci}
     }

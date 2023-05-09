@@ -10,19 +10,18 @@ implementation to DScribe:
     3. Fork the repository and do all modifications within it.
     4. Implement the descriptor as a class within a new module in
        *dsribe/descriptors/*. The descriptor class should inherit from the
-       :class:`.Descriptor`-class.
-    5. Create new test module for the descriptor with the same module name, but
-       in *dscribe/regtests/*. The tests should be implemented within a new
-       class that inherits from the :class:`.TestBaseClass`-class found in
-       *dscribe/regtests/*. Add the new tests as part of
-       *dscribe/regtests/testrunner.py*.
-    6. Ensure that your new tests and the existing tests run succesfully. You
-       can run the tests by first installing the developer dependencies by
-       running :code:`pip install -r dscribe/devrequirements.txt`, and then
-       running *dscribe/regtests/testrunner.py*.
-    7. Create tutorial for the descriptor in *dscribe/docs/src/tutorials*.
+       :class:`.DescriptorGlobal` or :class:`.DescriptorLocal` class.
+    5. Create new test module for the descriptor in *dscribe/tests/*.
+       `pytest <https://docs.pytest.org/>`_ is used as the testing framework and
+       several test utilities can be found in
+       *dscribe/tests/conftest.py*. Ensure that your new tests and the existing
+       tests run succesfully. You can run the tests by first installing the
+       developer dependencies by running :code:`pip install -r
+       dscribe/devrequirements.txt`, and then running :code:`pytest tests` from the
+       repository root folder.
+    6. Create tutorial for the descriptor in *dscribe/docs/src/tutorials*.
        Follow the structure of the existing tutorials.
-    8. Create a pull request in GitHub.
+    7. Create a pull request in GitHub.
 
 Code style guideline
 --------------------

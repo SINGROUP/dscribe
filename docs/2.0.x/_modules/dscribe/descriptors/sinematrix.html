@@ -11,11 +11,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
         <script defer="defer" src="../../../_static/js/versions.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
@@ -28,15 +28,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html">
-            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -66,9 +70,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>dscribe.descriptors.sinematrix</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dscribe.descriptors.sinematrix</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -102,7 +106,7 @@
 
 
 <div class="viewcode-block" id="SineMatrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.sinematrix.SineMatrix">[docs]</a><span class="k">class</span> <span class="nc">SineMatrix</span><span class="p">(</span><span class="n">DescriptorMatrix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calculates the zero padded Sine matrix for different systems.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates the zero padded Sine matrix for different systems.</span>
 
 <span class="sd">    The Sine matrix is defined as:</span>
 
@@ -126,7 +130,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SineMatrix.create"><a class="viewcode-back" href="../../../tutorials/descriptors/sine_matrix.html#dscribe.descriptors.sinematrix.SineMatrix.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Sine matrix for the given systems.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the Sine matrix for the given systems.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
@@ -146,9 +150,8 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray | sparse.COO: Sine matrix for the given systems. The</span>
-<span class="sd">            return type depends on the &#39;sparse&#39; and &#39;flatten&#39;-attributes. For</span>
-<span class="sd">            flattened output a single numpy array or sparse.COO is returned.</span>
-<span class="sd">            The first dimension is determined by the amount of systems.</span>
+<span class="sd">            return type depends on the &#39;sparse&#39;-attribute. The first dimension</span>
+<span class="sd">            is determined by the amount of systems.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Combine input arguments / check input validity</span>
         <span class="n">system</span> <span class="o">=</span> <span class="p">[</span><span class="n">system</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">Atoms</span><span class="p">)</span> <span class="k">else</span> <span class="n">system</span>
@@ -162,12 +165,7 @@
 
         <span class="c1"># Determine if the outputs have a fixed size</span>
         <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
-            <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_features</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">permutation</span> <span class="o">==</span> <span class="s2">&quot;eigenspectrum&quot;</span><span class="p">:</span>
-            <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">]</span>
+        <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_features</span><span class="p">]</span>
 
         <span class="c1"># Create in parallel</span>
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span>
@@ -182,7 +180,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="SineMatrix.get_matrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.sinematrix.SineMatrix.get_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates the Sine matrix for the given system.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates the Sine matrix for the given system.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>

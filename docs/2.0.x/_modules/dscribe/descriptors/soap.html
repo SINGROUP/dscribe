@@ -11,11 +11,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
         <script defer="defer" src="../../../_static/js/versions.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
@@ -28,15 +28,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html">
-            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -66,9 +70,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>dscribe.descriptors.soap</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dscribe.descriptors.soap</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -102,14 +106,12 @@
 <span class="kn">import</span> <span class="nn">ase.geometry.cell</span>
 <span class="kn">import</span> <span class="nn">ase.data</span>
 
-<span class="kn">import</span> <span class="nn">sparse</span> <span class="k">as</span> <span class="nn">sp</span>
-
 <span class="kn">from</span> <span class="nn">dscribe.descriptors.descriptorlocal</span> <span class="kn">import</span> <span class="n">DescriptorLocal</span>
 <span class="kn">import</span> <span class="nn">dscribe.ext</span>
 
 
 <div class="viewcode-block" id="SOAP"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP">[docs]</a><span class="k">class</span> <span class="nc">SOAP</span><span class="p">(</span><span class="n">DescriptorLocal</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class for generating a partial power spectrum from Smooth Overlap of</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for generating a partial power spectrum from Smooth Overlap of</span>
 <span class="sd">    Atomic Orbitals (SOAP). This implementation uses real (tesseral) spherical</span>
 <span class="sd">    harmonics as the angular basis set and provides two orthonormalized</span>
 <span class="sd">    alternatives for the radial basis functions: spherical primitive gaussian</span>
@@ -145,12 +147,8 @@
         <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-        <span class="c1"># For backwards compatibility with &lt; v1.2.2</span>
-        <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">nmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">lmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            r_cut (float): A cutoff for local region in angstroms. Should be</span>
 <span class="sd">                bigger than 1 angstrom for the gto-basis.</span>
@@ -249,22 +247,6 @@
 <span class="sd">                    * ``&quot;float64&quot;``: Double precision floating point numbers.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">var_dict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">var_new</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">,</span> <span class="s2">&quot;n_max&quot;</span><span class="p">,</span> <span class="s2">&quot;l_max&quot;</span><span class="p">]:</span>
-            <span class="n">loc</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()</span>
-            <span class="n">var_old</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">var_new</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">loc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var_old</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">var_dict</span><span class="p">[</span><span class="n">var_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="n">var_old</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">loc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var_new</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;Please provide only either </span><span class="si">{}</span><span class="s2"> or </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_new</span><span class="p">,</span> <span class="n">var_old</span><span class="p">)</span>
-                    <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">var_dict</span><span class="p">[</span><span class="n">var_new</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc</span><span class="p">[</span><span class="n">var_new</span><span class="p">]</span>
-        <span class="n">r_cut</span> <span class="o">=</span> <span class="n">var_dict</span><span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">]</span>
-        <span class="n">n_max</span> <span class="o">=</span> <span class="n">var_dict</span><span class="p">[</span><span class="s2">&quot;n_max&quot;</span><span class="p">]</span>
-        <span class="n">l_max</span> <span class="o">=</span> <span class="n">var_dict</span><span class="p">[</span><span class="s2">&quot;l_max&quot;</span><span class="p">]</span>
-
         <span class="n">supported_dtype</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="s2">&quot;float64&quot;</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">dtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_dtype</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -378,8 +360,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">=</span> <span class="n">average</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span> <span class="o">=</span> <span class="n">crossover</span></div>
 
-<div class="viewcode-block" id="SOAP.prepare_centers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.prepare_centers">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">cutoff_padding</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Validates and prepares the centers for the C++ extension.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SOAP.prepare_centers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.prepare_centers">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validates and prepares the centers for the C++ extension.&quot;&quot;&quot;</span>
         <span class="c1"># Check that the system does not have elements that are not in the list</span>
         <span class="c1"># of atomic numbers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
@@ -424,7 +406,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">list_positions</span><span class="p">),</span> <span class="n">indices</span></div>
 
 <div class="viewcode-block" id="SOAP.get_cutoff_padding"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_cutoff_padding">[docs]</a>    <span class="k">def</span> <span class="nf">get_cutoff_padding</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The radial cutoff is extended by adding a padding that depends on</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The radial cutoff is extended by adding a padding that depends on</span>
 <span class="sd">        the used used sigma value. The padding is chosen so that the gaussians</span>
 <span class="sd">        decay to the specified threshold value at the cutoff distance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -433,7 +415,7 @@
         <span class="k">return</span> <span class="n">cutoff_padding</span></div>
 
     <span class="k">def</span> <span class="nf">_infer_r_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weighting</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to determine an appropriate r_cut based on where the given</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to determine an appropriate r_cut based on where the given</span>
 <span class="sd">        weighting function setup.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pow&quot;</span><span class="p">:</span>
@@ -473,7 +455,7 @@
 <div class="viewcode-block" id="SOAP.create"><a class="viewcode-back" href="../../../tutorials/descriptors/soap.html#dscribe.descriptors.soap.SOAP.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the SOAP output for the given systems and given positions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the SOAP output for the given systems and given positions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
@@ -566,7 +548,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="SOAP.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the SOAP output for the given system and given positions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the SOAP output for the given system and given positions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
@@ -583,7 +565,7 @@
 <span class="sd">            get_number_of_features()-function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cutoff_padding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cutoff_padding</span><span class="p">()</span>
-        <span class="n">centers</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">cutoff_padding</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
+        <span class="n">centers</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
         <span class="n">n_centers</span> <span class="o">=</span> <span class="n">centers</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
         <span class="n">Z</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
@@ -656,18 +638,10 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">!=</span> <span class="s2">&quot;off&quot;</span><span class="p">:</span>
             <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">soap_mat</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="c1"># Convert to the final output precision.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="s2">&quot;float64&quot;</span><span class="p">:</span>
-            <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">soap_mat</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-
-        <span class="c1"># Make into a sparse array if requested</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span><span class="p">:</span>
-            <span class="n">soap_mat</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">soap_mat</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">soap_mat</span></div>
 
 <div class="viewcode-block" id="SOAP.validate_derivatives_method"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.validate_derivatives_method">[docs]</a>    <span class="k">def</span> <span class="nf">validate_derivatives_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">attach</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to validate and determine the final method for calculating the</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to validate and determine the final method for calculating the</span>
 <span class="sd">        derivatives.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">methods</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;numerical&quot;</span><span class="p">,</span> <span class="s2">&quot;analytical&quot;</span><span class="p">,</span> <span class="s2">&quot;auto&quot;</span><span class="p">}</span>
@@ -688,10 +662,6 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">!=</span> <span class="s2">&quot;off&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;Analytical derivatives not currently available for averaged output.&quot;</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="n">attach</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Analytical derivatives not currently available when attach=True.&quot;</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -718,7 +688,7 @@
         <span class="n">attach</span><span class="p">,</span>
         <span class="n">return_descriptor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the numerical derivatives for the given system.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the numerical derivatives for the given system.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms`): Atomic structure.</span>
 <span class="sd">            indices (list): Indices of atoms for which the derivatives will be</span>
@@ -741,9 +711,7 @@
         <span class="n">cell</span> <span class="o">=</span> <span class="n">ase</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">complete_cell</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
         <span class="n">pbc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
         <span class="n">cutoff_padding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cutoff_padding</span><span class="p">()</span>
-        <span class="n">centers</span><span class="p">,</span> <span class="n">center_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span>
-            <span class="n">system</span><span class="p">,</span> <span class="n">cutoff_padding</span><span class="p">,</span> <span class="n">positions</span>
-        <span class="p">)</span>
+        <span class="n">centers</span><span class="p">,</span> <span class="n">center_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;gto&quot;</span><span class="p">:</span>
             <span class="n">alphas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
@@ -820,7 +788,7 @@
         <span class="n">attach</span><span class="p">,</span>
         <span class="n">return_descriptor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the analytical derivatives for the given system.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the analytical derivatives for the given system.</span>
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms`): Atomic structure.</span>
 <span class="sd">            indices (list): Indices of atoms for which the derivatives will be</span>
@@ -843,7 +811,7 @@
         <span class="n">cell</span> <span class="o">=</span> <span class="n">ase</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">complete_cell</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
         <span class="n">pbc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
         <span class="n">cutoff_padding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cutoff_padding</span><span class="p">()</span>
-        <span class="n">centers</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">cutoff_padding</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
+        <span class="n">centers</span><span class="p">,</span> <span class="n">center_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
         <span class="n">sorted_species</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span>
         <span class="n">n_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sorted_species</span><span class="p">)</span>
         <span class="n">n_centers</span> <span class="o">=</span> <span class="n">centers</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -893,7 +861,9 @@
             <span class="n">cell</span><span class="p">,</span>
             <span class="n">pbc</span><span class="p">,</span>
             <span class="n">centers</span><span class="p">,</span>
+            <span class="n">center_indices</span><span class="p">,</span>
             <span class="n">indices</span><span class="p">,</span>
+            <span class="n">attach</span><span class="p">,</span>
             <span class="n">return_descriptor</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -903,7 +873,7 @@
 
     <span class="nd">@species</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
 <span class="sd">        the C-memory layout for them.</span>
 
 <span class="sd">        Args:</span>
@@ -922,7 +892,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SOAP.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
 <span class="sd">        will have.</span>
 
 <span class="sd">        Returns:</span>
@@ -936,7 +906,7 @@
             <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="SOAP.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Can be used to query the location of a species combination in the</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Can be used to query the location of a species combination in the</span>
 <span class="sd">        the flattened output.</span>
 
 <span class="sd">        Args:</span>
@@ -1005,7 +975,7 @@
         <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SOAP.get_basis_gto"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_basis_gto">[docs]</a>    <span class="k">def</span> <span class="nf">get_basis_gto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_cut</span><span class="p">,</span> <span class="n">n_max</span><span class="p">,</span> <span class="n">l_max</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to calculate the alpha and beta prefactors for the gto-radial</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to calculate the alpha and beta prefactors for the gto-radial</span>
 <span class="sd">        basis.</span>
 
 <span class="sd">        Args:</span>
@@ -1054,7 +1024,7 @@
         <span class="k">return</span> <span class="n">alphas_full</span><span class="p">,</span> <span class="n">betas_full</span></div>
 
 <div class="viewcode-block" id="SOAP.get_basis_poly"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_basis_poly">[docs]</a>    <span class="k">def</span> <span class="nf">get_basis_poly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_cut</span><span class="p">,</span> <span class="n">n_max</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to calculate discrete vectors for the polynomial basis functions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to calculate discrete vectors for the polynomial basis functions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            r_cut(float): Radial cutoff.</span>

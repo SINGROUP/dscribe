@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ewald sum matrix &mdash; DScribe 2.0.x documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -11,11 +12,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script defer="defer" src="../../_static/js/versions.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -31,15 +32,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html">
-            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -91,9 +96,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../tutorials.html">Tutorials</a> &raquo;</li>
-      <li>Ewald sum matrix</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Ewald sum matrix</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/tutorials/descriptors/ewald_sum_matrix.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -103,7 +108,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="ewald-sum-matrix">
+  <section id="ewald-sum-matrix">
 <h1>Ewald sum matrix<a class="headerlink" href="#ewald-sum-matrix" title="Permalink to this heading"></a></h1>
 <p>Ewald sum matrix <span id="id1">[<a class="reference internal" href="sine_matrix.html#id8" title="Felix Faber, Alexander Lindmaa, O. Anatole von Lilienfeld, and Rickard Armiento. Crystal structure representations for machine learning models of formation energies. International Journal of Quantum Chemistry, 115(16):1094–1101, 8 2015. doi:10.1002/qua.24917.">1</a>]</span> can be viewed as a logical extension of the Coulomb
 matrix for periodic systems, as it models the interaction between atoms in a
@@ -124,29 +129,29 @@ term is non-zero and additionally depends on the screening parameter
 <span class="math notranslate nohighlight">\(\alpha\)</span>.  DScribe instead uses the corrected term:</p>
 <div class="math notranslate nohighlight">
 \[\phi^{\text{self}}_{ij} + \phi^{\text{bg}}_{ij} = -\frac{\pi}{2 V \alpha^2} Z_i Z_j~\forall~i \neq j\]</div>
-<div class="section" id="setup">
+<section id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
 <p>Instantiating the object that is used to create Ewald sum matrices can be done as
 follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">r_cut</span> <span class="o">=</span> <span class="mf">6.0</span>
-<span class="n">nmax</span> <span class="o">=</span> <span class="mi">8</span>
-<span class="n">lmax</span> <span class="o">=</span> <span class="mi">6</span>
-
-<span class="c1"># Setting up the Ewald sum matrix descriptor</span>
-<span class="n">esm</span> <span class="o">=</span> <span class="n">EwaldSumMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
-<span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">esm</span> <span class="o">=</span> <span class="n">EwaldSumMatrix</span><span class="p">(</span><span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 
 <span class="c1"># Creation</span>
 <span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
+
+<span class="c1"># NaCl crystal created as an ASE.Atoms</span>
+<span class="n">nacl</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;NaCl&quot;</span><span class="p">,</span> <span class="s2">&quot;rocksalt&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">5.64</span><span class="p">)</span>
+
+<span class="c1"># Create output for the system</span>
+<span class="n">nacl_ewald</span> <span class="o">=</span> <span class="n">esm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">nacl</span><span class="p">)</span>
+
 </pre></div>
 </div>
 <p>The constructor takes the following parameters:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.__init__">
-<span class="sig-prename descclassname"><span class="pre">EwaldSumMatrix.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_atoms_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sorted_l2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float64'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">EwaldSumMatrix.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_atoms_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sorted_l2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float64'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.__init__" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_atoms_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – The maximum nuber of atoms that any of the
 samples can have. This controls how much zeros need to be
@@ -174,8 +179,6 @@ sorted matrix are scrambled.</p></li>
 <li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Provide only when using the <em>random</em>-permutation
 option. A seed to use for drawing samples from a normal
 distribution.</p></li>
-<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether the output of create() should be flattened
-to a 1D array.</p></li>
 <li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
 dense numpy array.</p></li>
 </ul>
@@ -183,8 +186,8 @@ dense numpy array.</p></li>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="creation">
+</section>
+<section id="creation">
 <h2>Creation<a class="headerlink" href="#creation" title="Permalink to this heading"></a></h2>
 <p>After the Ewald sum matrix has been set up, it may be used on periodic atomic
 structures with the <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create" title="dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
@@ -207,10 +210,10 @@ structures with the <a class="reference internal" href="../../doc/dscribe.descri
 <p>The call syntax for the create-function is as follows:</p>
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">EwaldSumMatrix.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="sig-prename descclassname"><span class="pre">EwaldSumMatrix.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accuracy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/ewaldsummatrix.html#EwaldSumMatrix.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Return the Ewald sum matrix for the given systems.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
 many atomic structures.</p></li>
@@ -250,14 +253,12 @@ are counted.  If set to True, only physical CPUs are counted.</p></li>
 into to the console.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Ewald sum matrix for the given systems.
-The return type depends on the ‘sparse’ and ‘flatten’-attributes.
-For flattened output a single numpy array or sparse.COO is
-returned. The first dimension is determined by the amount of
-systems.</p>
+The return type depends on the ‘sparse’-attribute. The first
+dimension is determined by the amount of systems.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray | sparse.COO</p>
 </dd>
 </dl>
@@ -271,12 +272,12 @@ features may be requested beforehand with the
 <p>In the case of multiple samples, the creation can also be parallellized by using the
 <em>n_jobs</em>-parameter. This splits the list of structures into equally sized parts
 and spaws a separate process to handle each part.</p>
-</div>
-<div class="section" id="examples">
+</section>
+<section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
 <p>The following examples demonstrate usage of the descriptor. These
 examples are also available in dscribe/examples/ewaldsummatrix.py.</p>
-<div class="section" id="accuracy">
+<section id="accuracy">
 <h3>Accuracy<a class="headerlink" href="#accuracy" title="Permalink to this heading"></a></h3>
 <p>Easiest way to control the accuracy of the Ewald summation is to use the
 <em>accuracy</em>-parameter. Lower values of this parameter correspond to tighter
@@ -289,8 +290,8 @@ convergence criteria and better accuracy.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ewald_3</span> <span class="o">=</span> <span class="n">esm</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">nacl</span><span class="p">,</span> <span class="n">r_cut</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">g_cut</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="total-electrostatic-energy">
+</section>
+<section id="total-electrostatic-energy">
 <h3>Total electrostatic energy<a class="headerlink" href="#total-electrostatic-energy" title="Permalink to this heading"></a></h3>
 <p>Let’s calculate the electrostatic energy of a crystal by using the information
 contained in the Ewald sum matrix.</p>
@@ -300,12 +301,9 @@ contained in the Ewald sum matrix.</p>
 <span class="n">a</span> <span class="o">=</span> <span class="mi">3</span>
 
 <span class="c1"># Calculate Ewald sum matrix with DScribe</span>
-<span class="n">ems</span> <span class="o">=</span> <span class="n">EwaldSumMatrix</span><span class="p">(</span>
-    <span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-    <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
-    <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span>
-<span class="p">)</span>
+<span class="n">ems</span> <span class="o">=</span> <span class="n">EwaldSumMatrix</span><span class="p">(</span><span class="n">n_atoms_max</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
 <span class="n">ems_out</span> <span class="o">=</span> <span class="n">ems</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">al</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">r_cut</span><span class="o">=</span><span class="n">r_cut</span><span class="p">,</span> <span class="n">g_cut</span><span class="o">=</span><span class="n">g_cut</span><span class="p">)</span>
+<span class="n">ems_out</span> <span class="o">=</span> <span class="n">ems</span><span class="o">.</span><span class="n">unflatten</span><span class="p">(</span><span class="n">ems_out</span><span class="p">)</span>
 
 <span class="c1"># Calculate the total electrostatic energy of the crystal</span>
 <span class="n">total_energy</span> <span class="o">=</span> <span class="n">ems_out</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">ems_out</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ems_out</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
@@ -316,9 +314,9 @@ contained in the Ewald sum matrix.</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">total_energy</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>

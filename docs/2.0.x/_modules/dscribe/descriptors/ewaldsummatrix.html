@@ -11,11 +11,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
         <script defer="defer" src="../../../_static/js/versions.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
@@ -28,15 +28,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html">
-            <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 2.0.x
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -66,9 +70,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>dscribe.descriptors.ewaldsummatrix</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dscribe.descriptors.ewaldsummatrix</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -106,7 +110,7 @@
 
 
 <div class="viewcode-block" id="EwaldSumMatrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix">[docs]</a><span class="k">class</span> <span class="nc">EwaldSumMatrix</span><span class="p">(</span><span class="n">DescriptorMatrix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates an Ewald sum matrix for the a given system.</span>
 
 <span class="sd">    Each entry M_ij of the Ewald sum matrix will contain the Coulomb energy</span>
@@ -151,11 +155,8 @@
         <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="c1"># For backwards compatibility with &lt; v1.2.2</span>
-        <span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">gcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Ewald sum matrix for the given systems.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the Ewald sum matrix for the given systems.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
@@ -197,10 +198,8 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray | sparse.COO: Ewald sum matrix for the given systems.</span>
-<span class="sd">            The return type depends on the &#39;sparse&#39; and &#39;flatten&#39;-attributes.</span>
-<span class="sd">            For flattened output a single numpy array or sparse.COO is</span>
-<span class="sd">            returned. The first dimension is determined by the amount of</span>
-<span class="sd">            systems.</span>
+<span class="sd">            The return type depends on the &#39;sparse&#39;-attribute. The first</span>
+<span class="sd">            dimension is determined by the amount of systems.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">var_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">var_new</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">,</span> <span class="s2">&quot;g_cut&quot;</span><span class="p">]:</span>
@@ -247,12 +246,7 @@
 
         <span class="c1"># Determine if the outputs have a fixed size</span>
         <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatten</span><span class="p">:</span>
-            <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_features</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">permutation</span> <span class="o">==</span> <span class="s2">&quot;eigenspectrum&quot;</span><span class="p">:</span>
-            <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_atoms_max</span><span class="p">]</span>
+        <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_features</span><span class="p">]</span>
 
         <span class="c1"># Create in parallel</span>
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span>
@@ -267,7 +261,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="EwaldSumMatrix.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">r_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">g_cut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
 <span class="sd">            accuracy (float): The accuracy to which the sum is converged to.</span>
@@ -320,7 +314,7 @@
         <span class="k">return</span> <span class="n">matrix</span></div>
 
 <div class="viewcode-block" id="EwaldSumMatrix.get_matrix"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.get_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The total energy matrix. Each matrix element (i, j) corresponds to the</span>
 <span class="sd">        total interaction energy in a system with atoms i and j.</span>
 
@@ -339,7 +333,7 @@
         <span class="k">return</span> <span class="n">total</span></div>
 
     <span class="k">def</span> <span class="nf">_calc_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the constant part of the Ewald sum matrix.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates the constant part of the Ewald sum matrix.</span>
 
 <span class="sd">        The constant part contains the correction for the self-interaction</span>
 <span class="sd">        between the point charges and the Gaussian charge distribution added on</span>
@@ -376,7 +370,7 @@
         <span class="k">return</span> <span class="n">correction_matrix</span>
 
     <span class="k">def</span> <span class="nf">_calc_real</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Used to calculate the Ewald real-space sum.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to calculate the Ewald real-space sum.</span>
 
 <span class="sd">        Corresponds to equation (5) in</span>
 <span class="sd">        https://doi.org/10.1016/0010-4655(96)00016-1</span>
@@ -426,7 +420,7 @@
         <span class="k">return</span> <span class="n">ereal</span>
 
     <span class="k">def</span> <span class="nf">_calc_recip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform the reciprocal space summation. Uses the fastest non mesh-based</span>
 <span class="sd">        method described as given by equation (16) in</span>
 <span class="sd">        https://doi.org/10.1016/0010-4655(96)00016-1</span>
