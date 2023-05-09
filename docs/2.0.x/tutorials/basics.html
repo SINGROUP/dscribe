@@ -202,7 +202,9 @@ best-performing ones.</p>
 </div>
 </li>
 <li><p>Call the <code class="code docutils literal notranslate"><span class="pre">create()</span></code> function of the descriptor object on a single Atoms object
-or a list of them. Optionally provide a number of cores to parallelize the work.</p>
+or a list of them. Optionally provide a number of cores to parallelize the
+work across the structures (note that parallellization for a single structure
+is not supported).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s create SOAP feature vectors for each structure</span>
 <span class="n">feature_vectors</span> <span class="o">=</span> <span class="n">soap</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
@@ -210,7 +212,7 @@ or a list of them. Optionally provide a number of cores to parallelize the work.
 </li>
 <li><p>The output is either 2D (number of structures <span class="math notranslate nohighlight">\(\times\)</span> number of features) <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html">numpy
 array</a> or
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/sparse.html">scipy sparse matrix</a> (depends on the
+<a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.COO.html">sparse.COO array</a>. (depends on the
 <code class="code docutils literal notranslate"><span class="pre">sparse</span></code> setting of your descriptor object) that you can store store
 for later use. Have fun!</p></li>
 </ol>

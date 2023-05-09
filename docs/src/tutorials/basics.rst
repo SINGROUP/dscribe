@@ -79,7 +79,9 @@ Typical workflow
     :lines: 17-28
 
 4. Call the :code:`create()` function of the descriptor object on a single Atoms object
-   or a list of them. Optionally provide a number of cores to parallelize the work.
+   or a list of them. Optionally provide a number of cores to parallelize the
+   work across the structures (note that parallellization for a single structure
+   is not supported).
 
    .. literalinclude:: ../../../examples/basics.py
     :language: python
@@ -88,7 +90,6 @@ Typical workflow
 5. The output is either 2D (number of structures :math:`\times` number of features) `numpy
    array
    <https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html>`_ or
-   `scipy sparse matrix
-   <https://docs.scipy.org/doc/scipy/reference/sparse.html>`_ (depends on the
+   `sparse.COO array <https://sparse.pydata.org/en/stable/generated/sparse.COO.html>`_. (depends on the
    :code:`sparse` setting of your descriptor object) that you can store store
    for later use. Have fun!

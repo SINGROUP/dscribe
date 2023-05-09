@@ -6,7 +6,7 @@ atoms in the system, and in particular each feature has a derivative with
 respect to the x-, y-, and z-components of the position of every atom in the
 system.
 
-Some of the descriptors included in DScribe allow you to calculate these
+The descriptors included in DScribe allow you to calculate these
 derivatives. The derivatives provide a way to study the effect of different
 atoms on the output, and in particular they can be used to build machine
 learning based force-fields, see :doc:`the tutorial on building one
@@ -35,9 +35,9 @@ looks like this:
    derivatives are implemented with a centered finite difference scheme that
    has a good balance between accuracy and speed.
  - :code:`attach`: (only for local descriptors) controls the behaviour of positions
-   defined as atomic indices. If True, the positions tied to an atomic index
+   defined as atomic indices. If :code:`True`, the positions tied to an atomic index
    will move together with the atoms with respect to which the derivatives are
-   calculated against. If False, positions defined as atomic indices will be
+   calculated against. If :code:`False`, positions defined as atomic indices will be
    converted into cartesian locations that are completely independent of the
    atom location during derivative calculation.
  - :code:`return_descriptor`: Whether or not to return the descriptor as well.
