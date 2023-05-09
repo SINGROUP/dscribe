@@ -754,7 +754,10 @@ class MBTR(DescriptorGlobal):
                     sharpness = self.weighting["sharpness"]
                 except Exception:
                     sharpness = 2
-                parameters = {b"sharpness": sharpness, b"cutoff": self.weighting["r_cut"]}
+                parameters = {
+                    b"sharpness": sharpness,
+                    b"cutoff": self.weighting["r_cut"],
+                }
                 # Evaluating smooth-cutoff weighting values requires distances
                 # between two neighbours of an atom, and the maximum distance
                 # between them is twice the cutoff radius. To include the

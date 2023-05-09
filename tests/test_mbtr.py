@@ -289,7 +289,7 @@ def test_derivatives_analytical(normalization, geometry, grid, weighting, period
             {"min": -1.0, "max": 1.0, "sigma": 0.02, "n": 100},
             {"function": "exp", "scale": 1.0, "threshold": 1e-3},
             id="cosine",
-        )
+        ),
     ],
 )
 @pytest.mark.parametrize("periodic", [True, False])
