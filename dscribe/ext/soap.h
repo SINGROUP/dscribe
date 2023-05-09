@@ -92,7 +92,9 @@ class SOAPGTO: public Descriptor {
             py::array_t<double> cell,
             py::array_t<bool> pbc,
             py::array_t<double> centers,
+            py::array_t<int> center_indices,
             py::array_t<int> indices,
+            const bool attach,
             const bool return_descriptor
         ) const;
 
