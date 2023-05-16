@@ -28,6 +28,30 @@ dscribe.descriptors.descriptor module
    :undoc-members:
    :show-inheritance:
 
+dscribe.descriptors.descriptorglobal module
+-------------------------------------------
+
+.. automodule:: dscribe.descriptors.descriptorglobal
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.descriptors.descriptorlocal module
+------------------------------------------
+
+.. automodule:: dscribe.descriptors.descriptorlocal
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dscribe.descriptors.descriptormatrix module
+-------------------------------------------
+
+.. automodule:: dscribe.descriptors.descriptormatrix
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dscribe.descriptors.ewaldsummatrix module
 -----------------------------------------
 
@@ -40,14 +64,6 @@ dscribe.descriptors.lmbtr module
 --------------------------------
 
 .. automodule:: dscribe.descriptors.lmbtr
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-dscribe.descriptors.matrixdescriptor module
--------------------------------------------
-
-.. automodule:: dscribe.descriptors.matrixdescriptor
    :members:
    :undoc-members:
    :show-inheritance:

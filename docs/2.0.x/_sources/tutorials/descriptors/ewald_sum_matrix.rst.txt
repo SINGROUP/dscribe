@@ -33,7 +33,7 @@ follows:
 
 .. literalinclude:: ../../../../examples/ewaldsummatrix.py
    :language: python
-   :lines: 7-17
+   :lines: 4-7
 
 The constructor takes the following parameters:
 
@@ -46,23 +46,23 @@ After the Ewald sum matrix has been set up, it may be used on periodic atomic
 structures with the :meth:`~.EwaldSumMatrix.create`-method.
 
 .. literalinclude:: ../../../../examples/ewaldsummatrix.py
-   :start-after: Creation
+   :start-at: Creation
    :language: python
-   :lines: 1-14
+   :lines: 1-15
 
 The call syntax for the create-function is as follows:
 
 .. automethod:: dscribe.descriptors.ewaldsummatrix.EwaldSumMatrix.create
    :noindex:
 
-Note that if you specify in *n_atoms_max* a lower number than atoms in your
+Note that if you specify in :code:`n_atoms_max` a lower number than atoms in your
 structure it will cause an error. The output will in this case be a flattened
-matrix, specifically a numpy array with size #atoms * #atoms. The number of
+matrix, specifically a numpy array with size :code:`n_atoms * n_atoms`. The number of
 features may be requested beforehand with the
-:meth:`~.MatrixDescriptor.get_number_of_features`-method.
+:meth:`~.DescriptorMatrix.get_number_of_features`-method.
 
 In the case of multiple samples, the creation can also be parallellized by using the
-*n_jobs*-parameter. This splits the list of structures into equally sized parts
+:code:`n_jobs`-parameter. This splits the list of structures into equally sized parts
 and spaws a separate process to handle each part.
 
 Examples

@@ -94,7 +94,7 @@ The constructor takes the following parameters:
 
 .. automethod:: dscribe.descriptors.soap.SOAP.__init__
 
-Increasing the arguments *nmax* and *lmax* makes SOAP more accurate but also
+Increasing the arguments :code:`n_max` and :code:`l_max`` makes SOAP more accurate but also
 increases the number of features.
 
 Creation
@@ -114,9 +114,8 @@ atom in the system. The call syntax for the create-method is as follows:
 .. automethod:: dscribe.descriptors.soap.SOAP.create
    :noindex:
 
-The output will in this case be a numpy array with shape [#positions,
-#features]. The number of features may be requested beforehand with the
-:meth:`~.SOAP.get_number_of_features`-method.
+The output will in this case be a numpy array with shape :code:`[n_positions, n_features]`.
+The number of features may be requested beforehand with the :meth:`~.SOAP.get_number_of_features`-method.
 
 Examples
 --------
@@ -133,8 +132,8 @@ Adding SOAP to water is as easy as:
 
 We are expecting a matrix where each row represents the local environment of
 one atom of the molecule. The length of the feature vector depends on the
-number of species defined in *species* as well as *nmax* and *lmax*. You can
-try by changing *nmax* and *lmax*.
+number of species defined in :code:`species` as well as :code:`n_max` and :code:`l_max`. You can
+try by changing :code:`n_max` and :code:`lmax`.
 
 .. literalinclude:: ../../../../examples/soap.py
    :language: python
@@ -203,7 +202,7 @@ instances from these functions are plotted below.
    decay smoothly towards zero.
 
 When using a weighting function, you typically will also want to restrict
-``r_cut`` into a range that lies within the domain in which your weighting
+:code:`r_cut` into a range that lies within the domain in which your weighting
 function is active. You can achieve this by manually tuning r_cut to a range
 that fits your weighting function, or if you set :code:`r_cut=None`, it will be
 set automatically into a sensible range which depends on your weighting
@@ -238,7 +237,7 @@ Average output
 
 One way of turning a local descriptor into a global descriptor is simply by
 taking the average over all sites. DScribe supports two averaging modes:
-*inner* and *outer*. The inner average is taken over the sites before summing
+:code:`inner` and :code:`outer`. The inner average is taken over the sites before summing
 up the magnetic quantum number. Outer averaging instead averages over the
 power spectrum of individual sites. In general, the inner averaging will
 preserve the configurational information better but you can experiment with
@@ -261,10 +260,10 @@ of our choice.
 
 It seems that the local environments of water and hydrogen peroxide are more
 similar to each other. To see more advanced methods for comparing structures of
-different sizes with each other, see the :doc:`kernel building tutorial
-</tutorials/similarity_analysis/kernels>`. Notice that simply averaging the SOAP vector does not always
-correspond to the Average Kernel discussed in the kernel building tutorial, as
-for non-linear kernels the order of kernel calculation and averaging matters.
+different sizes with each other, see the :doc:`kernel building tutorial</tutorials/similarity_analysis/kernels>`.
+Notice that simply averaging the SOAP vector does not always correspond to the
+Average Kernel discussed in the kernel building tutorial, as for non-linear
+kernels the order of kernel calculation and averaging matters.
 
 .. bibliography:: ../../references.bib
    :style: unsrt

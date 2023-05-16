@@ -116,10 +116,10 @@ the <a class="reference internal" href="mbtr.html"><span class="doc">MBTR tutori
 differences compared to MBTR are:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <span class="math notranslate nohighlight">\(k=1\)</span> term has been removed. Encoding the species present within
+<li><p>Only geometry functions with degree <span class="math notranslate nohighlight">\(k&gt;1\)</span> are available. Encoding the species present within
 a local region is quite tricky, and would essentially require some kind of
-distance information to weight their contribution correctly, making the
-<span class="math notranslate nohighlight">\(k=1\)</span> term more closer to <span class="math notranslate nohighlight">\(k=2\)</span> term.</p></li>
+distance information to weight the contribution of species correctly, making any
+<span class="math notranslate nohighlight">\(k=1\)</span> geometry function more closer to <span class="math notranslate nohighlight">\(k=2\)</span>.</p></li>
 <li><p>LMBTR uses the chemical species X (atomic number 0) for the central
 position. This makes it possible to also encode spatial locations that are
 not centered at any particular atom. It does however mean that you should
@@ -134,8 +134,7 @@ also possible.</p></li>
 <section id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
 <p>Instantiating an LMBTR descriptor can be done as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">LMBTR</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">LMBTR</span>
 <span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">mpl</span>
 
@@ -148,14 +147,6 @@ also possible.</p></li>
     <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;l2&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-
-<span class="c1"># Create</span>
-<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
-
-<span class="n">water</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
-
-<span class="c1"># Create MBTR output for the system</span>
-<span class="n">mbtr_water</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>The arguments have the following effect:</p>
@@ -165,6 +156,106 @@ also possible.</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>geometry</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Setup the geometry function.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The geometry function determines the degree <span class="math notranslate nohighlight">\(k\)</span> for MBTR.
+The order <span class="math notranslate nohighlight">\(k\)</span> tells how many atoms are involved in the
+calculation and thus also heavily influence the computational
+time.</p>
+<p>The following geometry functions are available:</p>
+<ul>
+<li><dl class="simple">
+<dt><span class="math notranslate nohighlight">\(k=2\)</span></dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;distance&quot;</span></code>: Pairwise distance in angstroms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;inverse_distance&quot;</span></code>: Pairwise inverse distance in 1/angstrom.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><span class="math notranslate nohighlight">\(k=3\)</span></dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;angle&quot;</span></code>: Angle in degrees.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cosine&quot;</span></code>: Cosine of the angle.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+<li><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Setup the discretization grid.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>In the grid setup <em>min</em> is the minimum value of the axis, <em>max</em>
+is the maximum value of the axis, <em>sigma</em> is the standard
+deviation of the gaussian broadening and <em>n</em> is the number of
+points sampled on the grid.</p>
+</p></li>
+<li><p><strong>weighting</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Setup the weighting function and its parameters.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;weighting&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;r_cut&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The following weighting functions are available:</p>
+<ul>
+<li><dl class="simple">
+<dt><span class="math notranslate nohighlight">\(k=2\)</span></dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;unity&quot;</span></code>: No weighting.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;exp&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;inverse_square&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(1/(x^2)\)</span></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><span class="math notranslate nohighlight">\(k=3\)</span></dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;unity&quot;</span></code>: No weighting.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;exp&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;smooth_cutoff&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(f_{ij}f_{ik}\)</span>,</dt><dd><p>where <span class="math notranslate nohighlight">\(f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}\)</span></p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The meaning of <span class="math notranslate nohighlight">\(x\)</span> changes for different terms as follows:</p>
+<ul>
+<li><p>For <span class="math notranslate nohighlight">\(k=2\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance between A-&gt;B</p></li>
+<li><p>For <span class="math notranslate nohighlight">\(k=3\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance from A-&gt;B-&gt;C-&gt;A.</p></li>
+</ul>
+<p>The exponential weighting is motivated by the exponential decay
+of screened Coulombic interactions in solids. In the exponential
+weighting the parameters <strong>threshold</strong> determines the value of
+the weighting function after which the rest of the terms will be
+ignored. Either the parameter <strong>scale</strong> or <strong>r_cut</strong> can be used
+to determine the parameter <span class="math notranslate nohighlight">\(s\)</span>: <strong>scale</strong> directly
+corresponds to this value whereas <strong>r_cut</strong> can be used to
+indirectly determine it through <span class="math notranslate nohighlight">\(s=-\log()\)</span>:.</p>
+<p>The inverse square and smooth cutoff function weightings use a
+cutoff parameter <strong>r_cut</strong>, which is a radial distance after
+which the rest of the atoms will be ignored. For the smooth
+cutoff function, additional weighting key <strong>sharpness</strong> can be
+added, which changes the value of <span class="math notranslate nohighlight">\(y\)</span>. If a value for it
+is not provided, it defaults to <cite>2</cite>.</p>
+</p></li>
+<li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Determines whether the gaussians are
+normalized to an area of 1. Defaults to True. If False, the
+normalization factor is dropped and the gaussians have the form.
+<span class="math notranslate nohighlight">\(e^{-(x-\mu)^2/2\sigma^2}\)</span></p></li>
+<li><p><strong>normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>Determines the method for normalizing the
+output. The available options are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>: No normalization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;l2&quot;</span></code>: Normalize the Euclidean length of the output to unity.</p></li>
+</ul>
+</p></li>
 <li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
 numbers or as a list of chemical symbols. Notice that this is not
 the atomic numbers that are present for an individual system, but
@@ -175,40 +266,6 @@ preferable.</p></li>
 <li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Set to true if you want the descriptor output to
 respect the periodicity of the atomic systems (see the
 pbc-parameter in the constructor of ase.Atoms).</p></li>
-<li><p><strong>k2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=2 term.
-Contains setup for the used geometry function, discretization and
-weighting function. For example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k2</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;inverse_distance&quot;</span><span class="p">},</span>
-    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
-    <span class="s2">&quot;weighting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</p></li>
-<li><p><strong>k3</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=3 term.
-Contains setup for the used geometry function, discretization and
-weighting function. For example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k3</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;angle&quot;</span><span class="p">},</span>
-    <span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
-    <span class="s2">&quot;weighting&quot;</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</p></li>
-<li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Determines whether the gaussians are
-normalized to an area of 1. Defaults to True. If False, the
-normalization factor is dropped and the gaussians have the form.
-<span class="math notranslate nohighlight">\(e^{-(x-\mu)^2/2\sigma^2}\)</span></p></li>
-<li><p><strong>normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>Determines the method for normalizing the
-output. The available options are:</p>
-<ul>
-<li><p>”none”: No normalization.</p></li>
-<li><p>”l2_each”: Normalize the Euclidean length of each k-term
-individually to unity.</p></li>
-</ul>
-</p></li>
 <li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
 dense numpy array.</p></li>
 <li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>The data type of the output. Valid options are:</p>
@@ -232,7 +289,7 @@ dense numpy array.</p></li>
 <span class="n">water</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
 
 <span class="c1"># Create MBTR output for the system</span>
-<span class="n">mbtr_water</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">mbtr_water</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -241,18 +298,18 @@ dense numpy array.</p></li>
 <p>The call syntax for the create-function is as follows:</p>
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">LMBTR.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Return the LMBTR output for the given systems and given positions.</p>
+<span class="sig-prename descclassname"><span class="pre">LMBTR.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Return the LMBTR output for the given systems and given centers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
 many atomic structures.</p></li>
-<li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Positions where to calculate LMBTR. Can be
+<li><p><strong>centers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Centers where to calculate LMBTR. Can be
 provided as cartesian positions or atomic indices. If no
-positions are defined, the LMBTR output will be created for all
+centers are defined, the LMBTR output will be created for all
 atoms in the system. When calculating LMBTR for multiple
-systems, provide the positions as a list for each system.</p></li>
+systems, provide the centers as a list for each system.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
 with n_jobs=1. If a negative number is given, the used cpus
@@ -269,9 +326,9 @@ into to the console.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The LMBTR output for the given
-systems and positions. The return type depends on the
+systems and centers. The return type depends on the
 ‘sparse’-attribute. The first dimension is determined by the amount
-of positions and systems and the second dimension is determined by
+of centers and systems and the second dimension is determined by
 the get_number_of_features()-function.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -280,9 +337,8 @@ the get_number_of_features()-function.</p>
 </dl>
 </dd></dl>
 
-<p>The output will in this case be a numpy array with shape [#positions,
-#features]. The number of features may be requested beforehand with the
-<a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_number_of_features" title="dscribe.descriptors.lmbtr.LMBTR.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
+<p>The output will in this case be a numpy array with shape <code class="code docutils literal notranslate"><span class="pre">[n_positions,</span> <span class="pre">n_features]</span></code>.
+The number of features may be requested beforehand with the <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_number_of_features" title="dscribe.descriptors.lmbtr.LMBTR.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
@@ -305,11 +361,12 @@ sites on this surface: top, bridge, hcp and fcc.</p>
 <span class="n">hcp_pos</span> <span class="o">=</span> <span class="n">slab_ads</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="n">add_adsorbate</span><span class="p">(</span><span class="n">slab_ads</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">)</span>
 <span class="n">fcc_pos</span> <span class="o">=</span> <span class="n">slab_ads</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
 </pre></div>
 </div>
 <p>These four sites are described by LMBTR with pairwise <span class="math notranslate nohighlight">\(k=2\)</span> term.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Al&quot;</span><span class="p">],</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># LMBTR Setup</span>
+<span class="n">lmbtr</span> <span class="o">=</span> <span class="n">LMBTR</span><span class="p">(</span>
+    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Al&quot;</span><span class="p">],</span>
     <span class="n">geometry</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">},</span>
     <span class="n">grid</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">},</span>
     <span class="n">weighting</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">},</span>
@@ -320,17 +377,17 @@ sites on this surface: top, bridge, hcp and fcc.</p>
 <span class="c1"># Create output for each site</span>
 <span class="n">sites</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
     <span class="n">slab_pure</span><span class="p">,</span>
-    <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="n">ontop_pos</span><span class="p">,</span> <span class="n">bridge_pos</span><span class="p">,</span> <span class="n">hcp_pos</span><span class="p">,</span> <span class="n">fcc_pos</span><span class="p">],</span>
+    <span class="n">centers</span><span class="o">=</span><span class="p">[</span><span class="n">ontop_pos</span><span class="p">,</span> <span class="n">bridge_pos</span><span class="p">,</span> <span class="n">hcp_pos</span><span class="p">,</span> <span class="n">fcc_pos</span><span class="p">],</span>
 <span class="p">)</span>
-
-<span class="c1"># Plot the site-aluminum distributions for each site</span>
-<span class="n">al_slice</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">get_location</span><span class="p">((</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Al&quot;</span><span class="p">))</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Plotting the output from these sites reveals the different patterns in these
 sites.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;bridge&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot the site-aluminum distributions for each site</span>
+<span class="n">al_slice</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">get_location</span><span class="p">((</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Al&quot;</span><span class="p">))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">)</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;bridge&quot;</span><span class="p">)</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;hcp&quot;</span><span class="p">)</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;fcc&quot;</span><span class="p">)</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Site-Al distance (Å)&quot;</span><span class="p">)</span>

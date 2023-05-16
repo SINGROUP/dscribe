@@ -360,7 +360,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">=</span> <span class="n">average</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crossover</span> <span class="o">=</span> <span class="n">crossover</span></div>
 
-<div class="viewcode-block" id="SOAP.prepare_centers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.prepare_centers">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SOAP.prepare_centers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.prepare_centers">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Validates and prepares the centers for the C++ extension.&quot;&quot;&quot;</span>
         <span class="c1"># Check that the system does not have elements that are not in the list</span>
         <span class="c1"># of atomic numbers</span>
@@ -373,7 +373,7 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;System doesn&#39;t have cell to justify periodicity.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Setup the local positions</span>
-        <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">list_positions</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -385,14 +385,11 @@
                 <span class="s2">&quot; atomic indices or a two-dimensional &quot;</span>
                 <span class="s2">&quot;list of cartesian coordinates with x, y and z components.&quot;</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span>
-                <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
-            <span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">error</span>
             <span class="n">list_positions</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">positions</span><span class="p">):</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">centers</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
                     <span class="n">list_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="n">i</span><span class="p">])</span>
                     <span class="n">indices</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
@@ -453,18 +450,18 @@
         <span class="k">return</span> <span class="n">d</span></div>
 
 <div class="viewcode-block" id="SOAP.create"><a class="viewcode-back" href="../../../tutorials/descriptors/soap.html#dscribe.descriptors.soap.SOAP.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the SOAP output for the given systems and given positions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the SOAP output for the given systems and given centers.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
 <span class="sd">                many atomic structures.</span>
-<span class="sd">            positions (list): Positions where to calculate SOAP. Can be</span>
+<span class="sd">            centers (list): Centers where to calculate SOAP. Can be</span>
 <span class="sd">                provided as cartesian positions or atomic indices. If no</span>
-<span class="sd">                positions are defined, the SOAP output will be created for all</span>
+<span class="sd">                centers are defined, the SOAP output will be created for all</span>
 <span class="sd">                atoms in the system. When calculating SOAP for multiple</span>
-<span class="sd">                systems, provide the positions as a list for each system.</span>
+<span class="sd">                systems, provide the centers as a list for each system.</span>
 <span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
 <span class="sd">                the calculation across samples. Defaults to serial calculation</span>
 <span class="sd">                with n_jobs=1. If a negative number is given, the used cpus</span>
@@ -480,8 +477,8 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray | sparse.COO: The SOAP output for the given systems and</span>
-<span class="sd">            positions. The return type depends on the &#39;sparse&#39;-attribute. The</span>
-<span class="sd">            first dimension is determined by the amount of positions and</span>
+<span class="sd">            centers. The return type depends on the &#39;sparse&#39;-attribute. The</span>
+<span class="sd">            first dimension is determined by the amount of centers and</span>
 <span class="sd">            systems and the second dimension is determined by the</span>
 <span class="sd">            get_number_of_features()-function. When multiple systems are</span>
 <span class="sd">            provided the results are ordered by the input order of systems and</span>
@@ -490,18 +487,18 @@
         <span class="c1"># Validate input / combine input arguments</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">Atoms</span><span class="p">):</span>
             <span class="n">system</span> <span class="o">=</span> <span class="p">[</span><span class="n">system</span><span class="p">]</span>
-            <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">positions</span><span class="p">]</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="p">[</span><span class="n">centers</span><span class="p">]</span>
         <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">inp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i_sys</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i_sys</span> <span class="ow">in</span> <span class="n">system</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">n_pos</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+            <span class="n">n_pos</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">n_pos</span> <span class="o">!=</span> <span class="n">n_samples</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;The given number of positions does not match the given &quot;</span>
+                    <span class="s2">&quot;The given number of centers does not match the given &quot;</span>
                     <span class="s2">&quot;number of systems.&quot;</span>
                 <span class="p">)</span>
-            <span class="n">inp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">))</span>
+            <span class="n">inp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">))</span>
 
         <span class="c1"># Determine if the outputs have a fixed size</span>
         <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
@@ -509,7 +506,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">==</span> <span class="s2">&quot;outer&quot;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">==</span> <span class="s2">&quot;inner&quot;</span><span class="p">:</span>
             <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_features</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">n_centers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">first_sample</span><span class="p">,</span> <span class="n">first_pos</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -520,7 +517,7 @@
 
             <span class="k">def</span> <span class="nf">is_static</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">i_job</span> <span class="ow">in</span> <span class="n">inp</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_job</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="n">n_centers</span><span class="p">:</span>
                             <span class="k">return</span> <span class="kc">False</span>
                     <span class="k">else</span><span class="p">:</span>
@@ -547,25 +544,25 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="SOAP.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the SOAP output for the given system and given positions.</span>
+<div class="viewcode-block" id="SOAP.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the SOAP output for the given system and given centers.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
-<span class="sd">            positions (list): Cartesian positions or atomic indices. If</span>
+<span class="sd">            centers (list): Cartesian positions or atomic indices. If</span>
 <span class="sd">                specified, the SOAP spectrum will be created for these points.</span>
-<span class="sd">                If no positions are defined, the SOAP output will be created</span>
+<span class="sd">                If no centers are defined, the SOAP output will be created</span>
 <span class="sd">                for all atoms in the system.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray | sparse.COO: The SOAP output for the</span>
-<span class="sd">            given system and positions. The return type depends on the</span>
+<span class="sd">            given system and centers. The return type depends on the</span>
 <span class="sd">            &#39;sparse&#39;-attribute. The first dimension is given by the number of</span>
-<span class="sd">            positions and the second dimension is determined by the</span>
+<span class="sd">            centers and the second dimension is determined by the</span>
 <span class="sd">            get_number_of_features()-function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cutoff_padding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cutoff_padding</span><span class="p">()</span>
-        <span class="n">centers</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
+        <span class="n">centers</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">)</span>
         <span class="n">n_centers</span> <span class="o">=</span> <span class="n">centers</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
         <span class="n">Z</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
@@ -683,7 +680,7 @@
         <span class="n">d</span><span class="p">,</span>
         <span class="n">c</span><span class="p">,</span>
         <span class="n">system</span><span class="p">,</span>
-        <span class="n">positions</span><span class="p">,</span>
+        <span class="n">centers</span><span class="p">,</span>
         <span class="n">indices</span><span class="p">,</span>
         <span class="n">attach</span><span class="p">,</span>
         <span class="n">return_descriptor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -711,7 +708,7 @@
         <span class="n">cell</span> <span class="o">=</span> <span class="n">ase</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">complete_cell</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
         <span class="n">pbc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
         <span class="n">cutoff_padding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cutoff_padding</span><span class="p">()</span>
-        <span class="n">centers</span><span class="p">,</span> <span class="n">center_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
+        <span class="n">centers</span><span class="p">,</span> <span class="n">center_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;gto&quot;</span><span class="p">:</span>
             <span class="n">alphas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
@@ -783,7 +780,7 @@
         <span class="n">d</span><span class="p">,</span>
         <span class="n">c</span><span class="p">,</span>
         <span class="n">system</span><span class="p">,</span>
-        <span class="n">positions</span><span class="p">,</span>
+        <span class="n">centers</span><span class="p">,</span>
         <span class="n">indices</span><span class="p">,</span>
         <span class="n">attach</span><span class="p">,</span>
         <span class="n">return_descriptor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -811,7 +808,7 @@
         <span class="n">cell</span> <span class="o">=</span> <span class="n">ase</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">complete_cell</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
         <span class="n">pbc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
         <span class="n">cutoff_padding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cutoff_padding</span><span class="p">()</span>
-        <span class="n">centers</span><span class="p">,</span> <span class="n">center_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
+        <span class="n">centers</span><span class="p">,</span> <span class="n">center_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_centers</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">)</span>
         <span class="n">sorted_species</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span>
         <span class="n">n_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sorted_species</span><span class="p">)</span>
         <span class="n">n_centers</span> <span class="o">=</span> <span class="n">centers</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>

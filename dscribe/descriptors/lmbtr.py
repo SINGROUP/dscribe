@@ -36,78 +36,23 @@ import dscribe.utils.geometry
 
 
 class LMBTR(DescriptorLocal):
-    """Implementation of local -- per chosen atom -- kind of the Many-body
-    tensor representation up to k=3.
+    """
+    Implementation of the Local Many-body tensor representation.
 
+    You can use this descriptor for finite and periodic systems. When dealing
+    with periodic systems or when using machine learning models that use the
+    Euclidean norm to measure distance between vectors, it is advisable to use
+    some form of normalization. This implementation does not support the use of
+    a non-identity correlation matrix.
+    
     Notice that the species of the central atom is not encoded in the output,
     but is instead represented by a chemical species X with atomic number 0.
     This allows LMBTR to be also used on general positions not corresponding to
     real atoms. The surrounding environment is encoded by the two- and
     three-body interactions with neighouring atoms. If there is a need to
-    distinguish the central species, one can for example train a different
-    model for each central species.
-
-    You can choose which terms to include by providing a dictionary in the k2
-    or k3 arguments. The k1 term is not used in the local version. This
-    dictionary should contain information under three keys: "geometry", "grid"
-    and "weighting". See the examples below for how to format these
-    dictionaries.
-
-    You can use this descriptor for finite and periodic systems. When dealing
-    with periodic systems or when using machine learning models that use the
-    Euclidean norm to measure distance between vectors, it is advisable to use
-    some form of normalization.
-
-    For the geometry functions the following choices are available:
-
-    * :math:`k=2`:
-
-       * "distance": Pairwise distance in angstroms.
-       * "inverse_distance": Pairwise inverse distance in 1/angstrom.
-
-    * :math:`k=3`:
-
-       * "angle": Angle in degrees.
-       * "cosine": Cosine of the angle.
-
-    For the weighting the following functions are available:
-
-    * :math:`k=2`:
-
-       * "unity": No weighting.
-       * "exp": Weighting of the form :math:`e^{-sx}`
-
-    * :math:`k=3`:
-
-       * "unity": No weighting.
-       * "exp": Weighting of the form :math:`e^{-sx}`
-
-    The exponential weighting is motivated by the exponential decay of screened
-    Coulombic interactions in solids. In the exponential weighting the
-    parameters **threshold** determines the value of the weighting function after
-    which the rest of the terms will be ignored and the parameter **scale**
-    corresponds to :math:`s`. The meaning of :math:`x` changes for different
-    terms as follows:
-
-    * :math:`k=2`: :math:`x` = Distance between A->B
-    * :math:`k=3`: :math:`x` = Distance from A->B->C->A.
-
-    In the grid setup *min* is the minimum value of the axis, *max* is the
-    maximum value of the axis, *sigma* is the standard deviation of the
-    gaussian broadening and *n* is the number of points sampled on the
-    grid.
-
-    A sparse.COO is returned. This sparse matrix is of size (n_features,), where
-    n_features is given by get_number_of_features(). This vector is ordered so
-    that the different k-terms are ordered in ascending order, and within each
-    k-term the distributions at each entry (i, j, h) of the tensor are ordered
-    in an ascending order by (i * n_elements) + (j * n_elements) + (h *
-    n_elements).
-
-    This implementation does not support the use of a non-identity correlation
-    matrix.
+    distinguish the central species, one can for example train a different model
+    for each central species.
     """
-
     def __init__(
         self,
         geometry=None,
@@ -122,6 +67,82 @@ class LMBTR(DescriptorLocal):
     ):
         """
         Args:
+            geometry (dict): Setup the geometry function.
+                For example::
+
+                "geometry": {"function": "distance"}
+
+                The geometry function determines the degree :math:`k` for MBTR.
+                The order :math:`k` tells how many atoms are involved in the
+                calculation and thus also heavily influence the computational
+                time. 
+
+                The following geometry functions are available:
+
+                * :math:`k=2`
+                    * ``"distance"``: Pairwise distance in angstroms.
+                    * ``"inverse_distance"``: Pairwise inverse distance in 1/angstrom.
+                * :math:`k=3`
+                    * ``"angle"``: Angle in degrees.
+                    * ``"cosine"``: Cosine of the angle.
+
+            grid (dict): Setup the discretization grid.
+                For example::
+
+                "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50}
+
+                In the grid setup *min* is the minimum value of the axis, *max*
+                is the maximum value of the axis, *sigma* is the standard
+                deviation of the gaussian broadening and *n* is the number of
+                points sampled on the grid.
+
+            weighting (dict): Setup the weighting function and its parameters.
+                For example::
+
+                "weighting" : {"function": "exp", "r_cut": 10, "threshold": 1e-3}
+
+                The following weighting functions are available:
+
+                * :math:`k=2`
+                    * ``"unity"``: No weighting.
+                    * ``"exp"``: Weighting of the form :math:`e^{-sx}`
+                    * ``"inverse_square"``: Weighting of the form :math:`1/(x^2)`
+                * :math:`k=3`
+                    * ``"unity"``: No weighting.
+                    * ``"exp"``: Weighting of the form :math:`e^{-sx}`
+                    * ``"smooth_cutoff"``: Weighting of the form :math:`f_{ij}f_{ik}`,
+                        where :math:`f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}`
+
+                The meaning of :math:`x` changes for different terms as follows:
+
+                * For :math:`k=2`: :math:`x` = Distance between A->B
+                * For :math:`k=3`: :math:`x` = Distance from A->B->C->A.
+
+                The exponential weighting is motivated by the exponential decay
+                of screened Coulombic interactions in solids. In the exponential
+                weighting the parameters **threshold** determines the value of
+                the weighting function after which the rest of the terms will be
+                ignored. Either the parameter **scale** or **r_cut** can be used
+                to determine the parameter :math:`s`: **scale** directly
+                corresponds to this value whereas **r_cut** can be used to
+                indirectly determine it through :math:`s=-\log()`:.
+
+                The inverse square and smooth cutoff function weightings use a
+                cutoff parameter **r_cut**, which is a radial distance after
+                which the rest of the atoms will be ignored. For the smooth
+                cutoff function, additional weighting key **sharpness** can be
+                added, which changes the value of :math:`y`. If a value for it
+                is not provided, it defaults to `2`.
+
+            normalize_gaussians (bool): Determines whether the gaussians are
+                normalized to an area of 1. Defaults to True. If False, the
+                normalization factor is dropped and the gaussians have the form.
+                :math:`e^{-(x-\mu)^2/2\sigma^2}`
+            normalization (str): Determines the method for normalizing the
+                output. The available options are:
+
+                * ``"none"``: No normalization.
+                * ``"l2"``: Normalize the Euclidean length of the output to unity.
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
@@ -132,36 +153,6 @@ class LMBTR(DescriptorLocal):
             periodic (bool): Set to true if you want the descriptor output to
                 respect the periodicity of the atomic systems (see the
                 pbc-parameter in the constructor of ase.Atoms).
-            k2 (dict): Dictionary containing the setup for the k=2 term.
-                Contains setup for the used geometry function, discretization and
-                weighting function. For example::
-
-                    k2 = {
-                        "geometry": {"function": "inverse_distance"},
-                        "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50},
-                        "weighting": {"function": "exp", "scale": 0.75, "threshold": 1e-2}
-                    }
-
-            k3 (dict): Dictionary containing the setup for the k=3 term.
-                Contains setup for the used geometry function, discretization and
-                weighting function. For example::
-
-                    k3 = {
-                        "geometry": {"function": "angle"},
-                        "grid": {"min": 0, "max": 180, "sigma": 5, "n": 50},
-                        "weighting" = {"function": "exp", "scale": 0.5, "threshold": 1e-3}
-                    }
-            normalize_gaussians (bool): Determines whether the gaussians are
-                normalized to an area of 1. Defaults to True. If False, the
-                normalization factor is dropped and the gaussians have the form.
-                :math:`e^{-(x-\mu)^2/2\sigma^2}`
-            normalization (str): Determines the method for normalizing the
-                output. The available options are:
-
-                * "none": No normalization.
-                * "l2_each": Normalize the Euclidean length of each k-term
-                  individually to unity.
-
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
             dtype (str): The data type of the output. Valid options are:

@@ -10,13 +10,12 @@ It is advisable to first check out the :doc:`MBTR tutorial <mbtr>` to
 understand the basics of the MBTR framework. The differences compared to MBTR
 are:
 
-  - The :math:`k=1` term has been removed.
-  - A radial cutoff distance *r_cut* is used.
-  - In the grid setup, *min* is always 0 and *max* has the same value as *r_cut*.
+  - Only geometry functions :code:`distance` and :code:`angle` are available.
+  - A radial cutoff distance :code:`r_cut` is used.
+  - In the grid setup, :code:`min` is always 0 and :code:`max` has the same value as :code:`r_cut`.
   - Normalization and weighting are automatically set to their Valle-Oganov options.
-  - *periodic* is set to True: Valle-Oganov normalization doesn't support non-periodic systems.
-  - See below for how to set *k2* and *k3*.
-  - Parameters *species*, *flatten* and *sparse* work similarly to MBTR.
+  - :code:`periodic` is set to True: Valle-Oganov normalization doesn't support non-periodic systems.
+  - Parameters :code:`species` and :code:`sparse` work similarly to MBTR.
 
 Setup
 -----
@@ -24,15 +23,15 @@ Instantiating a Valle-Oganov descriptor can be done as follows:
 
 .. literalinclude:: ../../../../examples/valleoganov.py
    :language: python
-   :lines: 1-17
+   :lines: 1-11
 
 The arguments have the following effect:
 
 .. automethod:: dscribe.descriptors.valleoganov.ValleOganov.__init__
 
 In some publications, a grid parameter :math:`\Delta`, which signifies the
-width of the spacing, is used instead of *n*. However, here *n* is used in order
-to keep consistent with MBTR. The correlation between *n* and
+width of the spacing, is used instead of :code:`n`. However, here :code:`n` is used in order
+to keep consistent with MBTR. The correlation between :code:`n` and
 :math:`\Delta` is :math:`n=(max-min)/\Delta+1=(r_{cutoff})/\Delta+1`.
 
 Creation
@@ -50,8 +49,8 @@ The call syntax for the create-function is as follows:
 .. automethod:: dscribe.descriptors.mbtr.MBTR.create
    :noindex:
 
-The output will in this case be a numpy array with shape [#positions,
-#features]. The number of features may be requested beforehand with the
+The output will in this case be a numpy array with shape :code:`[n_positions, n_features]`.
+The number of features may be requested beforehand with the
 :meth:`~.ValleOganov.get_number_of_features`-method.
 
 Examples
@@ -68,7 +67,7 @@ visualized with matplotlib. Visualization works very similarly to MBTR.
 .. literalinclude:: ../../../../examples/valleoganov.py
    :start-after: Visualization
    :language: python
-   :lines: 1-37
+   :lines: 1-34
 
 .. figure:: /_static/img/vo_k2.png
    :width: 1144px
@@ -89,12 +88,12 @@ the MBTR class, would look like the following.
 .. literalinclude:: ../../../../examples/valleoganov.py
    :start-after: MBTR setup for the same structure and descriptor
    :language: python
-   :lines: 1-14
+   :lines: 1-13
 
 Side by side with MBTR output
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A graph of the output for the same structure created with different descriptors. Also demonstrates how the Valle-Oganov :ref:`normalization <norm-label>` for k2 term converges at 1.
+A graph of the output for the same structure created with different descriptors. Also demonstrates how the :ref:`Valle-Oganov normalization <norm-label>` for k2 term converges at 1.
 
 .. literalinclude:: ../../../../examples/valleoganov.py
    :start-after: Comparing to MBTR output

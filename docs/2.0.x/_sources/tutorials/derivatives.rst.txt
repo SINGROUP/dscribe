@@ -20,7 +20,7 @@ very similarly to the create function and the typical function call signature
 looks like this:
 
  - :code:`systems`: one or multiple atomic systems
- - :code:`positions`: (only for local descriptors) the positions at which the
+ - :code:`centers`: (only for local descriptors) the centers at which the
    descriptor is evaluated.
  - :code:`include`: Indices of the atoms which should be included in the
    derivative calculations. If no value is specified, all atoms will be used.
@@ -34,10 +34,10 @@ looks like this:
    available/implemented (check the descriptor documentation). The numerical
    derivatives are implemented with a centered finite difference scheme that
    has a good balance between accuracy and speed.
- - :code:`attach`: (only for local descriptors) controls the behaviour of positions
-   defined as atomic indices. If :code:`True`, the positions tied to an atomic index
+ - :code:`attach`: (only for local descriptors) controls the behaviour of centers
+   defined as atomic indices. If :code:`True`, the centers tied to an atomic index
    will move together with the atoms with respect to which the derivatives are
-   calculated against. If :code:`False`, positions defined as atomic indices will be
+   calculated against. If :code:`False`, centers defined as atomic indices will be
    converted into cartesian locations that are completely independent of the
    atom location during derivative calculation.
  - :code:`return_descriptor`: Whether or not to return the descriptor as well.

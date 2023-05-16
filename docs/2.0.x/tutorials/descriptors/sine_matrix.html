@@ -138,7 +138,6 @@ follows:</p>
     <span class="n">permutation</span><span class="o">=</span><span class="s2">&quot;sorted_l2&quot;</span><span class="p">,</span>
     <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
-
 </pre></div>
 </div>
 <p>The constructor takes the following parameters:</p>
@@ -237,13 +236,13 @@ is determined by the amount of systems.</p>
 </dl>
 </dd></dl>
 
-<p>Note that if you specify in <em>n_atoms_max</em> a lower number than atoms in your
+<p>Note that if you specify in <code class="code docutils literal notranslate"><span class="pre">n_atoms_max</span></code> a lower number than atoms in your
 structure it will cause an error. The output will in this case be a flattened
-matrix, specifically a numpy array with size #atoms * #atoms. The number of
+matrix, specifically a numpy array with size <code class="code docutils literal notranslate"><span class="pre">n_atoms</span> <span class="pre">*</span> <span class="pre">n_atoms</span></code>. The number of
 features may be requested beforehand with the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code>-method.</p>
+<a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptormatrix.DescriptorMatrix.get_number_of_features" title="dscribe.descriptors.descriptormatrix.DescriptorMatrix.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 <p>In the case of multiple samples, the creation can also be parallellized by using the
-<em>n_jobs</em>-parameter. This splits the list of structures into equally sized parts
+<code class="code docutils literal notranslate"><span class="pre">n_jobs</span></code>-parameter. This splits the list of structures into equally sized parts
 and spaws a separate process to handle each part.</p>
 </section>
 <section id="examples">

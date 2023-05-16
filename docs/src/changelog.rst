@@ -10,6 +10,7 @@ Changelog
     - Fixed:
         - Fixed issue in all atoms not being taken into account when using the :code:`smooth_cutoff` weighting of :code:`MBTR`.
     - Changed:
+        - Renamed the :code:`positions` argument of local descriptors to :code:`centers`.
         - The :code:`MBTR`, :code:`LMBTR` and :code:`ValleOganov` interfaces has been simplified so that only one term can be calculated at once.
     - Removed:
         - "unflattened" outputs from :code:`MBTR`, :code:`LMBTR`, :code:`CoulombMatrix`, :code:`EwaldSumMatrix` and :code:`SineMatrix`.

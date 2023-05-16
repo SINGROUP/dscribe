@@ -28,7 +28,7 @@ follows:
 
 .. literalinclude:: ../../../../examples/sinematrix.py
    :language: python
-   :lines: 1-9
+   :lines: 1-8
 
 The constructor takes the following parameters:
 
@@ -50,14 +50,14 @@ The call syntax for the create-function is as follows:
 .. automethod:: dscribe.descriptors.sinematrix.SineMatrix.create
    :noindex:
 
-Note that if you specify in *n_atoms_max* a lower number than atoms in your
+Note that if you specify in :code:`n_atoms_max` a lower number than atoms in your
 structure it will cause an error. The output will in this case be a flattened
-matrix, specifically a numpy array with size #atoms * #atoms. The number of
+matrix, specifically a numpy array with size :code:`n_atoms * n_atoms`. The number of
 features may be requested beforehand with the
-:meth:`~.MatrixDescriptor.get_number_of_features`-method.
+:meth:`~.DescriptorMatrix.get_number_of_features`-method.
 
 In the case of multiple samples, the creation can also be parallellized by using the
-*n_jobs*-parameter. This splits the list of structures into equally sized parts
+:code:`n_jobs`-parameter. This splits the list of structures into equally sized parts
 and spaws a separate process to handle each part.
 
 Examples

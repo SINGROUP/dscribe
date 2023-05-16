@@ -129,8 +129,7 @@ structure.</p>
 <section id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
 <p>Instantiating an MBTR descriptor can be done as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">MBTR</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">MBTR</span>
 
 <span class="c1"># Setup</span>
 <span class="n">mbtr</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
@@ -141,17 +140,6 @@ structure.</p>
     <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;l2&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-
-<span class="c1"># Create</span>
-<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
-
-<span class="n">water</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
-
-<span class="c1"># Create MBTR output for the system</span>
-<span class="n">mbtr_water</span> <span class="o">=</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The arguments have the following effect:</p>
@@ -161,49 +149,51 @@ structure.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>geometry</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Setup the geometry function. The geometry function
-determines the degree <span class="math notranslate nohighlight">\(k\)</span> for MBTR. The order <span class="math notranslate nohighlight">\(k\)</span>
-tells how many atoms are involved in the calculation and thus
-also heavily influence the computational time. For example:</p>
+<li><p><strong>geometry</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Setup the geometry function.
+For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;atomic_number&quot;</span><span class="p">}</span>
 </pre></div>
 </div>
+<p>The geometry function determines the degree <span class="math notranslate nohighlight">\(k\)</span> for MBTR.
+The order <span class="math notranslate nohighlight">\(k\)</span> tells how many atoms are involved in the
+calculation and thus also heavily influence the computational
+time.</p>
 <p>The following geometry functions are available:</p>
 <ul>
 <li><dl class="simple">
 <dt><span class="math notranslate nohighlight">\(k=1\)</span></dt><dd><ul>
-<li><p>”atomic_number”:  The atomic number.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;atomic_number&quot;</span></code>: The atomic number.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt><span class="math notranslate nohighlight">\(k=2\)</span></dt><dd><ul>
-<li><p>”distance”: Pairwise distance in angstroms.</p></li>
-<li><p>”inverse_distance”: Pairwise inverse distance in 1/angstrom.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;distance&quot;</span></code>: Pairwise distance in angstroms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;inverse_distance&quot;</span></code>: Pairwise inverse distance in 1/angstrom.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt><span class="math notranslate nohighlight">\(k=3\)</span></dt><dd><ul>
-<li><p>”angle”: Angle in degrees.</p></li>
-<li><p>”cosine”: Cosine of the angle.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;angle&quot;</span></code>: Angle in degrees.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cosine&quot;</span></code>: Cosine of the angle.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 </ul>
 </p></li>
-<li><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Setup the discretization grid. For example:</p>
+<li><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Setup the discretization grid.
+For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
-
-<span class="n">In</span> <span class="n">the</span> <span class="n">grid</span> <span class="n">setup</span> <span class="o">*</span><span class="nb">min</span><span class="o">*</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">minimum</span> <span class="n">value</span> <span class="n">of</span> <span class="n">the</span> <span class="n">axis</span><span class="p">,</span> <span class="o">*</span><span class="nb">max</span><span class="o">*</span>
-<span class="ow">is</span> <span class="n">the</span> <span class="n">maximum</span> <span class="n">value</span> <span class="n">of</span> <span class="n">the</span> <span class="n">axis</span><span class="p">,</span> <span class="o">*</span><span class="n">sigma</span><span class="o">*</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">standard</span>
-<span class="n">deviation</span> <span class="n">of</span> <span class="n">the</span> <span class="n">gaussian</span> <span class="n">broadening</span> <span class="ow">and</span> <span class="o">*</span><span class="n">n</span><span class="o">*</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span>
-<span class="n">points</span> <span class="n">sampled</span> <span class="n">on</span> <span class="n">the</span> <span class="n">grid</span><span class="o">.</span>
 </pre></div>
 </div>
+<p>In the grid setup <em>min</em> is the minimum value of the axis, <em>max</em>
+is the maximum value of the axis, <em>sigma</em> is the standard
+deviation of the gaussian broadening and <em>n</em> is the number of
+points sampled on the grid.</p>
 </p></li>
 <li><p><strong>weighting</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Setup the weighting function and its parameters.
 For example:</p>
@@ -214,26 +204,26 @@ For example:</p>
 <ul>
 <li><dl class="simple">
 <dt><span class="math notranslate nohighlight">\(k=1\)</span></dt><dd><ul>
-<li><p>”unity”: No weighting.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;unity&quot;</span></code>: No weighting.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt><span class="math notranslate nohighlight">\(k=2\)</span></dt><dd><ul>
-<li><p>”unity”: No weighting.</p></li>
-<li><p>”exp”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
-<li><p>”inverse_square”: Weighting of the form <span class="math notranslate nohighlight">\(1/(x^2)\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;unity&quot;</span></code>: No weighting.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;exp&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;inverse_square&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(1/(x^2)\)</span></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt><span class="math notranslate nohighlight">\(k=3\)</span></dt><dd><ul>
-<li><p>”unity”: No weighting.</p></li>
-<li><p>”exp”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;unity&quot;</span></code>: No weighting.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;exp&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
 <li><dl class="simple">
-<dt>”smooth_cutoff”: Weighting of the form <span class="math notranslate nohighlight">\(f_{ij}f_{ik}\)</span>,</dt><dd><p>where <span class="math notranslate nohighlight">\(f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}\)</span></p>
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;smooth_cutoff&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(f_{ij}f_{ik}\)</span>,</dt><dd><p>where <span class="math notranslate nohighlight">\(f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}\)</span></p>
 </dd>
 </dl>
 </li>
@@ -269,12 +259,12 @@ normalization factor is dropped and the gaussians have the form.
 <li><p><strong>normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>Determines the method for normalizing the
 output. The available options are:</p>
 <ul>
-<li><p>”none”: No normalization.</p></li>
-<li><p>”l2”: Normalize the Euclidean length of the output to unity.</p></li>
-<li><p>”n_atoms”: Normalize the output by dividing it with the number
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>: No normalization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;l2&quot;</span></code>: Normalize the Euclidean length of the output to unity.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;n_atoms&quot;</span></code>: Normalize the output by dividing it with the number
 of atoms in the system. If the system is periodic, the number
 of atoms is determined from the given unit cell.</p></li>
-<li><p>”valle_oganov”: Use Valle-Oganov descriptor normalization, with
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;valle_oganov&quot;</span></code>: Use Valle-Oganov descriptor normalization, with
 system cell volume and numbers of different atoms in the cell.</p></li>
 </ul>
 </p></li>
@@ -301,15 +291,12 @@ dense numpy array.</p></li>
 </dl>
 </dd></dl>
 
-<p>For each k-body term the MBTR class takes in a setup as a dictionary. This
-dictionary should contain three parts: the geometry function, the grid and the
-weighting function. The geometry function specifies how the k-body information
-is encoded. The grid specifies the expected range of the geometry values
-through the <em>min</em> and <em>max</em> keys. The amount of discretization points is
-specified with key <em>n</em> and the gaussian smoothing width is specified through
-the key <em>sigma</em>. The weighting function specifies if and how the different
-terms should be weighted. Currently the following geometry and weighting
-functions are available:</p>
+<p>Most noteworthy is that the geometry function determines the degree <span class="math notranslate nohighlight">\(k\)</span> of
+MBTR. This degree directly determines how many atoms need to be taken into
+account when calculating the MBTR values (e.g. <span class="math notranslate nohighlight">\(k=2\)</span> means that each pair
+of atoms contributes to MBTR). Here is a brief summary of the currently
+supported geometry functions and their weighting functions for each degree
+<span class="math notranslate nohighlight">\(k\)</span>:</p>
 <table class="docutils align-default" id="id17">
 <caption><span class="caption-text">The geometry and weighting functions</span><a class="headerlink" href="#id17" title="Permalink to this table"></a></caption>
 <colgroup>
@@ -325,28 +312,28 @@ functions are available:</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><span class="math notranslate nohighlight">\(k=1\)</span></p></td>
-<td><p>“atomic_number”: The atomic numbers.</p></td>
-<td><p>“unity”: No weighting.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;atomic_number&quot;</span></code>: The atomic numbers.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;unity&quot;</span></code>: No weighting.</p></td>
 </tr>
 <tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(k=2\)</span></p></td>
-<td><p>“distance”: Pairwise distance in angstroms.</p>
-<p>“inverse_distance”: Pairwise inverse distance in 1/angstrom.</p>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;distance&quot;</span></code>: Pairwise distance in angstroms.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;inverse_distance&quot;</span></code>: Pairwise inverse distance in 1/angstrom.</p>
 </td>
-<td><p>“unity”: No weighting.</p>
-<p>“exp”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>,
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;unity&quot;</span></code>: No weighting.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;exp&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>,
 where <cite>x</cite> is the distance between the two atoms.</p>
-<p>“inverse_square”: Weighting of the form <span class="math notranslate nohighlight">\(1/(x^2)\)</span>,
+<p><code class="docutils literal notranslate"><span class="pre">&quot;inverse_square&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(1/(x^2)\)</span>,
 where <cite>x</cite> is the distance between the two atoms.</p>
 </td>
 </tr>
 <tr class="row-even"><td><p><span class="math notranslate nohighlight">\(k=3\)</span></p></td>
-<td><p>“angle”: Angle in degrees.</p>
-<p>“cosine”: Cosine of the angle.</p>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;angle&quot;</span></code>: Angle in degrees.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;cosine&quot;</span></code>: Cosine of the angle.</p>
 </td>
-<td><p>“unity”: No weighting.</p>
-<p>“exp”: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>,
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;unity&quot;</span></code>: No weighting.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;exp&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span>,
 where <cite>x</cite> is the perimeter of the triangle formed by the tree atoms.</p>
-<p>“smooth_cutoff”: Weighting of the form <span class="math notranslate nohighlight">\(f_{ij}f_{ik}\)</span> defined by
+<p><code class="docutils literal notranslate"><span class="pre">&quot;smooth_cutoff&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(f_{ij}f_{ik}\)</span> defined by
 <span class="math notranslate nohighlight">\(f = 1+y(x/r_{cutoff})^{y+1}-(y+1)(x/r_{cutoff})^{y}\)</span>, where <cite>x</cite>
 is the distance between two atoms, <span class="math notranslate nohighlight">\(r_{cutoff}\)</span> is the radial
 cutoff distance and y is a sharpness parameter which defaults to <cite>2</cite>.</p>
@@ -403,8 +390,8 @@ depends on the ‘sparse’ attribute.</p>
 </dl>
 </dd></dl>
 
-<p>The output will in this case be a numpy array with shape [#positions,
-#features]. The number of features may be requested beforehand with the
+<p>The output will in this case be a numpy array with shape <code class="code docutils literal notranslate"><span class="pre">[n_positions,</span> <span class="pre">n_features]</span></code>.
+The number of features may be requested beforehand with the
 <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features" title="dscribe.descriptors.mbtr.MBTR.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 </section>
 <section id="examples">
@@ -413,7 +400,7 @@ depends on the ‘sparse’ attribute.</p>
 examples are also available in dscribe/examples/mbtr.py.</p>
 <section id="locating-information">
 <h3>Locating information<a class="headerlink" href="#locating-information" title="Permalink to this heading"></a></h3>
-<p>If the MBTR setup has been specified with <em>flatten=True</em>, the output is
+<p>If the MBTR setup has been specified with <code class="code docutils literal notranslate"><span class="pre">flatten=True</span></code>, the output is
 flattened into a single vector and it can become difficult to identify which
 parts correspond to which element combinations. To overcome this, the MBTR class
 provides the <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_location" title="dscribe.descriptors.mbtr.MBTR.get_location"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_location()</span></code></a>-method. This method can be used to
@@ -425,10 +412,6 @@ example demonstrates its usage.</p>
 <span class="c1"># These locations can be directly used to slice the corresponding part from an</span>
 <span class="c1"># MBTR output for e.g. plotting.</span>
 <span class="n">mbtr_water</span><span class="p">[</span><span class="n">ho_loc</span><span class="p">]</span>
-
-<span class="c1"># Visualization</span>
-<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">mpl</span>
 </pre></div>
 </div>
 </section>
@@ -468,9 +451,6 @@ demonstrates how the output for <span class="math notranslate nohighlight">\(k=2
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Inverse distance (1/angstrom)&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="c1"># Finite</span>
-<span class="n">desc</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
 </pre></div>
 </div>
 <figure class="align-center" id="id18">
@@ -483,7 +463,7 @@ identical arrangement in the crystal.</span><a class="headerlink" href="#id18" t
 </section>
 <section id="finite-systems">
 <h3>Finite systems<a class="headerlink" href="#finite-systems" title="Permalink to this heading"></a></h3>
-<p>For finite systems we have to specify <em>periodic=False</em> in the constructor. Finite
+<p>For finite systems we have to specify <code class="code docutils literal notranslate"><span class="pre">periodic=False</span></code> in the constructor. Finite
 systems can not have Valle-Oganov normalization, and an exception is raised if that is
 given. The need to apply weighting depends on the size of the system: for small
 systems, such as small molecules, the benefits are small. However for larger systems,
@@ -516,12 +496,6 @@ demonstrates both approaches.</p>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">output_weight</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Exponential weighting&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="c1"># Geometry functions</span>
-
-<span class="c1"># Periodic</span>
-<span class="n">desc</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
-    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">],</span>
 </pre></div>
 </div>
 <figure class="align-center" id="id19">
@@ -548,15 +522,10 @@ property and the machine learning algorithm.</p>
 <em>extensive</em> - scales with the system size - and there is no need to weight
 the importance of the different <span class="math notranslate nohighlight">\(k\)</span>-terms, then no normalization
 should be performed.</p></li>
-<li><p><strong>“l2_each”</strong>: Each <span class="math notranslate nohighlight">\(k\)</span>-term is individually scaled to unit Euclidean
-norm. As the amount of features in the <span class="math notranslate nohighlight">\(k=1\)</span> term scales linearly with
-number of species, <span class="math notranslate nohighlight">\(k=2\)</span> quadratically and <span class="math notranslate nohighlight">\(k=3\)</span> cubically, the
-norm can get dominated by the highest <span class="math notranslate nohighlight">\(k\)</span>-term. To equalize the
-importance of different terms, each <span class="math notranslate nohighlight">\(k\)</span>-term can be individually
-scaled to unit Euclidean norm. This option can be used if the predicted
-quantity is <em>intensive</em> - does not scale with the system size, and if the
-learning method uses the Euclidean norm to determine the similarity of
-inputs.</p></li>
+<li><p><strong>“l2”</strong>: Output is scaled to unit Euclidean norm. This option can be used if
+the predicted quantity is <em>intensive</em> - does not scale with the system size,
+and if the learning method uses the Euclidean norm to determine the
+similarity of inputs.</p></li>
 <li><p><strong>“n_atoms”</strong>: The whole output is divided by the number of atoms in the
 system. If the system is periodic, the number of atoms is determined from
 the given system cell. This form of normalization does also make the output
@@ -574,7 +543,7 @@ reasonable values of <span class="math notranslate nohighlight">\(sigma\)</span>
 </section>
 <section id="periodic-systems">
 <h3>Periodic systems<a class="headerlink" href="#periodic-systems" title="Permalink to this heading"></a></h3>
-<p>When applying MBTR to periodic systems, use <em>periodic=True</em> in the constructor.
+<p>When applying MBTR to periodic systems, use <code class="code docutils literal notranslate"><span class="pre">periodic=True</span></code> in the constructor.
 For periodic systems a weighting function needs to be defined, and an exception
 is raised if it is not given. The weighting essentially determines how many
 periodic copies of the cell we need to include in the calculation, and without
@@ -589,16 +558,8 @@ demonstrates how to apply MBTR on a periodic crystal:</p>
     <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 
-
 <span class="n">a1</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
 <span class="n">output</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span>
-
-<span class="c1"># Supercells</span>
-<span class="n">a1</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>                     <span class="c1"># Primitive</span>
-<span class="n">a2</span> <span class="o">=</span> <span class="n">a1</span><span class="o">*</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>                                <span class="c1"># Supercell</span>
-<span class="n">a3</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">orthorhombic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Orthorhombic</span>
-<span class="n">a4</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">cubic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>         <span class="c1"># Conventional cubic</span>
-
 </pre></div>
 </div>
 <p>A problem with periodic crystals that is not directly solved by the MBTR
@@ -623,6 +584,8 @@ demonstrates this for different cells representing the same crystal:</p>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;2x2 supercell&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Orthorhombic cell&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Conventional cubic cell&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 <figure class="align-center" id="id20">
@@ -644,13 +607,15 @@ cells representing the same material:</p>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;2x2 supercell&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Orthorhombic cell&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="p">:],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Conventional cubic cell&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 <figure class="align-center" id="id21">
 <a class="reference internal image-reference" href="../../_images/mbtr_periodic_normalized.png"><img alt="MBTR normalized" src="../../_images/mbtr_periodic_normalized.png" style="width: 686.4px; height: 463.2px;" /></a>
 <figcaption>
 <p><span class="caption-text">The normalized MBTR output for different cells representing the same
-crystal. After normalising the output with <em>normalization=’l2_each’</em>,
+crystal. After normalising the output with <code class="code docutils literal notranslate"><span class="pre">normalization='l2_each'</span></code>,
 the outputs become identical.</span><a class="headerlink" href="#id21" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>

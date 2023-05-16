@@ -230,25 +230,29 @@
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            geometry (dict): Setup the geometry function. The geometry function</span>
-<span class="sd">                determines the degree :math:`k` for MBTR. The order :math:`k`</span>
-<span class="sd">                tells how many atoms are involved in the calculation and thus</span>
-<span class="sd">                also heavily influence the computational time. For example::</span>
+<span class="sd">            geometry (dict): Setup the geometry function.</span>
+<span class="sd">                For example::</span>
 
 <span class="sd">                &quot;geometry&quot;: {&quot;function&quot;: &quot;atomic_number&quot;}</span>
+
+<span class="sd">                The geometry function determines the degree :math:`k` for MBTR.</span>
+<span class="sd">                The order :math:`k` tells how many atoms are involved in the</span>
+<span class="sd">                calculation and thus also heavily influence the computational</span>
+<span class="sd">                time. </span>
 
 <span class="sd">                The following geometry functions are available:</span>
 
 <span class="sd">                * :math:`k=1`</span>
-<span class="sd">                    * &quot;atomic_number&quot;:  The atomic number.</span>
+<span class="sd">                    * ``&quot;atomic_number&quot;``: The atomic number.</span>
 <span class="sd">                * :math:`k=2`</span>
-<span class="sd">                    * &quot;distance&quot;: Pairwise distance in angstroms.</span>
-<span class="sd">                    * &quot;inverse_distance&quot;: Pairwise inverse distance in 1/angstrom.</span>
+<span class="sd">                    * ``&quot;distance&quot;``: Pairwise distance in angstroms.</span>
+<span class="sd">                    * ``&quot;inverse_distance&quot;``: Pairwise inverse distance in 1/angstrom.</span>
 <span class="sd">                * :math:`k=3`</span>
-<span class="sd">                    * &quot;angle&quot;: Angle in degrees.</span>
-<span class="sd">                    * &quot;cosine&quot;: Cosine of the angle.</span>
+<span class="sd">                    * ``&quot;angle&quot;``: Angle in degrees.</span>
+<span class="sd">                    * ``&quot;cosine&quot;``: Cosine of the angle.</span>
 
-<span class="sd">            grid (dict): Setup the discretization grid. For example::</span>
+<span class="sd">            grid (dict): Setup the discretization grid.</span>
+<span class="sd">                For example::</span>
 
 <span class="sd">                &quot;grid&quot;: {&quot;min&quot;: 0.1, &quot;max&quot;: 2, &quot;sigma&quot;: 0.1, &quot;n&quot;: 50}</span>
 
@@ -265,15 +269,15 @@
 <span class="sd">                The following weighting functions are available:</span>
 
 <span class="sd">                * :math:`k=1`</span>
-<span class="sd">                    * &quot;unity&quot;: No weighting.</span>
+<span class="sd">                    * ``&quot;unity&quot;``: No weighting.</span>
 <span class="sd">                * :math:`k=2`</span>
-<span class="sd">                    * &quot;unity&quot;: No weighting.</span>
-<span class="sd">                    * &quot;exp&quot;: Weighting of the form :math:`e^{-sx}`</span>
-<span class="sd">                    * &quot;inverse_square&quot;: Weighting of the form :math:`1/(x^2)`</span>
+<span class="sd">                    * ``&quot;unity&quot;``: No weighting.</span>
+<span class="sd">                    * ``&quot;exp&quot;``: Weighting of the form :math:`e^{-sx}`</span>
+<span class="sd">                    * ``&quot;inverse_square&quot;``: Weighting of the form :math:`1/(x^2)`</span>
 <span class="sd">                * :math:`k=3`</span>
-<span class="sd">                    * &quot;unity&quot;: No weighting.</span>
-<span class="sd">                    * &quot;exp&quot;: Weighting of the form :math:`e^{-sx}`</span>
-<span class="sd">                    * &quot;smooth_cutoff&quot;: Weighting of the form :math:`f_{ij}f_{ik}`,</span>
+<span class="sd">                    * ``&quot;unity&quot;``: No weighting.</span>
+<span class="sd">                    * ``&quot;exp&quot;``: Weighting of the form :math:`e^{-sx}`</span>
+<span class="sd">                    * ``&quot;smooth_cutoff&quot;``: Weighting of the form :math:`f_{ij}f_{ik}`,</span>
 <span class="sd">                        where :math:`f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}`</span>
 
 <span class="sd">                The meaning of :math:`x` changes for different terms as follows:</span>
@@ -304,12 +308,12 @@
 <span class="sd">            normalization (str): Determines the method for normalizing the</span>
 <span class="sd">                output. The available options are:</span>
 
-<span class="sd">                * &quot;none&quot;: No normalization.</span>
-<span class="sd">                * &quot;l2&quot;: Normalize the Euclidean length of the output to unity.</span>
-<span class="sd">                * &quot;n_atoms&quot;: Normalize the output by dividing it with the number</span>
+<span class="sd">                * ``&quot;none&quot;``: No normalization.</span>
+<span class="sd">                * ``&quot;l2&quot;``: Normalize the Euclidean length of the output to unity.</span>
+<span class="sd">                * ``&quot;n_atoms&quot;``: Normalize the output by dividing it with the number</span>
 <span class="sd">                  of atoms in the system. If the system is periodic, the number</span>
 <span class="sd">                  of atoms is determined from the given unit cell.</span>
-<span class="sd">                * &quot;valle_oganov&quot;: Use Valle-Oganov descriptor normalization, with</span>
+<span class="sd">                * ``&quot;valle_oganov&quot;``: Use Valle-Oganov descriptor normalization, with</span>
 <span class="sd">                  system cell volume and numbers of different atoms in the cell.</span>
 <span class="sd">            species (iterable): The chemical species as a list of atomic</span>
 <span class="sd">                numbers or as a list of chemical symbols. Notice that this is not</span>

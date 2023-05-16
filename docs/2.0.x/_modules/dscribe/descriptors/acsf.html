@@ -173,18 +173,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">r_cut</span> <span class="o">=</span> <span class="n">r_cut</span></div>
 
 <div class="viewcode-block" id="ACSF.create"><a class="viewcode-back" href="../../../tutorials/descriptors/acsf.html#dscribe.descriptors.acsf.ACSF.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ACSF output for the given systems and given positions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ACSF output for the given systems and given centers.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
 <span class="sd">                many atomic structures.</span>
-<span class="sd">            positions (list): Positions where to calculate ACSF. Can be</span>
+<span class="sd">            centers (list): Centers where to calculate ACSF. Can be</span>
 <span class="sd">                provided as cartesian positions or atomic indices. If no</span>
-<span class="sd">                positions are defined, the output will be created for all</span>
+<span class="sd">                centers are defined, the output will be created for all</span>
 <span class="sd">                atoms in the system. When calculating output for multiple</span>
-<span class="sd">                systems, provide the positions as a list for each system.</span>
+<span class="sd">                systems, provide the centers as a list for each system.</span>
 <span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
 <span class="sd">                the calculation across samples. Defaults to serial calculation</span>
 <span class="sd">                with n_jobs=1. If a negative number is given, the used cpus</span>
@@ -200,26 +200,26 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray | sparse.COO: The ACSF output for the given</span>
-<span class="sd">            systems and positions. The return type depends on the</span>
+<span class="sd">            systems and centers. The return type depends on the</span>
 <span class="sd">            &#39;sparse&#39;-attribute. The first dimension is determined by the amount</span>
-<span class="sd">            of positions and systems and the second dimension is determined by</span>
+<span class="sd">            of centers and systems and the second dimension is determined by</span>
 <span class="sd">            the get_number_of_features()-function. When multiple systems are</span>
 <span class="sd">            provided the results are ordered by the input order of systems and</span>
-<span class="sd">            their positions.</span>
+<span class="sd">            their centers.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Validate input / combine input arguments</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">Atoms</span><span class="p">):</span>
             <span class="n">system</span> <span class="o">=</span> <span class="p">[</span><span class="n">system</span><span class="p">]</span>
-            <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">positions</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="p">[</span><span class="n">centers</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">inp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i_sys</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i_sys</span> <span class="ow">in</span> <span class="n">system</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">inp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="p">))</span>
+            <span class="n">inp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">))</span>
 
         <span class="c1"># Determine if the outputs have a fixed size</span>
         <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
         <span class="n">static_size</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">n_centers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">first_sample</span><span class="p">,</span> <span class="n">first_pos</span> <span class="o">=</span> <span class="n">inp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -230,7 +230,7 @@
 
         <span class="k">def</span> <span class="nf">is_static</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">i_job</span> <span class="ow">in</span> <span class="n">inp</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i_job</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="n">n_centers</span><span class="p">:</span>
                         <span class="k">return</span> <span class="kc">False</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -257,18 +257,18 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="ACSF.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ACSF.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates the descriptor for the given system.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
-<span class="sd">            positions (iterable): Indices of the atoms around which the ACSF</span>
-<span class="sd">                will be returned. If no positions defined, ACSF will be created</span>
+<span class="sd">            centers (iterable): Indices of the atoms around which the ACSF</span>
+<span class="sd">                will be returned. If no centers defined, ACSF will be created</span>
 <span class="sd">                for all atoms in the system.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            np.ndarray: The ACSF output for the given system and positions. The</span>
-<span class="sd">            first dimension is given by the number of positions and the second</span>
+<span class="sd">            np.ndarray: The ACSF output for the given system and centers. The</span>
+<span class="sd">            first dimension is given by the number of centers and the second</span>
 <span class="sd">            dimension is determined by the get_number_of_features()-function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check if there are types that have not been declared</span>
@@ -277,11 +277,11 @@
         <span class="c1"># Create C-compatible list of atomic indices for which the ACSF is</span>
         <span class="c1"># calculated</span>
         <span class="n">calculate_all</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">positions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">calculate_all</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">indices</span> <span class="o">=</span> <span class="n">positions</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">centers</span>
 
         <span class="c1"># If periodicity is not requested, and the output is requested for all</span>
         <span class="c1"># atoms, we skip all the intricate optimizations that will make things</span>

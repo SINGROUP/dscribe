@@ -103,7 +103,6 @@ desc = MBTR(
     sparse=False,
 )
 
-
 a1 = bulk('H', 'fcc', a=2.0)
 output = desc.create(a1)
 

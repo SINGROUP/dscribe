@@ -60,7 +60,7 @@ follows:
 
 .. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
-   :lines: 1-11
+   :lines: 1-4
 
 The constructor takes the following parameters:
 
@@ -75,21 +75,21 @@ After CM has been set up, it may be used on atomic structures with the
 .. literalinclude:: ../../../../examples/coulombmatrix.py
    :start-after: Creation
    :language: python
-   :lines: 1-15
+   :lines: 6-14
 
 The call syntax for the create-function is as follows:
 
 .. automethod:: dscribe.descriptors.coulombmatrix.CoulombMatrix.create
    :noindex:
 
-Note that if you specify in *n_atoms_max* a lower number than atoms in your
+Note that if you specify in :code:`n_atoms_max` a lower number than atoms in your
 structure it will cause an error. The output will in this case be a flattened
-matrix, specifically a numpy array with size #atoms * #atoms. The number of
+matrix, specifically a numpy array with size :code:`n_atoms * n_atoms`. The number of
 features may be requested beforehand with the
-:meth:`~.MatrixDescriptor.get_number_of_features`-method.
+:meth:`~.DescriptorMatrix.get_number_of_features`-method.
 
 In the case of multiple samples, the creation can also be parallellized by using the
-*n_jobs*-parameter. This splits the list of structures into equally sized parts
+:code:`n_jobs`-parameter. This splits the list of structures into equally sized parts
 and spaws a separate process to handle each part.
 
 Examples
@@ -115,7 +115,7 @@ invariance. See :cite:`cm_versions` for more information on these methods.
 
 .. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
-   :start-after: No sorting
+   :start-at: No sorting
    :lines: 1-37
 
 - **sorted_l2 (default)**: Sorts rows and columns by their L2-norm.
@@ -125,18 +125,19 @@ invariance. See :cite:`cm_versions` for more information on these methods.
   scramble the rows and columns completely randomly. The rows and columns are
   sorted by their L2-norm  after applying Gaussian noise to the norms. The
   standard deviation of the noise is determined by the additionally required
-  *sigma*-parameter. *sigma* determines the standard deviation of the gaussian
-  distributed noise determining how much the rows and columns of the randomly
-  sorted matrix are scrambled. Feel free to try different *sigma* values to
-  see the effect on the ordering. Optionally, you can specify a random *seed*.
-  *sigma* and *seed* are ignored if *permutation* is other than "random". This
-  option is useful if you want to augment your dataset, similar to augmented
-  image datasets where each image gets mirrored, rotated, cropped or otherwise
-  transformed. You would need to create several instances of the randomly
-  sorted CM in a loop. The advantage of augmenting data like this over using
-  completely random CM lies in the lower number of "likely permutations". Rows
-  and columns of the CM are allowed to flip just so that the feature space
-  (all possible CM) is smooth but also compact.
+  :code:`sigma`-parameter. :code:`sigma` determines the standard deviation of
+  the gaussian distributed noise determining how much the rows and columns of
+  the randomly sorted matrix are scrambled. Feel free to try different
+  :code:`sigma` values to see the effect on the ordering. Optionally, you can
+  specify a random :code:`seed`.  :code:`sigma` and :code:`seed` are ignored if
+  :code:`permutation`` is other than :code:`random`. This option is useful if
+  you want to augment your dataset, similar to augmented image datasets where
+  each image gets mirrored, rotated, cropped or otherwise transformed. You would
+  need to create several instances of the randomly sorted CM in a loop. The
+  advantage of augmenting data like this over using completely random CM lies in
+  the lower number of "likely permutations". Rows and columns of the CM are
+  allowed to flip just so that the feature space (all possible CM) is smooth but
+  also compact.
 - **eigenspectrum**: Only the eigenvalues of the matrix are returned sorted by
   their absolute value in descending order. On one hand, it is a more compact
   descriptor, but on the other hand, it potentially loses information encoded
@@ -144,17 +145,15 @@ invariance. See :cite:`cm_versions` for more information on these methods.
 
 Zero-padding
 ~~~~~~~~~~~~~
-The number of features in CM depends on the size of the system. Since most
-machine learning methods require size-consistent inputs it is convenient to
-define the maximum number of atoms *n_atoms_max* in a dataset. If the structure
-has fewer atoms, the rest of the CM will be zero-padded. One can imagine
-non-interacting ghost atoms as place-holders to ensure the same number of atoms
-in every system.
+The number of non-zero features in CM depends on the size of the system. If the
+structure has fewer atoms than :code:`n_atoms_max`, the rest of the CM will be
+zero-padded. One can imagine non-interacting ghost atoms as place-holders to
+ensure the same number of atoms in every system.
 
 .. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
-   :start-after: Zero-padding
-   :lines: 1-7
+   :start-at: Zero-padding
+   :lines: 1-6
 
 Not meant for periodic systems
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -163,8 +162,8 @@ conditions, you will see that it does not change the elements.
 
 .. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
-   :start-after: Not meant for periodic systems
-   :lines: 1-12
+   :start-at: Not meant for periodic systems
+   :lines: 1-11
 
 Instead, the :doc:`Sine Matrix <sine_matrix>` and the :doc:`Ewald Sum Matrix
 <ewald_sum_matrix>` have been designed as periodic counterparts to the CM.
@@ -178,7 +177,7 @@ following lines confirm that this is true for CM.
 
 .. literalinclude:: ../../../../examples/coulombmatrix.py
    :language: python
-   :start-after: Invariance
+   :start-at: Invariance
    :lines: 1-20
 
 .. bibliography:: ../../references.bib

@@ -5,10 +5,10 @@ modification of MBTR for local environments. It is advisable to first check out
 the :doc:`MBTR tutorial <mbtr>` to understand the basics of the MBTR framework. The main
 differences compared to MBTR are:
 
-  - The :math:`k=1` term has been removed. Encoding the species present within
+  - Only geometry functions with degree :math:`k>1` are available. Encoding the species present within
     a local region is quite tricky, and would essentially require some kind of
-    distance information to weight their contribution correctly, making the
-    :math:`k=1` term more closer to :math:`k=2` term.
+    distance information to weight the contribution of species correctly, making any 
+    :math:`k=1` geometry function more closer to :math:`k=2`.
   - LMBTR uses the chemical species X (atomic number 0) for the central
     position. This makes it possible to also encode spatial locations that are
     not centered at any particular atom. It does however mean that you should
@@ -26,7 +26,7 @@ Instantiating an LMBTR descriptor can be done as follows:
 
 .. literalinclude:: ../../../../examples/lmbtr.py
    :language: python
-   :lines: 1-22
+   :lines: 2-14
 
 The arguments have the following effect:
 
@@ -48,9 +48,8 @@ The call syntax for the create-function is as follows:
 .. automethod:: dscribe.descriptors.lmbtr.LMBTR.create
    :noindex:
 
-The output will in this case be a numpy array with shape [#positions,
-#features]. The number of features may be requested beforehand with the
-:meth:`~.LMBTR.get_number_of_features`-method.
+The output will in this case be a numpy array with shape :code:`[n_positions, n_features]`.
+The number of features may be requested beforehand with the :meth:`~.LMBTR.get_number_of_features`-method.
 
 Examples
 --------
@@ -66,14 +65,14 @@ sites on this surface: top, bridge, hcp and fcc.
 .. literalinclude:: ../../../../examples/lmbtr.py
    :language: python
    :start-after: Surface sites
-   :lines: 1-13
+   :lines: 1-12
 
 These four sites are described by LMBTR with pairwise :math:`k=2` term.
 
 .. literalinclude:: ../../../../examples/lmbtr.py
    :language: python
    :start-after: Surface sites
-   :lines: 16-32
+   :lines: 14-28
 
 Plotting the output from these sites reveals the different patterns in these
 sites.
@@ -81,7 +80,7 @@ sites.
 .. literalinclude:: ../../../../examples/lmbtr.py
    :language: python
    :start-after: Surface sites
-   :lines: 34-
+   :lines: 30-
 
 .. figure:: /_static/img/sites.png
    :width: 640px

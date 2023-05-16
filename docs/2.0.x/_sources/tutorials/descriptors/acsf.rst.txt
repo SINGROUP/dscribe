@@ -60,9 +60,8 @@ The call syntax for the create-function is as follows:
 .. automethod:: dscribe.descriptors.acsf.ACSF.create
    :noindex:
 
-The output will in this case be a numpy array with shape [#positions,
-#features]. The number of features may be requested beforehand with the
-:meth:`~.ACSF.get_number_of_features`-method.
+The output will in this case be a numpy array with shape :code:`[n_positions, n_features]`.
+The number of features may be requested beforehand with the :meth:`~.ACSF.get_number_of_features`-method.
 
 .. bibliography:: ../../references.bib
    :style: unsrt

@@ -37,9 +37,9 @@ class ValleOganov(MBTR):
                 The following geometry functions are available:
 
                 * :math:`k=2`
-                    * "distance": Pairwise distance in angstroms.
+                    * ``"distance"``: Pairwise distance in angstroms.
                 * :math:`k=3`
-                    * "angle": Angle in degrees.
+                    * ``"angle"``: Angle in degrees.
 
             n (int): Number of discretization points.
             sigma (float): Standard deviation of the gaussian broadening

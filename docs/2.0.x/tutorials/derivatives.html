@@ -121,7 +121,7 @@ looks like this:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">systems</span></code>: one or multiple atomic systems</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">positions</span></code>: (only for local descriptors) the positions at which the
+<li><p><code class="code docutils literal notranslate"><span class="pre">centers</span></code>: (only for local descriptors) the centers at which the
 descriptor is evaluated.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">include</span></code>: Indices of the atoms which should be included in the
 derivative calculations. If no value is specified, all atoms will be used.</p></li>
@@ -135,10 +135,10 @@ preferred, since they are faster to compute. However, they are not always
 available/implemented (check the descriptor documentation). The numerical
 derivatives are implemented with a centered finite difference scheme that
 has a good balance between accuracy and speed.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">attach</span></code>: (only for local descriptors) controls the behaviour of positions
-defined as atomic indices. If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, the positions tied to an atomic index
+<li><p><code class="code docutils literal notranslate"><span class="pre">attach</span></code>: (only for local descriptors) controls the behaviour of centers
+defined as atomic indices. If <code class="code docutils literal notranslate"><span class="pre">True</span></code>, the centers tied to an atomic index
 will move together with the atoms with respect to which the derivatives are
-calculated against. If <code class="code docutils literal notranslate"><span class="pre">False</span></code>, positions defined as atomic indices will be
+calculated against. If <code class="code docutils literal notranslate"><span class="pre">False</span></code>, centers defined as atomic indices will be
 converted into cartesian locations that are completely independent of the
 atom location during derivative calculation.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">return_descriptor</span></code>: Whether or not to return the descriptor as well.

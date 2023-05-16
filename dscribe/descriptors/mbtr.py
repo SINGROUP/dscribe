@@ -146,25 +146,29 @@ class MBTR(DescriptorGlobal):
     ):
         """
         Args:
-            geometry (dict): Setup the geometry function. The geometry function
-                determines the degree :math:`k` for MBTR. The order :math:`k`
-                tells how many atoms are involved in the calculation and thus
-                also heavily influence the computational time. For example::
+            geometry (dict): Setup the geometry function.
+                For example::
 
                 "geometry": {"function": "atomic_number"}
+
+                The geometry function determines the degree :math:`k` for MBTR.
+                The order :math:`k` tells how many atoms are involved in the
+                calculation and thus also heavily influence the computational
+                time. 
 
                 The following geometry functions are available:
 
                 * :math:`k=1`
-                    * "atomic_number":  The atomic number.
+                    * ``"atomic_number"``: The atomic number.
                 * :math:`k=2`
-                    * "distance": Pairwise distance in angstroms.
-                    * "inverse_distance": Pairwise inverse distance in 1/angstrom.
+                    * ``"distance"``: Pairwise distance in angstroms.
+                    * ``"inverse_distance"``: Pairwise inverse distance in 1/angstrom.
                 * :math:`k=3`
-                    * "angle": Angle in degrees.
-                    * "cosine": Cosine of the angle.
+                    * ``"angle"``: Angle in degrees.
+                    * ``"cosine"``: Cosine of the angle.
 
-            grid (dict): Setup the discretization grid. For example::
+            grid (dict): Setup the discretization grid.
+                For example::
 
                 "grid": {"min": 0.1, "max": 2, "sigma": 0.1, "n": 50}
 
@@ -181,15 +185,15 @@ class MBTR(DescriptorGlobal):
                 The following weighting functions are available:
 
                 * :math:`k=1`
-                    * "unity": No weighting.
+                    * ``"unity"``: No weighting.
                 * :math:`k=2`
-                    * "unity": No weighting.
-                    * "exp": Weighting of the form :math:`e^{-sx}`
-                    * "inverse_square": Weighting of the form :math:`1/(x^2)`
+                    * ``"unity"``: No weighting.
+                    * ``"exp"``: Weighting of the form :math:`e^{-sx}`
+                    * ``"inverse_square"``: Weighting of the form :math:`1/(x^2)`
                 * :math:`k=3`
-                    * "unity": No weighting.
-                    * "exp": Weighting of the form :math:`e^{-sx}`
-                    * "smooth_cutoff": Weighting of the form :math:`f_{ij}f_{ik}`,
+                    * ``"unity"``: No weighting.
+                    * ``"exp"``: Weighting of the form :math:`e^{-sx}`
+                    * ``"smooth_cutoff"``: Weighting of the form :math:`f_{ij}f_{ik}`,
                         where :math:`f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}`
 
                 The meaning of :math:`x` changes for different terms as follows:
@@ -220,12 +224,12 @@ class MBTR(DescriptorGlobal):
             normalization (str): Determines the method for normalizing the
                 output. The available options are:
 
-                * "none": No normalization.
-                * "l2": Normalize the Euclidean length of the output to unity.
-                * "n_atoms": Normalize the output by dividing it with the number
+                * ``"none"``: No normalization.
+                * ``"l2"``: Normalize the Euclidean length of the output to unity.
+                * ``"n_atoms"``: Normalize the output by dividing it with the number
                   of atoms in the system. If the system is periodic, the number
                   of atoms is determined from the given unit cell.
-                * "valle_oganov": Use Valle-Oganov descriptor normalization, with
+                * ``"valle_oganov"``: Use Valle-Oganov descriptor normalization, with
                   system cell volume and numbers of different atoms in the cell.
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not

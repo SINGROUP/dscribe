@@ -120,13 +120,12 @@ understand the basics of the MBTR framework. The differences compared to MBTR
 are:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <span class="math notranslate nohighlight">\(k=1\)</span> term has been removed.</p></li>
-<li><p>A radial cutoff distance <em>r_cut</em> is used.</p></li>
-<li><p>In the grid setup, <em>min</em> is always 0 and <em>max</em> has the same value as <em>r_cut</em>.</p></li>
+<li><p>Only geometry functions <code class="code docutils literal notranslate"><span class="pre">distance</span></code> and <code class="code docutils literal notranslate"><span class="pre">angle</span></code> are available.</p></li>
+<li><p>A radial cutoff distance <code class="code docutils literal notranslate"><span class="pre">r_cut</span></code> is used.</p></li>
+<li><p>In the grid setup, <code class="code docutils literal notranslate"><span class="pre">min</span></code> is always 0 and <code class="code docutils literal notranslate"><span class="pre">max</span></code> has the same value as <code class="code docutils literal notranslate"><span class="pre">r_cut</span></code>.</p></li>
 <li><p>Normalization and weighting are automatically set to their Valle-Oganov options.</p></li>
-<li><p><em>periodic</em> is set to True: Valle-Oganov normalization doesn’t support non-periodic systems.</p></li>
-<li><p>See below for how to set <em>k2</em> and <em>k3</em>.</p></li>
-<li><p>Parameters <em>species</em>, <em>flatten</em> and <em>sparse</em> work similarly to MBTR.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">periodic</span></code> is set to True: Valle-Oganov normalization doesn’t support non-periodic systems.</p></li>
+<li><p>Parameters <code class="code docutils literal notranslate"><span class="pre">species</span></code> and <code class="code docutils literal notranslate"><span class="pre">sparse</span></code> work similarly to MBTR.</p></li>
 </ul>
 </div></blockquote>
 <section id="setup">
@@ -143,12 +142,6 @@ are:</p>
     <span class="n">n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
     <span class="n">r_cut</span><span class="o">=</span><span class="mi">5</span>
 <span class="p">)</span>
-
-<span class="c1"># Create</span>
-<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="n">water</span> <span class="o">=</span> <span class="n">Atoms</span><span class="p">(</span>
-    <span class="n">cell</span><span class="o">=</span><span class="p">[[</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]],</span>
 </pre></div>
 </div>
 <p>The arguments have the following effect:</p>
@@ -172,14 +165,14 @@ also heavily influence the computational time.</p>
 <ul>
 <li><dl class="simple">
 <dt><span class="math notranslate nohighlight">\(k=2\)</span></dt><dd><ul>
-<li><p>”distance”: Pairwise distance in angstroms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;distance&quot;</span></code>: Pairwise distance in angstroms.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt><span class="math notranslate nohighlight">\(k=3\)</span></dt><dd><ul>
-<li><p>”angle”: Angle in degrees.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;angle&quot;</span></code>: Angle in degrees.</p></li>
 </ul>
 </dd>
 </dl>
@@ -203,8 +196,8 @@ dense numpy array.</p></li>
 </dd></dl>
 
 <p>In some publications, a grid parameter <span class="math notranslate nohighlight">\(\Delta\)</span>, which signifies the
-width of the spacing, is used instead of <em>n</em>. However, here <em>n</em> is used in order
-to keep consistent with MBTR. The correlation between <em>n</em> and
+width of the spacing, is used instead of <code class="code docutils literal notranslate"><span class="pre">n</span></code>. However, here <code class="code docutils literal notranslate"><span class="pre">n</span></code> is used in order
+to keep consistent with MBTR. The correlation between <code class="code docutils literal notranslate"><span class="pre">n</span></code> and
 <span class="math notranslate nohighlight">\(\Delta\)</span> is <span class="math notranslate nohighlight">\(n=(max-min)/\Delta+1=(r_{cutoff})/\Delta+1\)</span>.</p>
 </section>
 <section id="creation">
@@ -267,8 +260,8 @@ depends on the ‘sparse’ attribute.</p>
 </dl>
 </dd></dl>
 
-<p>The output will in this case be a numpy array with shape [#positions,
-#features]. The number of features may be requested beforehand with the
+<p>The output will in this case be a numpy array with shape <code class="code docutils literal notranslate"><span class="pre">[n_positions,</span> <span class="pre">n_features]</span></code>.
+The number of features may be requested beforehand with the
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code>-method.</p>
 </section>
 <section id="examples">
@@ -313,9 +306,6 @@ visualized with matplotlib. Visualization works very similarly to MBTR.</p>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Distance (angstrom)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="c1"># MBTR setup for the same structure and descriptor</span>
-<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">MBTR</span>
 </pre></div>
 </div>
 <figure class="align-center" id="id17">
@@ -343,13 +333,12 @@ the MBTR class, would look like the following.</p>
 <span class="p">)</span>
 
 <span class="n">mbtr_nacl</span> <span class="o">=</span> <span class="n">mbtr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">nacl</span><span class="p">)</span>
-
 </pre></div>
 </div>
 </section>
 <section id="side-by-side-with-mbtr-output">
 <h3>Side by side with MBTR output<a class="headerlink" href="#side-by-side-with-mbtr-output" title="Permalink to this heading"></a></h3>
-<p>A graph of the output for the same structure created with different descriptors. Also demonstrates how the Valle-Oganov <a class="reference internal" href="mbtr.html#norm-label"><span class="std std-ref">normalization</span></a> for k2 term converges at 1.</p>
+<p>A graph of the output for the same structure created with different descriptors. Also demonstrates how the <a class="reference internal" href="mbtr.html#norm-label"><span class="std std-ref">Valle-Oganov normalization</span></a> for k2 term converges at 1.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nacl</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;NaCl&quot;</span><span class="p">,</span> <span class="s2">&quot;rocksalt&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">5.64</span><span class="p">)</span>
 
 <span class="n">decay</span> <span class="o">=</span> <span class="mf">0.5</span>

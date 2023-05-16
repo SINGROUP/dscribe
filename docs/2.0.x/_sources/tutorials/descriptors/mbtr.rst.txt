@@ -27,21 +27,18 @@ Instantiating an MBTR descriptor can be done as follows:
 
 .. literalinclude:: ../../../../examples/mbtr.py
    :language: python
-   :lines: 1-23
+   :lines: 2-12
 
 The arguments have the following effect:
 
 .. automethod:: dscribe.descriptors.mbtr.MBTR.__init__
 
-For each k-body term the MBTR class takes in a setup as a dictionary. This
-dictionary should contain three parts: the geometry function, the grid and the
-weighting function. The geometry function specifies how the k-body information
-is encoded. The grid specifies the expected range of the geometry values
-through the *min* and *max* keys. The amount of discretization points is
-specified with key *n* and the gaussian smoothing width is specified through
-the key *sigma*. The weighting function specifies if and how the different
-terms should be weighted. Currently the following geometry and weighting
-functions are available:
+Most noteworthy is that the geometry function determines the degree :math:`k` of
+MBTR. This degree directly determines how many atoms need to be taken into
+account when calculating the MBTR values (e.g. :math:`k=2` means that each pair
+of atoms contributes to MBTR). Here is a brief summary of the currently
+supported geometry functions and their weighting functions for each degree
+:math:`k`:
 
 .. list-table:: The geometry and weighting functions
    :widths: 10 45 45
@@ -51,29 +48,29 @@ functions are available:
      - Geometry functions
      - Weighting functions
    * - :math:`k=1`
-     - "atomic_number": The atomic numbers.
-     - "unity": No weighting.
+     - ``"atomic_number"``: The atomic numbers.
+     - ``"unity"``: No weighting.
    * - :math:`k=2`
-     - "distance": Pairwise distance in angstroms.
+     - ``"distance"``: Pairwise distance in angstroms.
 
-       "inverse_distance": Pairwise inverse distance in 1/angstrom.
-     - "unity": No weighting.
+       ``"inverse_distance"``: Pairwise inverse distance in 1/angstrom.
+     - ``"unity"``: No weighting.
 
-       "exp": Weighting of the form :math:`e^{-sx}`,
+       ``"exp"``: Weighting of the form :math:`e^{-sx}`,
        where `x` is the distance between the two atoms.
 
-       "inverse_square": Weighting of the form :math:`1/(x^2)`,
+       ``"inverse_square"``: Weighting of the form :math:`1/(x^2)`,
        where `x` is the distance between the two atoms.
    * - :math:`k=3`
-     - "angle": Angle in degrees.
+     - ``"angle"``: Angle in degrees.
 
-       "cosine": Cosine of the angle.
-     - "unity": No weighting.
+       ``"cosine"``: Cosine of the angle.
+     - ``"unity"``: No weighting.
 
-       "exp": Weighting of the form :math:`e^{-sx}`,
+       ``"exp"``: Weighting of the form :math:`e^{-sx}`,
        where `x` is the perimeter of the triangle formed by the tree atoms.
 
-       "smooth_cutoff": Weighting of the form :math:`f_{ij}f_{ik}` defined by
+       ``"smooth_cutoff"``: Weighting of the form :math:`f_{ij}f_{ik}` defined by
        :math:`f = 1+y(x/r_{cutoff})^{y+1}-(y+1)(x/r_{cutoff})^{y}`, where `x`
        is the distance between two atoms, :math:`r_{cutoff}` is the radial
        cutoff distance and y is a sharpness parameter which defaults to `2`.
@@ -93,8 +90,8 @@ The call syntax for the create-function is as follows:
 .. automethod:: dscribe.descriptors.mbtr.MBTR.create
    :noindex:
 
-The output will in this case be a numpy array with shape [#positions,
-#features]. The number of features may be requested beforehand with the
+The output will in this case be a numpy array with shape :code:`[n_positions, n_features]`.
+The number of features may be requested beforehand with the
 :meth:`~.MBTR.get_number_of_features`-method.
 
 
@@ -105,7 +102,7 @@ examples are also available in dscribe/examples/mbtr.py.
 
 Locating information
 ~~~~~~~~~~~~~~~~~~~~
-If the MBTR setup has been specified with *flatten=True*, the output is
+If the MBTR setup has been specified with :code:`flatten=True`, the output is
 flattened into a single vector and it can become difficult to identify which
 parts correspond to which element combinations. To overcome this, the MBTR class
 provides the :meth:`~.MBTR.get_location`-method. This method can be used to
@@ -115,7 +112,7 @@ example demonstrates its usage.
 .. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Locations
    :language: python
-   :lines: 1-10
+   :lines: 1-6
 
 Visualization
 ~~~~~~~~~~~~~
@@ -125,7 +122,7 @@ demonstrates how the output for :math:`k=2` can be visualized with matplotlib.
 .. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Visualization
    :language: python
-   :lines: 1-35
+   :lines: 1-32
 
 .. figure:: /_static/img/mbtr_k2.png
    :width: 1144px
@@ -139,7 +136,7 @@ demonstrates how the output for :math:`k=2` can be visualized with matplotlib.
 
 Finite systems
 ~~~~~~~~~~~~~~
-For finite systems we have to specify *periodic=False* in the constructor. Finite
+For finite systems we have to specify :code:`periodic=False` in the constructor. Finite
 systems can not have Valle-Oganov normalization, and an exception is raised if that is
 given. The need to apply weighting depends on the size of the system: for small 
 systems, such as small molecules, the benefits are small. However for larger systems,
@@ -151,7 +148,7 @@ demonstrates both approaches.
 .. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Finite
    :language: python
-   :lines: 1-31
+   :lines: 1-25
 
 .. figure:: /_static/img/mbtr_weighting.png
    :width: 1144px
@@ -181,15 +178,10 @@ The different normalization options provided in the MBTR constructor are:
    *extensive* - scales with the system size - and there is no need to weight
    the importance of the different :math:`k`-terms, then no normalization
    should be performed.
- * **"l2_each"**: Each :math:`k`-term is individually scaled to unit Euclidean
-   norm. As the amount of features in the :math:`k=1` term scales linearly with
-   number of species, :math:`k=2` quadratically and :math:`k=3` cubically, the
-   norm can get dominated by the highest :math:`k`-term. To equalize the
-   importance of different terms, each :math:`k`-term can be individually
-   scaled to unit Euclidean norm. This option can be used if the predicted
-   quantity is *intensive* - does not scale with the system size, and if the
-   learning method uses the Euclidean norm to determine the similarity of
-   inputs.
+ * **"l2"**: Output is scaled to unit Euclidean norm. This option can be used if
+   the predicted quantity is *intensive* - does not scale with the system size,
+   and if the learning method uses the Euclidean norm to determine the
+   similarity of inputs.
  * **"n_atoms"**: The whole output is divided by the number of atoms in the
    system. If the system is periodic, the number of atoms is determined from
    the given system cell. This form of normalization does also make the output
@@ -205,7 +197,7 @@ The different normalization options provided in the MBTR constructor are:
 
 Periodic systems
 ~~~~~~~~~~~~~~~~
-When applying MBTR to periodic systems, use *periodic=True* in the constructor.
+When applying MBTR to periodic systems, use :code:`periodic=True` in the constructor.
 For periodic systems a weighting function needs to be defined, and an exception
 is raised if it is not given. The weighting essentially determines how many
 periodic copies of the cell we need to include in the calculation, and without
@@ -215,7 +207,7 @@ demonstrates how to apply MBTR on a periodic crystal:
 .. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Periodic
    :language: python
-   :lines: 1-19
+   :lines: 1-11
 
 A problem with periodic crystals that is not directly solved by the MBTR
 formalism is the fact that multiple different cells shapes and sizes can be
@@ -228,7 +220,7 @@ demonstrates this for different cells representing the same crystal:
 .. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Supercells
    :language: python
-   :lines: 1-15
+   :lines: 1-17
 
 .. figure:: /_static/img/mbtr_periodic.png
    :width: 1144px
@@ -248,7 +240,7 @@ cells representing the same material:
 .. literalinclude:: ../../../../examples/mbtr.py
    :start-after: Supercells
    :language: python
-   :lines: 19-26
+   :lines: 19-
 
 .. figure:: /_static/img/mbtr_periodic_normalized.png
    :width: 1144px
@@ -258,7 +250,7 @@ cells representing the same material:
    :align: center
 
    The normalized MBTR output for different cells representing the same
-   crystal. After normalising the output with *normalization='l2_each'*,
+   crystal. After normalising the output with :code:`normalization='l2_each'`,
    the outputs become identical.
 
 DScribe achieves the completely identical MBTR output for different periodic

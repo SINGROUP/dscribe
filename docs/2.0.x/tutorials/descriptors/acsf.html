@@ -195,7 +195,7 @@ dense numpy array.</p></li>
 <span class="n">water</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
 
 <span class="c1"># Create MBTR output for the hydrogen atom at index 1</span>
-<span class="n">acsf_water</span> <span class="o">=</span> <span class="n">acsf</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">acsf_water</span> <span class="o">=</span> <span class="n">acsf</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">acsf_water</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">acsf_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -204,18 +204,18 @@ dense numpy array.</p></li>
 <p>The call syntax for the create-function is as follows:</p>
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">ACSF.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Return the ACSF output for the given systems and given positions.</p>
+<span class="sig-prename descclassname"><span class="pre">ACSF.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/acsf.html#ACSF.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Return the ACSF output for the given systems and given centers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
 many atomic structures.</p></li>
-<li><p><strong>positions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Positions where to calculate ACSF. Can be
+<li><p><strong>centers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Centers where to calculate ACSF. Can be
 provided as cartesian positions or atomic indices. If no
-positions are defined, the output will be created for all
+centers are defined, the output will be created for all
 atoms in the system. When calculating output for multiple
-systems, provide the positions as a list for each system.</p></li>
+systems, provide the centers as a list for each system.</p></li>
 <li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
 with n_jobs=1. If a negative number is given, the used cpus
@@ -232,12 +232,12 @@ into to the console.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The ACSF output for the given
-systems and positions. The return type depends on the
+systems and centers. The return type depends on the
 ‘sparse’-attribute. The first dimension is determined by the amount
-of positions and systems and the second dimension is determined by
+of centers and systems and the second dimension is determined by
 the get_number_of_features()-function. When multiple systems are
 provided the results are ordered by the input order of systems and
-their positions.</p>
+their centers.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray | sparse.COO</p>
@@ -245,9 +245,8 @@ their positions.</p>
 </dl>
 </dd></dl>
 
-<p>The output will in this case be a numpy array with shape [#positions,
-#features]. The number of features may be requested beforehand with the
-<a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features" title="dscribe.descriptors.acsf.ACSF.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
+<p>The output will in this case be a numpy array with shape <code class="code docutils literal notranslate"><span class="pre">[n_positions,</span> <span class="pre">n_features]</span></code>.
+The number of features may be requested beforehand with the <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features" title="dscribe.descriptors.acsf.ACSF.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 <div class="docutils container" id="id2">
 <div class="citation" id="id10" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
