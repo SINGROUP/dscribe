@@ -19,7 +19,7 @@ from ase.build import molecule
 water = molecule("H2O")
 
 # Create MBTR output for the system
-mbtr_water = lmbtr.create(water, positions=[0])
+mbtr_water = lmbtr.create(water, centers=[0])
 
 print(mbtr_water)
 print(mbtr_water.shape)
@@ -51,7 +51,7 @@ lmbtr = LMBTR(
 # Create output for each site
 sites = lmbtr.create(
     slab_pure,
-    positions=[ontop_pos, bridge_pos, hcp_pos, fcc_pos],
+    centers=[ontop_pos, bridge_pos, hcp_pos, fcc_pos],
 )
 
 # Plot the site-aluminum distributions for each site

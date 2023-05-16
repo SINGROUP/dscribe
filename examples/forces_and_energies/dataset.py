@@ -40,7 +40,7 @@ plt.show()
 # is chosen to be directly between the atoms.
 derivatives, descriptors = soap.derivatives(
     traj,
-    positions=[[[0, 0, 0]]] * len(r),
+    centers=[[[0, 0, 0]]] * len(r),
     method="analytical"
 )
 

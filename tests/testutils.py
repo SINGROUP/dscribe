@@ -214,7 +214,7 @@ def coefficients_gto(system, centers, args):
 
     # Calculate the weights and decays of the radial basis functions.
     soap = SOAP(**args)
-    soap.create(system, positions=centers)
+    soap.create(system, centers=centers)
     alphas = np.reshape(soap._alphas, [l_max + 1, n_max])
     betas = np.reshape(soap._betas, [l_max + 1, n_max, n_max])
 
