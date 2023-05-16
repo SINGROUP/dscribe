@@ -19,8 +19,8 @@ system = ase.build.fcc111(
 # Setting up the SOAP descriptor
 soap = SOAP(
     sigma=0.1,
-    nmax=12,
-    lmax=12,
+    n_max=12,
+    l_max=12,
     weighting={"function": "poly", "r0": 12, "m": 2, "c": 1, "d": 1},
     species=["Cu"],
     periodic=True,

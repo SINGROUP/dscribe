@@ -19,8 +19,6 @@ import numpy as np
 
 import sparse as sp
 
-from ase import Atoms
-from dscribe.core.system import System
 from dscribe.utils.species import get_atomic_numbers
 
 import joblib
@@ -30,14 +28,20 @@ from joblib import Parallel, delayed
 class Descriptor(ABC):
     """An abstract base class for all descriptors."""
 
-    def __init__(self, periodic, flatten, sparse, dtype="float64"):
+    def __init__(self, periodic, sparse, dtype="float64"):
         """
         Args:
-            flatten (bool): Whether the output of create() should be flattened
-                to a 1D array.
+            periodic (bool): Whether the descriptor should take PBC into account.
+            sparse (bool): Whether the output should use a sparse format.
+            dtype (str): The output data type.
         """
+        supported_dtype = set(("float32", "float64"))
+        if dtype not in supported_dtype:
+            raise ValueError(
+                "Invalid output data type '{}' given. Please use "
+                "one of the following: {}".format(dtype, supported_dtype)
+            )
         self.sparse = sparse
-        self.flatten = flatten
         self.periodic = periodic
         self.dtype = dtype
         self._atomic_numbers = None
@@ -66,6 +70,19 @@ class Descriptor(ABC):
             int: Number of features for this descriptor.
         """
 
+    def validate_derivatives_method(self, method):
+        """Used to validate and determine the final method for calculating the
+        derivatives.
+        """
+        methods = {"numerical", "auto"}
+        if method not in methods:
+            raise ValueError(
+                "Invalid method specified. Please choose from: {}".format(methods)
+            )
+        if method == "auto":
+            method = "numerical"
+        return method
+
     @property
     def sparse(self):
         return self._sparse
@@ -91,19 +108,6 @@ class Descriptor(ABC):
             value(float): Are the systems periodic.
         """
         self._periodic = value
-
-    @property
-    def flatten(self):
-        return self._flatten
-
-    @flatten.setter
-    def flatten(self, value):
-        """Sets whether the output should be flattened or not.
-
-        Args:
-            value(float): Should the output be flattened.
-        """
-        self._flatten = value
 
     def _set_species(self, species):
         """Used to setup the species information for this descriptor. This
@@ -139,6 +143,17 @@ class Descriptor(ABC):
                 "The following atomic numbers are not defined "
                 "for this descriptor: {}".format(zs.difference(self._atomic_number_set))
             )
+
+    def format_array(self, input):
+        """Used to format a float64 numpy array in the final format that will be
+        returned to the user.
+        """
+        if self.dtype != "float64":
+            input = input.astype(self.dtype)
+        if self.sparse:
+            input = sp.COO.from_numpy(input)
+
+        return input
 
     def create_parallel(
         self,
@@ -196,7 +211,7 @@ class Descriptor(ABC):
         """
         # If single system given, skip the parallelization overhead
         if len(inp) == 1:
-            return func(*inp[0])
+            return self.format_array(func(*inp[0]))
 
         # Determine the number of jobs
         if n_jobs < 0:
@@ -234,6 +249,7 @@ class Descriptor(ABC):
 
             for i_sample, i_arg in enumerate(arguments):
                 i_out = func(*i_arg)
+                i_out = self.format_array(i_out)
 
                 # If the shape varies, just add result into a list
                 if static_size is None:

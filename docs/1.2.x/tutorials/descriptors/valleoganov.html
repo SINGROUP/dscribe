@@ -66,6 +66,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials.html#machine-learning">Machine Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials.html#visualization">Visualization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials.html#similarity-analysis">Similarity Analysis</a></li>
 </ul>
 </li>
@@ -146,52 +147,6 @@ are:</p>
 </pre></div>
 </div>
 <p>The arguments have the following effect:</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="dscribe.descriptors.valleoganov.ValleOganov.__init__">
-<span class="sig-prename descclassname"><span class="pre">ValleOganov.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/valleoganov.html#ValleOganov.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.valleoganov.ValleOganov.__init__" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
-numbers or as a list of chemical symbols. Notice that this is not
-the atomic numbers that are present for an individual system, but
-should contain all the elements that are ever going to be
-encountered when creating the descriptors for a set of systems.
-Keeping the number of chemical species as low as possible is
-preferable.</p></li>
-<li><p><strong>k2</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=2 term.
-Contains setup for the discretization and radial cutoff.
-For example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k2</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
-    <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
-    <span class="s2">&quot;r_cut&quot;</span><span class="p">:</span> <span class="mi">10</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</p></li>
-<li><p><strong>k3</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – <p>Dictionary containing the setup for the k=3 term.
-Contains setup for the discretization and radial cutoff.
-For example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">k3</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
-    <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
-    <span class="s2">&quot;r_cut&quot;</span><span class="p">:</span> <span class="mi">10</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</p></li>
-<li><p><strong>flatten</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the output should be flattened to a 1D
-array. If False, a dictionary of the different tensors is
-provided, containing the values under keys: “k1”, “k2”, and
-“k3”:</p></li>
-<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
-dense numpy array.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
 <p>In some publications, a grid parameter <span class="math notranslate nohighlight">\(\Delta\)</span>, which signifies the
 width of the spacing, is used instead of <em>n</em>. However, here <em>n</em> is used in order
 to keep consistent with MBTR. The correlation between <em>n</em> and
@@ -225,42 +180,6 @@ to keep consistent with MBTR. The correlation between <em>n</em> and
 </pre></div>
 </div>
 <p>The call syntax for the create-function is as follows:</p>
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">MBTR.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/mbtr.html#MBTR.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Return MBTR output for the given systems.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or many atomic structures.</p></li>
-<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
-the calculation across samples. Defaults to serial calculation
-with n_jobs=1. If a negative number is given, the used cpus
-will be calculated with, n_cpus + n_jobs, where n_cpus is the
-amount of CPUs as reported by the OS. With only_physical_cores
-you can control which types of CPUs are counted in n_cpus.</p></li>
-<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – If a negative n_jobs is given,
-determines which types of CPUs are used in calculating the
-number of jobs. If set to False (default), also virtual CPUs
-are counted.  If set to True, only physical CPUs are counted.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Controls whether to print the progress of each job
-into to the console.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>MBTR for the
-given systems. The return type depends on the ‘sparse’ and
-‘flatten’-attributes. For flattened output a single numpy array or
-sparse.COO matrix is returned. If the output is not flattened,
-dictionaries containing the MBTR tensors for each k-term are
-returned.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.ndarray | sparse.COO | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <p>The output will in this case be a numpy array with shape [#positions,
 #features]. The number of features may be requested beforehand with the
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code>-method.</p>

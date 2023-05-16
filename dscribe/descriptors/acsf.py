@@ -16,21 +16,16 @@ limitations under the License.
 import sys
 
 import numpy as np
-
-import sparse
+import sparse as sp
 from scipy.sparse import coo_matrix
-
-from dscribe.descriptors.descriptor import Descriptor
-from dscribe.core import System
-
 from ase import Atoms
 
+from dscribe.descriptors.descriptorlocal import DescriptorLocal
 from dscribe.ext import ACSFWrapper
-
 import dscribe.utils.geometry
 
 
-class ACSF(Descriptor):
+class ACSF(DescriptorLocal):
     """Implementation of Atom-Centered Symmetry Functions.
 
     Notice that the species of the central atom is not encoded in the output,
@@ -45,7 +40,7 @@ class ACSF(Descriptor):
 
     def __init__(
         self,
-        rcut,
+        r_cut,
         g2_params=None,
         g3_params=None,
         g4_params=None,
@@ -53,10 +48,11 @@ class ACSF(Descriptor):
         species=None,
         periodic=False,
         sparse=False,
+        dtype="float64",
     ):
         """
         Args:
-            rcut (float): The smooth cutoff value in angstroms. This cutoff
+            r_cut (float): The smooth cutoff value in angstroms. This cutoff
                 value is used throughout the calculations for all symmetry
                 functions.
             g2_params (n*2 np.ndarray): A list of pairs of :math:`\eta` and
@@ -80,7 +76,7 @@ class ACSF(Descriptor):
             sparse (bool): Whether the output should be a sparse matrix or a
                 dense numpy array.
         """
-        super().__init__(periodic=periodic, flatten=True, sparse=sparse)
+        super().__init__(periodic=periodic, sparse=sparse, dtype=dtype)
 
         self.acsf_wrapper = ACSFWrapper()
 
@@ -90,21 +86,21 @@ class ACSF(Descriptor):
         self.g3_params = g3_params
         self.g4_params = g4_params
         self.g5_params = g5_params
-        self.rcut = rcut
+        self.r_cut = r_cut
 
     def create(
-        self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False
+        self, system, centers=None, n_jobs=1, only_physical_cores=False, verbose=False
     ):
-        """Return the ACSF output for the given systems and given positions.
+        """Return the ACSF output for the given systems and given centers.
 
         Args:
             system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
                 many atomic structures.
-            positions (list): Positions where to calculate ACSF. Can be
+            centers (list): Centers where to calculate ACSF. Can be
                 provided as cartesian positions or atomic indices. If no
-                positions are defined, the SOAP output will be created for all
-                atoms in the system. When calculating SOAP for multiple
-                systems, provide the positions as a list for each system.
+                centers are defined, the output will be created for all
+                atoms in the system. When calculating output for multiple
+                systems, provide the centers as a list for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1. If a negative number is given, the used cpus
@@ -120,26 +116,26 @@ class ACSF(Descriptor):
 
         Returns:
             np.ndarray | sparse.COO: The ACSF output for the given
-            systems and positions. The return type depends on the
+            systems and centers. The return type depends on the
             'sparse'-attribute. The first dimension is determined by the amount
-            of positions and systems and the second dimension is determined by
+            of centers and systems and the second dimension is determined by
             the get_number_of_features()-function. When multiple systems are
             provided the results are ordered by the input order of systems and
-            their positions.
+            their centers.
         """
         # Validate input / combine input arguments
         if isinstance(system, Atoms):
             system = [system]
-            positions = [positions]
-        if positions is None:
+            centers = [centers]
+        if centers is None:
             inp = [(i_sys,) for i_sys in system]
         else:
-            inp = list(zip(system, positions))
+            inp = list(zip(system, centers))
 
         # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
         static_size = None
-        if positions is None:
+        if centers is None:
             n_centers = len(inp[0][0])
         else:
             first_sample, first_pos = inp[0]
@@ -150,7 +146,7 @@ class ACSF(Descriptor):
 
         def is_static():
             for i_job in inp:
-                if positions is None:
+                if centers is None:
                     if len(i_job[0]) != n_centers:
                         return False
                 else:
@@ -177,30 +173,31 @@ class ACSF(Descriptor):
 
         return output
 
-    def create_single(self, system, positions=None):
+    def create_single(self, system, centers=None):
         """Creates the descriptor for the given system.
 
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
-            positions (iterable): Indices of the atoms around which the ACSF
-                will be returned. If no positions defined, ACSF will be created
+            centers (iterable): Indices of the atoms around which the ACSF
+                will be returned. If no centers defined, ACSF will be created
                 for all atoms in the system.
 
         Returns:
-            np.ndarray | sparse.COO: The ACSF output for the
-            given system and positions. The return type depends on the
-            'sparse'-attribute. The first dimension is given by the number of
-            positions and the second dimension is determined by the
-            get_number_of_features()-function.
+            np.ndarray: The ACSF output for the given system and centers. The
+            first dimension is given by the number of centers and the second
+            dimension is determined by the get_number_of_features()-function.
         """
+        # Check if there are types that have not been declared
+        self.check_atomic_numbers(system.get_atomic_numbers())
+
         # Create C-compatible list of atomic indices for which the ACSF is
         # calculated
         calculate_all = False
-        if positions is None:
+        if centers is None:
             calculate_all = True
             indices = np.arange(len(system))
         else:
-            indices = positions
+            indices = centers
 
         # If periodicity is not requested, and the output is requested for all
         # atoms, we skip all the intricate optimizations that will make things
@@ -209,7 +206,7 @@ class ACSF(Descriptor):
             n_atoms = len(system)
             all_pos = system.get_positions()
             dmat = dscribe.utils.geometry.get_adjacency_matrix(
-                self.rcut, all_pos, all_pos
+                self.r_cut, all_pos, all_pos
             )
         # Otherwise the amount of pairwise distances that are calculated is
         # kept at minimum. Only distances for the given indices (and possibly
@@ -220,7 +217,7 @@ class ACSF(Descriptor):
             # the system.
             if self.periodic:
                 system = dscribe.utils.geometry.get_extended_system(
-                    system, self.rcut, return_cell_indices=False
+                    system, self.r_cut, return_cell_indices=False
                 )
 
             # First calculate distances from specified centers to all other
@@ -229,7 +226,7 @@ class ACSF(Descriptor):
             all_pos = system.get_positions()
             central_pos = all_pos[indices]
             dmat_primary = dscribe.utils.geometry.get_adjacency_matrix(
-                self.rcut, central_pos, all_pos
+                self.r_cut, central_pos, all_pos
             )
 
             # Create symmetric full matrix
@@ -247,7 +244,7 @@ class ACSF(Descriptor):
                 neighbour_indices = np.unique(col)
                 neigh_pos = all_pos[neighbour_indices]
                 dmat_secondary = dscribe.utils.geometry.get_adjacency_matrix(
-                    self.rcut, neigh_pos, neigh_pos
+                    self.r_cut, neigh_pos, neigh_pos
                 )
                 col = [
                     neighbour_indices[x] for x in dmat_secondary.col
@@ -275,15 +272,8 @@ class ACSF(Descriptor):
                 neighbours,
                 indices,
             ),
-            dtype=np.float32,
+            dtype=np.float64,
         )
-
-        # Check if there are types that have not been declared
-        self.check_atomic_numbers(system.get_atomic_numbers())
-
-        # Return sparse matrix if requested
-        if self._sparse:
-            output = sparse.COO.from_numpy(output)
 
         return output
 
@@ -299,6 +289,13 @@ class ACSF(Descriptor):
         descsize += (wrapper.n_g4 + wrapper.n_g5) * wrapper.n_type_pairs
 
         return int(descsize)
+
+    def validate_derivatives_method(self, method, attach):
+        if not attach:
+            raise ValueError(
+                "ACSF derivatives can only be calculated with attach=True."
+            )
+        return super().validate_derivatives_method(method, attach)
 
     @property
     def species(self):
@@ -318,11 +315,11 @@ class ACSF(Descriptor):
         self.acsf_wrapper.atomic_numbers = self._atomic_numbers.tolist()
 
     @property
-    def rcut(self):
+    def r_cut(self):
         return self.acsf_wrapper.rcut
 
-    @rcut.setter
-    def rcut(self, value):
+    @r_cut.setter
+    def r_cut(self, value):
         """Used to check the validity of given radial cutoff.
 
         Args:
@@ -348,7 +345,7 @@ class ACSF(Descriptor):
             value = np.array([])
         else:
             # Check dimensions
-            value = np.array(value, dtype=np.float)
+            value = np.array(value, dtype=np.float64)
             if value.ndim != 2:
                 raise ValueError(
                     "g2_params should be a matrix with two columns (eta, Rs)."
@@ -381,7 +378,7 @@ class ACSF(Descriptor):
             value = np.array([])
         else:
             # Check dimensions
-            value = np.array(value, dtype=np.float)
+            value = np.array(value, dtype=np.float64)
             if value.ndim != 1:
                 raise ValueError("g3_params should be a vector.")
 
@@ -404,7 +401,7 @@ class ACSF(Descriptor):
             value = np.array([])
         else:
             # Check dimensions
-            value = np.array(value, dtype=np.float)
+            value = np.array(value, dtype=np.float64)
             if value.ndim != 2:
                 raise ValueError(
                     "g4_params should be a matrix with three columns (eta, zeta, lambda)."
@@ -437,7 +434,7 @@ class ACSF(Descriptor):
             value = np.array([])
         else:
             # Check dimensions
-            value = np.array(value, dtype=np.float)
+            value = np.array(value, dtype=np.float64)
             if value.ndim != 2:
                 raise ValueError(
                     "g5_params should be a matrix with three columns (eta, zeta, lambda)."

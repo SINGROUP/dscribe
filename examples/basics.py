@@ -20,12 +20,19 @@ from dscribe.descriptors import SOAP
 soap = SOAP(
     species=species,
     periodic=False,
-    rcut=5,
-    nmax=8,
-    lmax=8,
+    r_cut=5,
+    n_max=8,
+    l_max=8,
     average="outer",
     sparse=False
 )
 
 # Let's create SOAP feature vectors for each structure
 feature_vectors = soap.create(structures, n_jobs=1)
+
+# Let's create derivatives and feature vectors for each structure
+derivatives, feature_vectors = soap.derivatives(
+    structures,
+    return_descriptor=True,
+    n_jobs=1
+)

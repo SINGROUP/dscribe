@@ -1,14 +1,7 @@
 from dscribe.descriptors import CoulombMatrix
 
-atomic_numbers = [1, 8]
-rcut = 6.0
-nmax = 8
-lmax = 6
-
 # Setting up the CM descriptor
-cm = CoulombMatrix(
-    n_atoms_max=6,
-)
+cm = CoulombMatrix(n_atoms_max=6)
 
 # Creation
 from ase.build import molecule
@@ -20,27 +13,14 @@ methanol = molecule("CH3OH")
 cm_methanol = cm.create(methanol)
 
 print(cm_methanol)
-print("flattened", cm_methanol.shape)
 
 # Create output for multiple system
 samples = [molecule("H2O"), molecule("NO2"), molecule("CO2")]
 coulomb_matrices = cm.create(samples)            # Serial
 coulomb_matrices = cm.create(samples, n_jobs=2)  # Parallel
 
-# No flattening
-cm = CoulombMatrix(
-    n_atoms_max=6, flatten=False
-)
-cm_methanol = cm.create(methanol)
-
-print(cm_methanol)
-print("not flattened", cm_methanol.shape)
-
-
 # Zero-padding
-cm = CoulombMatrix(
-    n_atoms_max=10, flatten=False
-)
+cm = CoulombMatrix(n_atoms_max=10)
 cm_methanol = cm.create(methanol)
 
 print("zero-padded", cm_methanol)
@@ -53,9 +33,7 @@ methanol.set_cell([[10.0, 0.0, 0.0],
     [0.0, 0.0, 10.0],
     ])
 
-cm = CoulombMatrix(
-    n_atoms_max=6, flatten=False
-)
+cm = CoulombMatrix(n_atoms_max=6)
 
 cm_methanol = cm.create(methanol)
 print("with pbc", cm_methanol)
@@ -63,7 +41,6 @@ print("with pbc", cm_methanol)
 # Invariance
 cm = CoulombMatrix(
     n_atoms_max=6,
-    flatten=False,
     permutation="sorted_l2"
 )
 
@@ -85,27 +62,21 @@ print(cm_methanol)
 # Options for permutation
 
 # No sorting
-cm = CoulombMatrix(
-    n_atoms_max=6, flatten=False,
-    permutation='none'
-)
+cm = CoulombMatrix(n_atoms_max=6, permutation='none')
 
 cm_methanol = cm.create(methanol)
 print(methanol.get_chemical_symbols())
 print("in order of appearance", cm_methanol)
 
 # Sort by Euclidean (L2) norm.
-cm = CoulombMatrix(
-    n_atoms_max=6, flatten=False,
-    permutation='sorted_l2'
-)
+cm = CoulombMatrix(n_atoms_max=6, permutation='sorted_l2')
 
 cm_methanol = cm.create(methanol)
 print("default: sorted by L2-norm", cm_methanol)
 
 # Random
 cm = CoulombMatrix(
-    n_atoms_max=6, flatten=False,
+    n_atoms_max=6,
     permutation='random',
     sigma=70,
     seed=None
@@ -116,7 +87,7 @@ print("randomly sorted", cm_methanol)
 
 # Eigenspectrum
 cm = CoulombMatrix(
-    n_atoms_max=6, flatten=False,
+    n_atoms_max=6,
     permutation='eigenspectrum'
 )
 

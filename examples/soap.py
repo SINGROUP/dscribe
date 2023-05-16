@@ -21,16 +21,16 @@ from ase.build import molecule
 water = molecule("H2O")
 
 # Create SOAP output for the system
-soap_water = soap.create(water, positions=[0])
+soap_water = soap.create(water, centers=[0])
 
 print(soap_water)
 print(soap_water.shape)
 
 # Create output for multiple system
 samples = [molecule("H2O"), molecule("NO2"), molecule("CO2")]
-positions = [[0], [1, 2], [1, 2]]
-coulomb_matrices = soap.create(samples, positions)            # Serial
-coulomb_matrices = soap.create(samples, positions, n_jobs=2)  # Parallel
+centers = [[0], [1, 2], [1, 2]]
+coulomb_matrices = soap.create(samples, centers)            # Serial
+coulomb_matrices = soap.create(samples, centers, n_jobs=2)  # Parallel
 
 # Lets change the SOAP setup and see how the number of features changes
 small_soap = SOAP(species=species, r_cut=r_cut, n_max=2, l_max=0)

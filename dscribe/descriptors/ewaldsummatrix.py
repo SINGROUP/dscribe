@@ -21,12 +21,11 @@ from ase import Atoms
 
 from scipy.special import erfc
 
-from dscribe.core import System
-from dscribe.descriptors.matrixdescriptor import MatrixDescriptor
+from dscribe.descriptors.descriptormatrix import DescriptorMatrix
 from dscribe.core.lattice import Lattice
 
 
-class EwaldSumMatrix(MatrixDescriptor):
+class EwaldSumMatrix(DescriptorMatrix):
     """
     Calculates an Ewald sum matrix for the a given system.
 
@@ -72,9 +71,6 @@ class EwaldSumMatrix(MatrixDescriptor):
         n_jobs=1,
         only_physical_cores=False,
         verbose=False,
-        # For backwards compatibility with < v1.2.2
-        rcut=None,
-        gcut=None,
     ):
         """Return the Ewald sum matrix for the given systems.
 
@@ -118,10 +114,8 @@ class EwaldSumMatrix(MatrixDescriptor):
 
         Returns:
             np.ndarray | sparse.COO: Ewald sum matrix for the given systems.
-            The return type depends on the 'sparse' and 'flatten'-attributes.
-            For flattened output a single numpy array or sparse.COO is
-            returned. The first dimension is determined by the amount of
-            systems.
+            The return type depends on the 'sparse'-attribute. The first
+            dimension is determined by the amount of systems.
         """
         var_dict = {}
         for var_new in ["r_cut", "g_cut"]:
@@ -168,12 +162,7 @@ class EwaldSumMatrix(MatrixDescriptor):
 
         # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
-        if self._flatten:
-            static_size = [n_features]
-        elif self.permutation == "eigenspectrum":
-            static_size = [self.n_atoms_max]
-        else:
-            static_size = [self.n_atoms_max, self.n_atoms_max]
+        static_size = [n_features]
 
         # Create in parallel
         output = self.create_parallel(

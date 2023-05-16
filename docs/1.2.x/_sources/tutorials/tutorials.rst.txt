@@ -52,6 +52,18 @@ demonstrate how DScribe can be used in machine learning applications.
    machine_learning/clustering
 
 
+Visualization
+----------------
+
+Mapping the descriptors into a visual representation is useful in analyzing
+complex systems. These examples demonstrate how to achieve this with DScribe.
+
+.. toctree::
+   :maxdepth: 1
+
+   visualization/coloring_by_environment
+
+
 Similarity Analysis
 -------------------
 

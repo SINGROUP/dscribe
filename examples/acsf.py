@@ -3,7 +3,7 @@ from dscribe.descriptors import ACSF
 # Setting up the ACSF descriptor
 acsf = ACSF(
     species=["H", "O"],
-    rcut=6.0,
+    r_cut=6.0,
     g2_params=[[1, 1], [1, 2], [1, 3]],
     g4_params=[[1, 1, 1], [1, 2, 1], [1, 1, -1], [1, 2, -1]],
 )
@@ -14,7 +14,7 @@ from ase.build import molecule
 water = molecule("H2O")
 
 # Create MBTR output for the hydrogen atom at index 1
-acsf_water = acsf.create(water, positions=[1])
+acsf_water = acsf.create(water, centers=[1])
 
 print(acsf_water)
 print(acsf_water.shape)

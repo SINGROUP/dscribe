@@ -8,10 +8,10 @@ from dscribe.descriptors import SOAP
 soap = SOAP(
     species=["H"],
     periodic=False,
-    rcut=5.0,
+    r_cut=5.0,
     sigma=0.5,
-    nmax=3,
-    lmax=0,
+    n_max=3,
+    l_max=0,
 )
 
 # Generate dataset of Lennard-Jones energies and forces
@@ -40,7 +40,7 @@ plt.show()
 # is chosen to be directly between the atoms.
 derivatives, descriptors = soap.derivatives(
     traj,
-    positions=[[[0, 0, 0]]] * len(r),
+    centers=[[[0, 0, 0]]] * len(r),
     method="analytical"
 )
 

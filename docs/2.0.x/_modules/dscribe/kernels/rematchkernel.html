@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dscribe.kernels.rematchkernel &mdash; DScribe 2.0.x documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script defer="defer" src="../../../_static/js/versions.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.0.x
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DScribe</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dscribe.kernels.rematchkernel</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dscribe.kernels.rematchkernel</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
+
+<span class="sd">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">you may not use this file except in compliance with the License.</span>
+<span class="sd">You may obtain a copy of the License at</span>
+
+<span class="sd">    http://www.apache.org/licenses/LICENSE-2.0</span>
+
+<span class="sd">Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">See the License for the specific language governing permissions and</span>
+<span class="sd">limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">dscribe.kernels.localsimilaritykernel</span> <span class="kn">import</span> <span class="n">LocalSimilarityKernel</span>
+
+
+<div class="viewcode-block" id="REMatchKernel"><a class="viewcode-back" href="../../../doc/dscribe.kernels.html#dscribe.kernels.rematchkernel.REMatchKernel">[docs]</a><span class="k">class</span> <span class="nc">REMatchKernel</span><span class="p">(</span><span class="n">LocalSimilarityKernel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Used to compute a global similarity of structures based on the</span>
+<span class="sd">    regularized-entropy match (REMatch) kernel of local atomic environments in</span>
+<span class="sd">    the structure. More precisely, returns the similarity kernel K as:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \DeclareMathOperator*{\\argmax}{argmax}</span>
+<span class="sd">        K(A, B) &amp;= \mathrm{Tr} \mathbf{P}^\\alpha \mathbf{C}(A, B)</span>
+
+<span class="sd">        \mathbf{P}^\\alpha &amp;= \\argmax_{\mathbf{P} \in \mathcal{U}(N, N)} \sum_{ij} P_{ij} (1-C_{ij} +\\alpha \ln P_{ij})</span>
+
+<span class="sd">    where the similarity between local atomic environments :math:`C_{ij}` has</span>
+<span class="sd">    been calculated with the pairwise metric (e.g. linear, gaussian) defined by</span>
+<span class="sd">    the parameters given in the constructor.</span>
+
+<span class="sd">    For reference, see:</span>
+
+<span class="sd">    &quot;Comparing molecules and solids across structural and alchemical</span>
+<span class="sd">    space&quot;, Sandip De, Albert P. Bartók, Gábor Csányi and Michele Ceriotti,</span>
+<span class="sd">    Phys.  Chem. Chem. Phys. 18, 13754 (2016),</span>
+<span class="sd">    https://doi.org/10.1039/c6cp00415f</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">threshold</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+        <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">coef0</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">kernel_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">normalize_kernel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            alpha(float): Parameter controlling the entropic penalty. Values</span>
+<span class="sd">                close to zero approach the best-match solution and values</span>
+<span class="sd">                towards infinity approach the average kernel.</span>
+<span class="sd">            threshold(float): Convergence threshold used in the</span>
+<span class="sd">                Sinkhorn-algorithm.</span>
+<span class="sd">            metric(string or callable): The pairwise metric used for</span>
+<span class="sd">                calculating the local similarity. Accepts any of the sklearn</span>
+<span class="sd">                pairwise metric strings (e.g. &quot;linear&quot;, &quot;rbf&quot;, &quot;laplacian&quot;,</span>
+<span class="sd">                &quot;polynomial&quot;) or a custom callable. A callable should accept</span>
+<span class="sd">                two arguments and the keyword arguments passed to this object</span>
+<span class="sd">                as kernel_params, and should return a floating point number.</span>
+<span class="sd">            gamma(float): Gamma parameter for the RBF, laplacian, polynomial,</span>
+<span class="sd">                exponential chi2 and sigmoid kernels. Interpretation of the</span>
+<span class="sd">                default value is left to the kernel; see the documentation for</span>
+<span class="sd">                sklearn.metrics.pairwise. Ignored by other kernels.</span>
+<span class="sd">            degree(float): Degree of the polynomial kernel. Ignored by other</span>
+<span class="sd">                kernels.</span>
+<span class="sd">            coef0(float): Zero coefficient for polynomial and sigmoid kernels.</span>
+<span class="sd">                Ignored by other kernels.</span>
+<span class="sd">            kernel_params(mapping of string to any): Additional parameters</span>
+<span class="sd">                (keyword arguments) for kernel function passed as callable</span>
+<span class="sd">                object.</span>
+<span class="sd">            normalize_kernel(boolean): Whether to normalize the final global</span>
+<span class="sd">                similarity kernel. The normalization is achieved by dividing each</span>
+<span class="sd">                kernel element :math:`K_{ij}` with the factor</span>
+<span class="sd">                :math:`\sqrt{K_{ii}K_{jj}}`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">coef0</span><span class="p">,</span> <span class="n">kernel_params</span><span class="p">,</span> <span class="n">normalize_kernel</span><span class="p">)</span>
+
+<div class="viewcode-block" id="REMatchKernel.get_global_similarity"><a class="viewcode-back" href="../../../doc/dscribe.kernels.html#dscribe.kernels.rematchkernel.REMatchKernel.get_global_similarity">[docs]</a>    <span class="k">def</span> <span class="nf">get_global_similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">localkernel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the REMatch similarity between two structures A and B.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            localkernel(np.ndarray): NxM matrix of local similarities between</span>
+<span class="sd">                structures A and B, with N and M atoms respectively.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            float: REMatch similarity between the structures A and B.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="n">localkernel</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">localkernel</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+
+        <span class="c1"># initialisation</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="p">,))</span> <span class="o">/</span> <span class="n">n</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m</span><span class="p">,))</span> <span class="o">/</span> <span class="n">m</span>
+
+        <span class="n">en</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="p">,))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">em</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m</span><span class="p">,))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="c1"># converge balancing vectors u and v</span>
+        <span class="n">itercount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">error</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">:</span>
+            <span class="n">uprev</span> <span class="o">=</span> <span class="n">u</span>
+            <span class="n">vprev</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">em</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">en</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+
+            <span class="c1"># determine error every now and then</span>
+            <span class="k">if</span> <span class="n">itercount</span> <span class="o">%</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">u</span> <span class="o">-</span> <span class="n">uprev</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">u</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">vprev</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">v</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">itercount</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># using Tr(X.T Y) = Sum[ij](Xij * Yij)</span>
+        <span class="c1"># P.T * C</span>
+        <span class="c1"># P_ij = u_i * v_j * K_ij</span>
+        <span class="n">pity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))),</span> <span class="n">v</span><span class="p">)</span>
+
+        <span class="n">glosim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">pity</span><span class="p">,</span> <span class="n">localkernel</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">glosim</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 2.0.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+<script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

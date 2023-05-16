@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dscribe.descriptors.descriptorlocal &mdash; DScribe 2.0.x documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script defer="defer" src="../../../_static/js/versions.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.0.x
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DScribe</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dscribe.descriptors.descriptorlocal</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dscribe.descriptors.descriptorlocal</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
+<span class="sd">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">you may not use this file except in compliance with the License.</span>
+<span class="sd">You may obtain a copy of the License at</span>
+<span class="sd">    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="sd">Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">See the License for the specific language governing permissions and</span>
+<span class="sd">limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sparse</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+
+<span class="kn">from</span> <span class="nn">dscribe.descriptors.descriptor</span> <span class="kn">import</span> <span class="n">Descriptor</span>
+<span class="kn">from</span> <span class="nn">dscribe.utils.dimensionality</span> <span class="kn">import</span> <span class="n">is1d</span>
+
+
+<div class="viewcode-block" id="DescriptorLocal"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptorlocal.DescriptorLocal">[docs]</a><span class="k">class</span> <span class="nc">DescriptorLocal</span><span class="p">(</span><span class="n">Descriptor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract base class for all local descriptors.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">periodic</span><span class="p">,</span> <span class="n">sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="s2">&quot;off&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">=</span> <span class="n">average</span>
+
+<div class="viewcode-block" id="DescriptorLocal.validate_derivatives_method"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptorlocal.DescriptorLocal.validate_derivatives_method">[docs]</a>    <span class="k">def</span> <span class="nf">validate_derivatives_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">attach</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to validate and determine the final method for calculating the</span>
+<span class="sd">        derivatives.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;numerical&quot;</span><span class="p">,</span> <span class="s2">&quot;auto&quot;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid method specified. Please choose from: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;numerical&quot;</span>
+        <span class="k">return</span> <span class="n">method</span></div>
+
+<div class="viewcode-block" id="DescriptorLocal.derivatives"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptorlocal.DescriptorLocal.derivatives">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">system</span><span class="p">,</span>
+        <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">include</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="n">return_descriptor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">attach</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the descriptor derivatives for the given systems and given centers.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or</span>
+<span class="sd">                many atomic structures.</span>
+<span class="sd">            centers (list): Centers where to calculate the descriptor. Can be</span>
+<span class="sd">                provided as cartesian positions or atomic indices. Also see the</span>
+<span class="sd">                &quot;attach&quot;-argument that controls the interperation of centers</span>
+<span class="sd">                given as atomic indices. If no centers are defined, the</span>
+<span class="sd">                descriptor output will be created for all atoms in the system.</span>
+<span class="sd">                When calculating descriptor for multiple systems, provide the</span>
+<span class="sd">                centers as a list for each system.</span>
+<span class="sd">            include (list): Indices of atoms to compute the derivatives on.</span>
+<span class="sd">                When calculating descriptor for multiple systems, provide</span>
+<span class="sd">                either a one-dimensional list that if applied to all systems or</span>
+<span class="sd">                a two-dimensional list of indices. Cannot be provided together</span>
+<span class="sd">                with &#39;exclude&#39;.</span>
+<span class="sd">            exclude (list): Indices of atoms not to compute the derivatives on.</span>
+<span class="sd">                When calculating descriptor for multiple systems, provide</span>
+<span class="sd">                either a one-dimensional list that if applied to all systems or</span>
+<span class="sd">                a two-dimensional list of indices. Cannot be provided together</span>
+<span class="sd">                with &#39;include&#39;.</span>
+<span class="sd">            method (str): The method for calculating the derivatives. Provide</span>
+<span class="sd">                either &#39;numerical&#39;, &#39;analytical&#39; or &#39;auto&#39;. If using &#39;auto&#39;,</span>
+<span class="sd">                the most efficient available method is automatically chosen.</span>
+<span class="sd">            attach (bool): Controls the behaviour of centers defined as</span>
+<span class="sd">                atomic indices. If True, the centers tied to an atomic index will</span>
+<span class="sd">                move together with the atoms with respect to which the derivatives</span>
+<span class="sd">                are calculated against. If False, centers defined as atomic</span>
+<span class="sd">                indices will be converted into cartesian locations that are</span>
+<span class="sd">                completely independent of the atom location during derivative</span>
+<span class="sd">                calculation.</span>
+<span class="sd">            return_descriptor (bool): Whether to also calculate the descriptor</span>
+<span class="sd">                in the same function call. Notice that it typically is faster</span>
+<span class="sd">                to calculate both in one go.</span>
+<span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
+<span class="sd">                the calculation across samples. Defaults to serial calculation</span>
+<span class="sd">                with n_jobs=1. If a negative number is given, the number of jobs</span>
+<span class="sd">                will be calculated with, n_cpus + n_jobs, where n_cpus is the</span>
+<span class="sd">                amount of CPUs as reported by the OS. With only_physical_cores</span>
+<span class="sd">                you can control which types of CPUs are counted in n_cpus.</span>
+<span class="sd">            only_physical_cores (bool): If a negative n_jobs is given,</span>
+<span class="sd">                determines which types of CPUs are used in calculating the</span>
+<span class="sd">                number of jobs. If set to False (default), also virtual CPUs</span>
+<span class="sd">                are counted.  If set to True, only physical CPUs are counted.</span>
+<span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
+<span class="sd">                into to the console.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            If return_descriptor is True, returns a tuple, where the first item</span>
+<span class="sd">            is the derivative array and the second is the descriptor array.</span>
+<span class="sd">            Otherwise only returns the derivatives array. The derivatives array</span>
+<span class="sd">            is a either a 4D or 5D array, depending on whether you have</span>
+<span class="sd">            provided a single or multiple systems. If the output shape for each</span>
+<span class="sd">            system is the same, a single monolithic numpy array is returned.</span>
+<span class="sd">            For variable sized output (e.g. differently sized systems,</span>
+<span class="sd">            different number of centers or different number of included atoms),</span>
+<span class="sd">            a regular python list is returned. The dimensions are:</span>
+<span class="sd">            [(n_systems,) n_centers, n_atoms, 3, n_features]. The first</span>
+<span class="sd">            dimension goes over the different systems in case multiple were</span>
+<span class="sd">            given. The second dimension goes over the descriptor centers in</span>
+<span class="sd">            the same order as they were given in the argument. The third</span>
+<span class="sd">            dimension goes over the included atoms. The order is same as the</span>
+<span class="sd">            order of atoms in the given system. The fourth dimension goes over</span>
+<span class="sd">            the cartesian components, x, y and z. The fifth dimension goes over</span>
+<span class="sd">            the features in the default order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_derivatives_method</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">attach</span><span class="p">)</span>
+
+        <span class="c1"># If single system given, skip the parallelization</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">Atoms</span><span class="p">):</span>
+            <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_indices</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">include</span><span class="p">,</span> <span class="n">exclude</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">derivatives_single</span><span class="p">(</span>
+                <span class="n">system</span><span class="p">,</span>
+                <span class="n">centers</span><span class="p">,</span>
+                <span class="n">indices</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                <span class="n">attach</span><span class="o">=</span><span class="n">attach</span><span class="p">,</span>
+                <span class="n">return_descriptor</span><span class="o">=</span><span class="n">return_descriptor</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Check input validity</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span>
+        <span class="k">if</span> <span class="n">include</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">include</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span>
+        <span class="k">elif</span> <span class="n">is1d</span><span class="p">(</span><span class="n">include</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="n">include</span> <span class="o">=</span> <span class="p">[</span><span class="n">include</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span>
+        <span class="k">if</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">exclude</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span>
+        <span class="k">elif</span> <span class="n">is1d</span><span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="n">exclude</span> <span class="o">=</span> <span class="p">[</span><span class="n">exclude</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span>
+        <span class="n">n_pos</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_pos</span> <span class="o">!=</span> <span class="n">n_samples</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The given number of centers does not match the given &quot;</span>
+                <span class="s2">&quot;number of systems.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">n_inc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">include</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_inc</span> <span class="o">!=</span> <span class="n">n_samples</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The given number of includes does not match the given &quot;</span>
+                <span class="s2">&quot;number of systems.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">n_exc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exclude</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_exc</span> <span class="o">!=</span> <span class="n">n_samples</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The given number of excludes does not match the given &quot;</span>
+                <span class="s2">&quot;number of systems.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Determine the atom indices that are displaced</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sys</span><span class="p">,</span> <span class="n">inc</span><span class="p">,</span> <span class="n">exc</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">include</span><span class="p">,</span> <span class="n">exclude</span><span class="p">):</span>
+            <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="p">)</span>
+            <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_indices</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">inc</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span>
+
+        <span class="c1"># Combine input arguments</span>
+        <span class="n">inp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">system</span><span class="p">,</span>
+                <span class="n">centers</span><span class="p">,</span>
+                <span class="n">indices</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">attach</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">return_descriptor</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># For the descriptor, the output size for each job depends on the exact arguments.</span>
+        <span class="c1"># Here we precalculate the size for each job to preallocate memory and</span>
+        <span class="c1"># make the process faster.</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">get_shapes</span><span class="p">(</span><span class="n">job</span><span class="p">):</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="n">job</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">n_centers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">n_centers</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">!=</span> <span class="s2">&quot;off&quot;</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span>
+            <span class="n">n_indices</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_indices</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="p">(</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_features</span><span class="p">)</span>
+
+        <span class="n">derivatives_shape</span><span class="p">,</span> <span class="n">descriptor_shape</span> <span class="o">=</span> <span class="n">get_shapes</span><span class="p">(</span><span class="n">inp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">def</span> <span class="nf">is_variable</span><span class="p">(</span><span class="n">inp</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">inp</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">i_der_shape</span><span class="p">,</span> <span class="n">i_desc_shape</span> <span class="o">=</span> <span class="n">get_shapes</span><span class="p">(</span><span class="n">job</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">i_der_shape</span> <span class="o">!=</span> <span class="n">derivatives_shape</span> <span class="ow">or</span> <span class="n">i_desc_shape</span> <span class="o">!=</span> <span class="n">descriptor_shape</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">is_variable</span><span class="p">(</span><span class="n">inp</span><span class="p">):</span>
+            <span class="n">derivatives_shape</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">descriptor_shape</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Create in parallel</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">derivatives_parallel</span><span class="p">(</span>
+            <span class="n">inp</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">derivatives_single</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="p">,</span>
+            <span class="n">derivatives_shape</span><span class="p">,</span>
+            <span class="n">descriptor_shape</span><span class="p">,</span>
+            <span class="n">return_descriptor</span><span class="p">,</span>
+            <span class="n">only_physical_cores</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="DescriptorLocal.init_descriptor_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptorlocal.DescriptorLocal.init_descriptor_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_descriptor_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a zero-initialized numpy array for the descriptor.&quot;&quot;&quot;</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">!=</span> <span class="s2">&quot;off&quot;</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">c</span></div>
+
+<div class="viewcode-block" id="DescriptorLocal.init_derivatives_array"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptorlocal.DescriptorLocal.init_derivatives_array">[docs]</a>    <span class="k">def</span> <span class="nf">init_derivatives_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_centers</span><span class="p">,</span> <span class="n">n_indices</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a zero-initialized numpy array for the derivatives.&quot;&quot;&quot;</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">!=</span> <span class="s2">&quot;off&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_indices</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_indices</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DescriptorLocal.derivatives_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptorlocal.DescriptorLocal.derivatives_single">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_single</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">system</span><span class="p">,</span>
+        <span class="n">centers</span><span class="p">,</span>
+        <span class="n">indices</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;numerical&quot;</span><span class="p">,</span>
+        <span class="n">attach</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">return_descriptor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the derivatives for the given system.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms`): Atomic structure.</span>
+<span class="sd">            centers (list): Centers where to calculate SOAP. Can be</span>
+<span class="sd">                provided as cartesian positions or atomic indices. If no</span>
+<span class="sd">                centers are defined, the SOAP output will be created for all</span>
+<span class="sd">                atoms in the system. When calculating SOAP for multiple</span>
+<span class="sd">                systems, provide the centers as a list for each system.</span>
+<span class="sd">            indices (list): Indices of atoms for which the derivatives will be</span>
+<span class="sd">                computed for.</span>
+<span class="sd">            method (str): The method for calculating the derivatives. Supports</span>
+<span class="sd">                &#39;numerical&#39;.</span>
+<span class="sd">            attach (bool): Controls the behaviour of centers defined as</span>
+<span class="sd">                atomic indices. If True, the centers tied to an atomic index will</span>
+<span class="sd">                move together with the atoms with respect to which the derivatives</span>
+<span class="sd">                are calculated against. If False, centers defined as atomic</span>
+<span class="sd">                indices will be converted into cartesian locations that are</span>
+<span class="sd">                completely independent of the atom location during derivative</span>
+<span class="sd">                calculation.</span>
+<span class="sd">            return_descriptor (bool): Whether to also calculate the descriptor</span>
+<span class="sd">                in the same function call. This is true by default as it</span>
+<span class="sd">                typically is faster to calculate both in one go.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            If return_descriptor is True, returns a tuple, where the first item</span>
+<span class="sd">            is the derivative array and the second is the descriptor array.</span>
+<span class="sd">            Otherwise only returns the derivatives array. The derivatives array</span>
+<span class="sd">            is a 4D numpy array. The dimensions are: [n_centers, n_atoms, 3,</span>
+<span class="sd">            n_features]. The first dimension goes over the SOAP centers in the</span>
+<span class="sd">            same order as they were given in the argument. The second dimension</span>
+<span class="sd">            goes over the included atoms. The order is same as the order of</span>
+<span class="sd">            atoms in the given system. The third dimension goes over the</span>
+<span class="sd">            cartesian components, x, y and z. The last dimension goes over the</span>
+<span class="sd">            features in the default order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_indices</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+        <span class="n">n_centers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span> <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span>
+
+        <span class="c1"># Initialize numpy arrays for storing the descriptor and derivatives.</span>
+        <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_descriptor_array</span><span class="p">(</span><span class="n">n_centers</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_derivatives_array</span><span class="p">(</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_indices</span><span class="p">)</span>
+
+        <span class="c1"># Calculate numerically with extension</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;numerical&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">derivatives_numerical</span><span class="p">(</span>
+                <span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">attach</span><span class="p">,</span> <span class="n">return_descriptor</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;analytical&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">derivatives_analytical</span><span class="p">(</span>
+                <span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">attach</span><span class="p">,</span> <span class="n">return_descriptor</span>
+            <span class="p">)</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_array</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_array</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="DescriptorLocal.derivatives_numerical"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptorlocal.DescriptorLocal.derivatives_numerical">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_numerical</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">d</span><span class="p">,</span>
+        <span class="n">c</span><span class="p">,</span>
+        <span class="n">system</span><span class="p">,</span>
+        <span class="n">centers</span><span class="p">,</span>
+        <span class="n">indices</span><span class="p">,</span>
+        <span class="n">attach</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">return_descriptor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the numerical derivatives for the given system. This is the</span>
+<span class="sd">        default numerical implementation with python. You should overwrite this</span>
+<span class="sd">        with a more optimized method whenever possible.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d (np.array): The derivatives array.</span>
+<span class="sd">            c (np.array): The descriptor array.</span>
+<span class="sd">            system (:class:`ase.Atoms`): Atomic structure.</span>
+<span class="sd">            centers (list): Centers where to calculate SOAP. Can be</span>
+<span class="sd">                provided as cartesian positions or atomic indices. If no</span>
+<span class="sd">                centers are defined, the SOAP output will be created for all</span>
+<span class="sd">                atoms in the system. When calculating SOAP for multiple</span>
+<span class="sd">                systems, provide the centers as a list for each system.</span>
+<span class="sd">            indices (list): Indices of atoms for which the derivatives will be</span>
+<span class="sd">                computed for.</span>
+<span class="sd">            attach (bool): Controls the behaviour of centers defined as</span>
+<span class="sd">                atomic indices. If True, the centers tied to an atomic index will</span>
+<span class="sd">                move together with the atoms with respect to which the derivatives</span>
+<span class="sd">                are calculated against. If False, centers defined as atomic</span>
+<span class="sd">                indices will be converted into cartesian locations that are</span>
+<span class="sd">                completely independent of the atom location during derivative</span>
+<span class="sd">                calculation.</span>
+<span class="sd">            return_descriptor (bool): Whether to also calculate the descriptor</span>
+<span class="sd">                in the same function call. This is true by default as it</span>
+<span class="sd">                typically is faster to calculate both in one go.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="mf">0.0001</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">]</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">attach</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">centers</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="n">centers</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">i_atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i_center</span><span class="p">,</span> <span class="n">center</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">centers</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">i_comp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">i_stencil</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                        <span class="n">system_disturbed</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="n">i_pos</span> <span class="o">=</span> <span class="n">system_disturbed</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+                        <span class="n">i_pos</span><span class="p">[</span><span class="n">i_atom</span><span class="p">,</span> <span class="n">i_comp</span><span class="p">]</span> <span class="o">+=</span> <span class="n">h</span> <span class="o">*</span> <span class="n">deltas</span><span class="p">[</span><span class="n">i_stencil</span><span class="p">]</span>
+                        <span class="n">system_disturbed</span><span class="o">.</span><span class="n">set_positions</span><span class="p">(</span><span class="n">i_pos</span><span class="p">)</span>
+                        <span class="n">d1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system_disturbed</span><span class="p">,</span> <span class="p">[</span><span class="n">center</span><span class="p">])</span>
+                        <span class="n">d</span><span class="p">[</span><span class="n">i_center</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">i_comp</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="p">(</span>
+                            <span class="n">coeffs</span><span class="p">[</span><span class="n">i_stencil</span><span class="p">]</span> <span class="o">*</span> <span class="n">d1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">h</span>
+                        <span class="p">)</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
+            <span class="n">d0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d0</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 2.0.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+<script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

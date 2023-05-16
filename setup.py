@@ -1,8 +1,8 @@
 import sys
 
 # Check python version
-if sys.version_info[:2] < (3, 6):
-    raise RuntimeError("Python version >= 3.6 required.")
+if sys.version_info[:2] < (3, 7):
+    raise RuntimeError("Python version >= 3.7 required.")
 
 import platform
 from distutils.ccompiler import new_compiler
@@ -84,7 +84,7 @@ extensions = [
 if __name__ == "__main__":
     setup(
         name="dscribe",
-        version="1.2.2",
+        version="2.0.0",
         url="https://singroup.github.io/dscribe/",
         description="A Python package for creating feature transformations in applications of machine learning to materials science.",
         long_description="A Python package for creating feature transformations in applications of machine learning to materials science.",
@@ -107,7 +107,6 @@ if __name__ == "__main__":
             "Programming Language :: C++",
             "Programming Language :: Python",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
@@ -115,5 +114,5 @@ if __name__ == "__main__":
             "Programming Language :: Python :: 3 :: Only",
         ],
         keywords="descriptor machine learning atomistic structure materials science",
-        python_requires=">=3.6",
+        python_requires=">=3.7",
     )

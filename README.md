@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/SINGROUP/dscribe/master/logo/dscribe_logo.png" width="400">
 
-[![Build Status](https://dev.azure.com/laurihimanen/DScribe%20CI/_apis/build/status/SINGROUP.dscribe?branchName=master)](https://dev.azure.com/laurihimanen/DScribe%20CI/_build/latest?definitionId=1&branchName=master)
+![Build status](https://github.com/SINGROUP/dscribe/actions/workflows/actions.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master)](https://coveralls.io/github/SINGROUP/dscribe?branch=master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -9,9 +9,15 @@ numerical fingerprints. These fingerprints are often called "descriptors" and
 they can be used in various tasks, including machine learning, visualization,
 similarity analysis, etc.
 
-# Homepage
-For more details and tutorials, visit the homepage at:
+# Documentation
+For more details and tutorials, visit our documentation at:
 [https://singroup.github.io/dscribe/](https://singroup.github.io/dscribe/)
+
+You can find even more details in our open-access articles:
+
+- [DScribe: Library of descriptors for machine learning in materials science](<https://doi.org/10.1016/j.cpc.2019.106949>)
+- [Updates to the DScribe Library: New Descriptors and Derivatives](https://doi.org/10.48550/arXiv.2303.14046)
+
 
 # Quick Example
 ```python
@@ -30,7 +36,7 @@ soap_desc = SOAP(species=["C", "H", "O", "N"], rcut=5, nmax=8, lmax=6, crossover
 # Create descriptors as numpy arrays or sparse arrays
 water = samples[0]
 coulomb_matrix = cm_desc.create(water)
-soap = soap_desc.create(water, positions=[0])
+soap = soap_desc.create(water, centers=[0])
 
 # Easy to use also on multiple systems, can be parallelized across processes
 coulomb_matrices = cm_desc.create(samples)
@@ -38,22 +44,22 @@ coulomb_matrices = cm_desc.create(samples, n_jobs=3)
 oxygen_indices = [np.where(x.get_atomic_numbers() == 8)[0] for x in samples]
 oxygen_soap = soap_desc.create(samples, oxygen_indices, n_jobs=3)
 
-# Some descriptors also allow calculating derivatives with respect to atomic
+# Descriptors also allow calculating derivatives with respect to atomic
 # positions
-der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
+der, des = soap_desc.derivatives(samples, return_descriptor=True)
 ```
 
 # Currently implemented descriptors
- | Descriptor                                    |  Spectrum |  Derivatives |
+ | Descriptor                                    |  Spectrum | Derivatives |
  |-----------------------------------------------|-----|-------|
  | Coulomb matrix                                | :heavy_check_mark: | :heavy_check_mark: |
- | Sine matrix                                   | :heavy_check_mark: | |
- | Ewald matrix                                  | :heavy_check_mark: | |
- | Atom-centered Symmetry Functions (ACSF)       | :heavy_check_mark: | |
- | Smooth Overlap of Atomic Positions (SOAP)     | :heavy_check_mark: |:heavy_check_mark: |
- | Many-body Tensor Representation (MBTR)        | :heavy_check_mark: | |
- | Local Many-body Tensor Representation (LMBTR) | :heavy_check_mark: | |
- | Valle-Oganov descriptor                       | :heavy_check_mark: | |
+ | Sine matrix                                   | :heavy_check_mark: | :heavy_check_mark: |
+ | Ewald matrix                                  | :heavy_check_mark: | :heavy_check_mark: |
+ | Atom-centered Symmetry Functions (ACSF)       | :heavy_check_mark: | :heavy_check_mark: |
+ | Smooth Overlap of Atomic Positions (SOAP)     | :heavy_check_mark: | :heavy_check_mark: |
+ | Many-body Tensor Representation (MBTR)        | :heavy_check_mark: | :heavy_check_mark: |
+ | Local Many-body Tensor Representation (LMBTR) | :heavy_check_mark: | :heavy_check_mark: |
+ | Valle-Oganov descriptor                       | :heavy_check_mark: | :heavy_check_mark: |
 
 # Installation
 In-depth installation instructions can be found [in the
