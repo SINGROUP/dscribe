@@ -13,7 +13,7 @@ soap_desc = SOAP(species=["C", "H", "O", "N"], r_cut=5, n_max=8, l_max=6, crosso
 # Create descriptors as numpy arrays or sparse arrays
 water = samples[0]
 coulomb_matrix = cm_desc.create(water)
-soap = soap_desc.create(water, positions=[0])
+soap = soap_desc.create(water, centers=[0])
 
 # Easy to use also on multiple systems, can be parallelized across processes
 coulomb_matrices = cm_desc.create(samples)
@@ -21,6 +21,6 @@ coulomb_matrices = cm_desc.create(samples, n_jobs=3)
 oxygen_indices = [np.where(x.get_atomic_numbers() == 8)[0] for x in samples]
 oxygen_soap = soap_desc.create(samples, oxygen_indices, n_jobs=3)
 
-# Some descriptors also allow calculating derivatives with respect to atomic
+# Descriptors also allow calculating derivatives with respect to atomic
 # positions
-der, des = soap_desc.derivatives(samples, method="auto", return_descriptor=True)
+der, des = soap_desc.derivatives(samples, return_descriptor=True)

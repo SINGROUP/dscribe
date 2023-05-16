@@ -36,7 +36,7 @@ soap_desc = SOAP(species=["C", "H", "O", "N"], rcut=5, nmax=8, lmax=6, crossover
 # Create descriptors as numpy arrays or sparse arrays
 water = samples[0]
 coulomb_matrix = cm_desc.create(water)
-soap = soap_desc.create(water, positions=[0])
+soap = soap_desc.create(water, centers=[0])
 
 # Easy to use also on multiple systems, can be parallelized across processes
 coulomb_matrices = cm_desc.create(samples)
