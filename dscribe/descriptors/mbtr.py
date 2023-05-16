@@ -154,7 +154,7 @@ class MBTR(DescriptorGlobal):
                 The geometry function determines the degree :math:`k` for MBTR.
                 The order :math:`k` tells how many atoms are involved in the
                 calculation and thus also heavily influence the computational
-                time. 
+                time.
 
                 The following geometry functions are available:
 

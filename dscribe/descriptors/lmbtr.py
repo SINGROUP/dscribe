@@ -44,7 +44,7 @@ class LMBTR(DescriptorLocal):
     Euclidean norm to measure distance between vectors, it is advisable to use
     some form of normalization. This implementation does not support the use of
     a non-identity correlation matrix.
-    
+
     Notice that the species of the central atom is not encoded in the output,
     but is instead represented by a chemical species X with atomic number 0.
     This allows LMBTR to be also used on general positions not corresponding to
@@ -53,6 +53,7 @@ class LMBTR(DescriptorLocal):
     distinguish the central species, one can for example train a different model
     for each central species.
     """
+
     def __init__(
         self,
         geometry=None,
@@ -75,7 +76,7 @@ class LMBTR(DescriptorLocal):
                 The geometry function determines the degree :math:`k` for MBTR.
                 The order :math:`k` tells how many atoms are involved in the
                 calculation and thus also heavily influence the computational
-                time. 
+                time.
 
                 The following geometry functions are available:
 
