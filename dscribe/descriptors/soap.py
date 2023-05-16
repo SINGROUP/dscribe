@@ -276,7 +276,7 @@ class SOAP(DescriptorLocal):
         self.average = average
         self.crossover = crossover
 
-    def prepare_centers(self, system, positions=None):
+    def prepare_centers(self, system, centers=None):
         """Validates and prepares the centers for the C++ extension."""
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
@@ -289,7 +289,7 @@ class SOAP(DescriptorLocal):
                 raise ValueError("System doesn't have cell to justify periodicity.")
 
         # Setup the local positions
-        if positions is None:
+        if centers is None:
             list_positions = system.get_positions()
             indices = np.arange(len(system))
         else:
@@ -301,14 +301,11 @@ class SOAP(DescriptorLocal):
                 " atomic indices or a two-dimensional "
                 "list of cartesian coordinates with x, y and z components."
             )
-            if (
-                not isinstance(positions, (list, tuple, np.ndarray))
-                or len(positions) == 0
-            ):
+            if not isinstance(centers, (list, tuple, np.ndarray)) or len(centers) == 0:
                 raise error
             list_positions = []
-            indices = np.full(len(positions), -1, dtype=np.int64)
-            for idx, i in enumerate(positions):
+            indices = np.full(len(centers), -1, dtype=np.int64)
+            for idx, i in enumerate(centers):
                 if np.issubdtype(type(i), np.integer):
                     list_positions.append(system.get_positions()[i])
                     indices[idx] = i
@@ -369,18 +366,18 @@ class SOAP(DescriptorLocal):
         return d
 
     def create(
-        self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False
+        self, system, centers=None, n_jobs=1, only_physical_cores=False, verbose=False
     ):
-        """Return the SOAP output for the given systems and given positions.
+        """Return the SOAP output for the given systems and given centers.
 
         Args:
             system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
                 many atomic structures.
-            positions (list): Positions where to calculate SOAP. Can be
+            centers (list): Centers where to calculate SOAP. Can be
                 provided as cartesian positions or atomic indices. If no
-                positions are defined, the SOAP output will be created for all
+                centers are defined, the SOAP output will be created for all
                 atoms in the system. When calculating SOAP for multiple
-                systems, provide the positions as a list for each system.
+                systems, provide the centers as a list for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1. If a negative number is given, the used cpus
@@ -396,8 +393,8 @@ class SOAP(DescriptorLocal):
 
         Returns:
             np.ndarray | sparse.COO: The SOAP output for the given systems and
-            positions. The return type depends on the 'sparse'-attribute. The
-            first dimension is determined by the amount of positions and
+            centers. The return type depends on the 'sparse'-attribute. The
+            first dimension is determined by the amount of centers and
             systems and the second dimension is determined by the
             get_number_of_features()-function. When multiple systems are
             provided the results are ordered by the input order of systems and
@@ -406,18 +403,18 @@ class SOAP(DescriptorLocal):
         # Validate input / combine input arguments
         if isinstance(system, Atoms):
             system = [system]
-            positions = [positions]
+            centers = [centers]
         n_samples = len(system)
-        if positions is None:
+        if centers is None:
             inp = [(i_sys,) for i_sys in system]
         else:
-            n_pos = len(positions)
+            n_pos = len(centers)
             if n_pos != n_samples:
                 raise ValueError(
-                    "The given number of positions does not match the given "
+                    "The given number of centers does not match the given "
                     "number of systems."
                 )
-            inp = list(zip(system, positions))
+            inp = list(zip(system, centers))
 
         # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
@@ -425,7 +422,7 @@ class SOAP(DescriptorLocal):
         if self.average == "outer" or self.average == "inner":
             static_size = [n_features]
         else:
-            if positions is None:
+            if centers is None:
                 n_centers = len(inp[0][0])
             else:
                 first_sample, first_pos = inp[0]
@@ -436,7 +433,7 @@ class SOAP(DescriptorLocal):
 
             def is_static():
                 for i_job in inp:
-                    if positions is None:
+                    if centers is None:
                         if len(i_job[0]) != n_centers:
                             return False
                     else:
@@ -463,25 +460,25 @@ class SOAP(DescriptorLocal):
 
         return output
 
-    def create_single(self, system, positions=None):
-        """Return the SOAP output for the given system and given positions.
+    def create_single(self, system, centers=None):
+        """Return the SOAP output for the given system and given centers.
 
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
-            positions (list): Cartesian positions or atomic indices. If
+            centers (list): Cartesian positions or atomic indices. If
                 specified, the SOAP spectrum will be created for these points.
-                If no positions are defined, the SOAP output will be created
+                If no centers are defined, the SOAP output will be created
                 for all atoms in the system.
 
         Returns:
             np.ndarray | sparse.COO: The SOAP output for the
-            given system and positions. The return type depends on the
+            given system and centers. The return type depends on the
             'sparse'-attribute. The first dimension is given by the number of
-            positions and the second dimension is determined by the
+            centers and the second dimension is determined by the
             get_number_of_features()-function.
         """
         cutoff_padding = self.get_cutoff_padding()
-        centers, _ = self.prepare_centers(system, positions)
+        centers, _ = self.prepare_centers(system, centers)
         n_centers = centers.shape[0]
         pos = system.get_positions()
         Z = system.get_atomic_numbers()
@@ -599,7 +596,7 @@ class SOAP(DescriptorLocal):
         d,
         c,
         system,
-        positions,
+        centers,
         indices,
         attach,
         return_descriptor=True,
@@ -627,7 +624,7 @@ class SOAP(DescriptorLocal):
         cell = ase.geometry.cell.complete_cell(system.get_cell())
         pbc = np.asarray(system.get_pbc(), dtype=bool)
         cutoff_padding = self.get_cutoff_padding()
-        centers, center_indices = self.prepare_centers(system, positions)
+        centers, center_indices = self.prepare_centers(system, centers)
 
         if self._rbf == "gto":
             alphas = self._alphas.flatten()
@@ -699,7 +696,7 @@ class SOAP(DescriptorLocal):
         d,
         c,
         system,
-        positions,
+        centers,
         indices,
         attach,
         return_descriptor=True,
@@ -727,7 +724,7 @@ class SOAP(DescriptorLocal):
         cell = ase.geometry.cell.complete_cell(system.get_cell())
         pbc = np.asarray(system.get_pbc(), dtype=bool)
         cutoff_padding = self.get_cutoff_padding()
-        centers, center_indices = self.prepare_centers(system, positions)
+        centers, center_indices = self.prepare_centers(system, centers)
         sorted_species = self._atomic_numbers
         n_species = len(sorted_species)
         n_centers = centers.shape[0]

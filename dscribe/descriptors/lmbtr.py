@@ -288,18 +288,18 @@ class LMBTR(DescriptorLocal):
         self._normalization = value
 
     def create(
-        self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False
+        self, system, centers=None, n_jobs=1, only_physical_cores=False, verbose=False
     ):
-        """Return the LMBTR output for the given systems and given positions.
+        """Return the LMBTR output for the given systems and given centers.
 
         Args:
             system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
                 many atomic structures.
-            positions (list): Positions where to calculate LMBTR. Can be
+            centers (list): Centers where to calculate LMBTR. Can be
                 provided as cartesian positions or atomic indices. If no
-                positions are defined, the LMBTR output will be created for all
+                centers are defined, the LMBTR output will be created for all
                 atoms in the system. When calculating LMBTR for multiple
-                systems, provide the positions as a list for each system.
+                systems, provide the centers as a list for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1. If a negative number is given, the used cpus
@@ -315,31 +315,31 @@ class LMBTR(DescriptorLocal):
 
         Returns:
             np.ndarray | scipy.sparse.csr_matrix: The LMBTR output for the given
-            systems and positions. The return type depends on the
+            systems and centers. The return type depends on the
             'sparse'-attribute. The first dimension is determined by the amount
-            of positions and systems and the second dimension is determined by
+            of centers and systems and the second dimension is determined by
             the get_number_of_features()-function.
         """
         # Combine input arguments
         if isinstance(system, Atoms):
             system = [system]
-            positions = [positions]
+            centers = [centers]
         n_samples = len(system)
-        if positions is None:
+        if centers is None:
             inp = [(i_sys,) for i_sys in system]
         else:
-            n_pos = len(positions)
+            n_pos = len(centers)
             if n_pos != n_samples:
                 raise ValueError(
-                    "The given number of positions does not match the given"
+                    "The given number of centers does not match the given"
                     "number of systems."
                 )
-            inp = list(zip(system, positions))
+            inp = list(zip(system, centers))
 
         # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
         static_size = None
-        if positions is None:
+        if centers is None:
             n_centers = len(inp[0][0])
         else:
             first_sample, first_pos = inp[0]
@@ -350,7 +350,7 @@ class LMBTR(DescriptorLocal):
 
         def is_static():
             for i_job in inp:
-                if positions is None:
+                if centers is None:
                     if len(i_job[0]) != n_centers:
                         return False
                 else:
@@ -380,24 +380,24 @@ class LMBTR(DescriptorLocal):
     def create_single(
         self,
         system,
-        positions=None,
+        centers=None,
     ):
         """Return the local many-body tensor representation for the given
-        system and positions.
+        system and centers.
 
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
-            positions (iterable): Positions or atom index of points, from
-                which local_mbtr is created. Can be a list of integer numbers
-                or a list of xyz-coordinates. If integers provided, the atoms
-                at that index are used as centers. If positions provided, new
-                atoms are added at that position. If no positions are provided,
-                all atoms in the system will be used as centers.
+            centers (iterable): Centers for which LMBTR is created. Can be
+                a list of integer numbers or a list of xyz-coordinates. If
+                integers provided, the atoms at that index are used as centers.
+                If cartesian positions are provided, new atoms are added at that
+                position. If no centers are provided, all atoms in the system
+                will be used as centers.
 
         Returns:
             1D ndarray: The local many-body tensor representations of given
-            positions, for k terms, as an array. These are ordered as given in
-            positions.
+            centers, for k terms, as an array. These are ordered as given in
+            centers.
         """
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
@@ -414,7 +414,7 @@ class LMBTR(DescriptorLocal):
                 "is reserved to mark the atoms use as analysis centers."
             )
 
-        # Form a list of indices, positions and atomic numbers for the local
+        # Form a list of indices, centers and atomic numbers for the local
         # centers. k=3 and k=2 use a slightly different approach, so two
         # versions are built
         i_new = len(system)
@@ -425,16 +425,16 @@ class LMBTR(DescriptorLocal):
         new_pos_k3 = []
         new_atomic_numbers_k3 = []
         n_atoms = len(system)
-        if positions is not None:
-            # Check validity of position definitions and create final cartesian
+        if centers is not None:
+            # Check validity of centers definitions and create final cartesian
             # position list
-            if len(positions) == 0:
+            if len(centers) == 0:
                 raise ValueError(
-                    "The argument 'positions' should contain a non-empty set of"
+                    "The argument 'centers' should contain a non-empty set of"
                     " atomic indices or cartesian coordinates with x, y and z "
                     "components."
                 )
-            for i in positions:
+            for i in centers:
                 if np.issubdtype(type(i), np.integer):
                     i_len = len(system)
                     if i >= i_len or i < 0:
@@ -449,7 +449,7 @@ class LMBTR(DescriptorLocal):
                 elif isinstance(i, (list, tuple, np.ndarray)):
                     if len(i) != 3:
                         raise ValueError(
-                            "The argument 'positions' should contain a "
+                            "The argument 'centers' should contain a "
                             "non-empty set of atomic indices or cartesian "
                             "coordinates with x, y and z components."
                         )
@@ -460,10 +460,10 @@ class LMBTR(DescriptorLocal):
                     i_new += 1
                 else:
                     raise ValueError(
-                        "Create method requires the argument 'positions', a "
+                        "Create method requires the argument 'centers', a "
                         "list of atom indices and/or positions."
                     )
-        # If positions are not supplied, it is assumed that each atom is used
+        # If centers are not supplied, it is assumed that each atom is used
         # as a center
         else:
             indices_k2 = np.arange(n_atoms)

@@ -89,18 +89,18 @@ class ACSF(DescriptorLocal):
         self.r_cut = r_cut
 
     def create(
-        self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False
+        self, system, centers=None, n_jobs=1, only_physical_cores=False, verbose=False
     ):
-        """Return the ACSF output for the given systems and given positions.
+        """Return the ACSF output for the given systems and given centers.
 
         Args:
             system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
                 many atomic structures.
-            positions (list): Positions where to calculate ACSF. Can be
+            centers (list): Centers where to calculate ACSF. Can be
                 provided as cartesian positions or atomic indices. If no
-                positions are defined, the output will be created for all
+                centers are defined, the output will be created for all
                 atoms in the system. When calculating output for multiple
-                systems, provide the positions as a list for each system.
+                systems, provide the centers as a list for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1. If a negative number is given, the used cpus
@@ -116,26 +116,26 @@ class ACSF(DescriptorLocal):
 
         Returns:
             np.ndarray | sparse.COO: The ACSF output for the given
-            systems and positions. The return type depends on the
+            systems and centers. The return type depends on the
             'sparse'-attribute. The first dimension is determined by the amount
-            of positions and systems and the second dimension is determined by
+            of centers and systems and the second dimension is determined by
             the get_number_of_features()-function. When multiple systems are
             provided the results are ordered by the input order of systems and
-            their positions.
+            their centers.
         """
         # Validate input / combine input arguments
         if isinstance(system, Atoms):
             system = [system]
-            positions = [positions]
-        if positions is None:
+            centers = [centers]
+        if centers is None:
             inp = [(i_sys,) for i_sys in system]
         else:
-            inp = list(zip(system, positions))
+            inp = list(zip(system, centers))
 
         # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
         static_size = None
-        if positions is None:
+        if centers is None:
             n_centers = len(inp[0][0])
         else:
             first_sample, first_pos = inp[0]
@@ -146,7 +146,7 @@ class ACSF(DescriptorLocal):
 
         def is_static():
             for i_job in inp:
-                if positions is None:
+                if centers is None:
                     if len(i_job[0]) != n_centers:
                         return False
                 else:
@@ -173,18 +173,18 @@ class ACSF(DescriptorLocal):
 
         return output
 
-    def create_single(self, system, positions=None):
+    def create_single(self, system, centers=None):
         """Creates the descriptor for the given system.
 
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
-            positions (iterable): Indices of the atoms around which the ACSF
-                will be returned. If no positions defined, ACSF will be created
+            centers (iterable): Indices of the atoms around which the ACSF
+                will be returned. If no centers defined, ACSF will be created
                 for all atoms in the system.
 
         Returns:
-            np.ndarray: The ACSF output for the given system and positions. The
-            first dimension is given by the number of positions and the second
+            np.ndarray: The ACSF output for the given system and centers. The
+            first dimension is given by the number of centers and the second
             dimension is determined by the get_number_of_features()-function.
         """
         # Check if there are types that have not been declared
@@ -193,11 +193,11 @@ class ACSF(DescriptorLocal):
         # Create C-compatible list of atomic indices for which the ACSF is
         # calculated
         calculate_all = False
-        if positions is None:
+        if centers is None:
             calculate_all = True
             indices = np.arange(len(system))
         else:
-            indices = positions
+            indices = centers
 
         # If periodicity is not requested, and the output is requested for all
         # atoms, we skip all the intricate optimizations that will make things

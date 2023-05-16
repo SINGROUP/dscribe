@@ -12,7 +12,7 @@ from conftest import (
     assert_basis,
     assert_parallellization,
     assert_symmetries,
-    assert_positions,
+    assert_centers,
     assert_periodic,
     assert_derivatives,
     assert_derivatives_exclude,
@@ -250,7 +250,7 @@ def test_dtype(dtype, sparse):
 @pytest.mark.parametrize("n_jobs", [1, 2])
 @pytest.mark.parametrize("sparse", [True, False])
 @pytest.mark.parametrize(
-    "positions",
+    "centers",
     [
         "all",
         "indices_fixed",
@@ -259,8 +259,8 @@ def test_dtype(dtype, sparse):
         "cartesian_variable",
     ],
 )
-def test_parallellization(n_jobs, sparse, positions):
-    assert_parallellization(soap, n_jobs, sparse, positions)
+def test_parallellization(n_jobs, sparse, centers):
+    assert_parallellization(soap, n_jobs, sparse, centers)
 
 
 @pytest.mark.parametrize("cell", ["collapsed_periodic", "collapsed_finite"])
@@ -286,8 +286,8 @@ def test_periodic():
     assert_periodic(soap)
 
 
-def test_positions():
-    assert_positions(soap)
+def test_centers():
+    assert_centers(soap)
 
 
 @pytest.mark.parametrize("rbf", ["gto", "polynomial"])
@@ -445,15 +445,15 @@ def test_exceptions():
 
     # Test that trying to get analytical derivatives with averaged output
     # raises an exception
-    positions = [[0.0, 0.0, 0.0]]
+    centers = [[0.0, 0.0, 0.0]]
     with pytest.raises(ValueError):
         args["average"] = "inner"
         soap = SOAP(**args)
-        soap.derivatives(system, positions=positions, method="analytical")
+        soap.derivatives(system, centers=centers, method="analytical")
     with pytest.raises(ValueError):
         args["average"] = "outer"
         soap = SOAP(**args)
-        soap.derivatives(system, positions=positions, method="analytical")
+        soap.derivatives(system, centers=centers, method="analytical")
 
     # Test that trying to get analytical derivatives with polynomial basis
     # raises an exception.
@@ -461,7 +461,7 @@ def test_exceptions():
         args["average"] = "off"
         args["rbf"] = "polynomial"
         soap = SOAP(**args)
-        soap.derivatives(system, positions=positions, method="analytical")
+        soap.derivatives(system, centers=centers, method="analytical")
 
     # Test that trying to get analytical derivatives with periodicity on
     # raises an exception
@@ -469,7 +469,7 @@ def test_exceptions():
         args["periodic"] = True
         args["rbf"] = "rbf"
         soap = SOAP(**args)
-        soap.derivatives(system, positions=positions, method="analytical")
+        soap.derivatives(system, centers=centers, method="analytical")
 
 
 w_poly = {"function": "poly", "c": 2, "m": 3, "r0": 4}
@@ -519,7 +519,7 @@ def test_crossover(crossover, rbf):
         periodic=False,
     )
 
-    feat = desc.create(system, positions=pos)[0, :]
+    feat = desc.create(system, centers=pos)[0, :]
     for pair in itertools.combinations_with_replacement(species, 2):
         crossed = pair[0] != pair[1]
         if crossed:
@@ -561,7 +561,7 @@ def test_average_inner(rbf):
     system, centers, args = globals()[f"get_soap_{rbf}_l_max_setup"]()
     # Calculate the analytical power spectrum
     soap = SOAP(**args, rbf=rbf, average="inner")
-    analytical_inner = soap.create(system, positions=centers)
+    analytical_inner = soap.create(system, centers=centers)
 
     # Calculate the numerical power spectrum
     coeffs = globals()[f"load_{rbf}_coefficients"](args)
@@ -583,7 +583,7 @@ def test_integration(rbf):
     # Calculate the analytical power spectrum
     system, centers, args = globals()[f"get_soap_{rbf}_l_max_setup"]()
     soap = SOAP(**args, rbf=rbf, dtype="float64")
-    analytical_power_spectrum = soap.create(system, positions=centers)
+    analytical_power_spectrum = soap.create(system, centers=centers)
 
     # Fetch the precalculated numerical power spectrum
     coeffs = globals()[f"load_{rbf}_coefficients"](args)
@@ -613,7 +613,7 @@ def test_weighting(rbf, weighting):
 
     # Calculate the analytical power spectrum
     soap = SOAP(**args, rbf=rbf, weighting=weighting)
-    analytical_power_spectrum = soap.create(system, positions=centers)
+    analytical_power_spectrum = soap.create(system, centers=centers)
 
     # Calculate and save the numerical power spectrum to disk
     filename = (

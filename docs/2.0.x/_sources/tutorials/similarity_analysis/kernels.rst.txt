@@ -33,7 +33,7 @@ metric:
 
 .. literalinclude:: ../../../../examples/kernels/averagekernel.py
    :language: python
-   :lines: 4-26
+   :lines: 4-
 
 REMatch kernel
 --------------
@@ -57,6 +57,7 @@ The class :class:`.REMatchKernel` can be used to calculate this similarity:
 
 .. literalinclude:: ../../../../examples/kernels/rematchkernel.py
    :language: python
+   :lines: 4-
 
 .. bibliography:: ../../references.bib
    :style: unsrt

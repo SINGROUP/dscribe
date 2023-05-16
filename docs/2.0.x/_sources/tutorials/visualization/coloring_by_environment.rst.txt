@@ -1,5 +1,5 @@
-Coloring by Environment
-=======================
+Chemical Environment Visualization with Local Descriptors
+=========================================================
 
 This tutorial demonstrates how one can visualize the abstract descriptor feature
 space by mapping it into a visual property. The goal is to give a rough idea on
@@ -27,16 +27,17 @@ the LMBTR descriptor, but any local descriptor would do:
 
 .. literalinclude:: ../../../../examples/visualization/visualization.py
     :language: python
-    :lines: 17-30
+    :lines: 17-28
 
 In the more interesting case where the phases are not known in advance, one
 could perform some form of clustering (see the :doc:`tutorial on clustering <../machine_learning/clustering>`) to
 automatically find out meaningful reference structures from the data itself.
-Next we create a larger system that contains these two grains:
+Next we create a larger system that contains these two grains with a bit of
+added noise in the atom positions:
 
 .. literalinclude:: ../../../../examples/visualization/visualization.py
     :language: python
-    :lines: 32-40
+    :lines: 30-38
 
 The full structure will look like this:
 
@@ -45,8 +46,8 @@ The full structure will look like this:
    :align: center
    :width: 50%
 
-Colouring
----------
+Coloring
+--------
 Next we want to generate a simple metric that measures how similar the
 environment of each atom is to the reference FCC and BCC structures. In this
 example we define the metric as the Euclidean distance that is scaled to be
@@ -54,13 +55,13 @@ between 0 and 1 from least similar to identical with reference:
 
 .. literalinclude:: ../../../../examples/visualization/visualization.py
     :language: python
-    :lines: 42-48
+    :lines: 40-46
 
 Then we calculate the metrics for all atoms in the system:
 
 .. literalinclude:: ../../../../examples/visualization/visualization.py
     :language: python
-    :lines: 50-53
+    :lines: 48-51
 
 The last step is to create a figure where our custom metric is mapped into
 colors. We can create an image where the BCC-metric is tied to the blue color,
@@ -68,7 +69,7 @@ and FCC is tied to red:
 
 .. literalinclude:: ../../../../examples/visualization/visualization.py
     :language: python
-    :lines: 55-68
+    :lines: 53-66
 
 The final re-colored system looks like this:
 

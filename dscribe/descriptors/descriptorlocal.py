@@ -41,7 +41,7 @@ class DescriptorLocal(Descriptor):
     def derivatives(
         self,
         system,
-        positions=None,
+        centers=None,
         include=None,
         exclude=None,
         method="auto",
@@ -51,18 +51,18 @@ class DescriptorLocal(Descriptor):
         only_physical_cores=False,
         verbose=False,
     ):
-        """Return the descriptor derivatives for the given systems and given positions.
+        """Return the descriptor derivatives for the given systems and given centers.
 
         Args:
             system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
                 many atomic structures.
-            positions (list): Positions where to calculate the descriptor. Can be
+            centers (list): Centers where to calculate the descriptor. Can be
                 provided as cartesian positions or atomic indices. Also see the
-                "attach"-argument that controls the interperation of locations
-                given as atomic indices. If no positions are defined, the
+                "attach"-argument that controls the interperation of centers
+                given as atomic indices. If no centers are defined, the
                 descriptor output will be created for all atoms in the system.
                 When calculating descriptor for multiple systems, provide the
-                positions as a list for each system.
+                centers as a list for each system.
             include (list): Indices of atoms to compute the derivatives on.
                 When calculating descriptor for multiple systems, provide
                 either a one-dimensional list that if applied to all systems or
@@ -76,10 +76,10 @@ class DescriptorLocal(Descriptor):
             method (str): The method for calculating the derivatives. Provide
                 either 'numerical', 'analytical' or 'auto'. If using 'auto',
                 the most efficient available method is automatically chosen.
-            attach (bool): Controls the behaviour of positions defined as
-                atomic indices. If True, the positions tied to an atomic index will
+            attach (bool): Controls the behaviour of centers defined as
+                atomic indices. If True, the centers tied to an atomic index will
                 move together with the atoms with respect to which the derivatives
-                are calculated against. If False, positions defined as atomic
+                are calculated against. If False, centers defined as atomic
                 indices will be converted into cartesian locations that are
                 completely independent of the atom location during derivative
                 calculation.
@@ -109,7 +109,7 @@ class DescriptorLocal(Descriptor):
             For variable sized output (e.g. differently sized systems,
             different number of centers or different number of included atoms),
             a regular python list is returned. The dimensions are:
-            [(n_systems,) n_positions, n_atoms, 3, n_features]. The first
+            [(n_systems,) n_centers, n_atoms, 3, n_features]. The first
             dimension goes over the different systems in case multiple were
             given. The second dimension goes over the descriptor centers in
             the same order as they were given in the argument. The third
@@ -126,7 +126,7 @@ class DescriptorLocal(Descriptor):
             indices = self._get_indices(n_atoms, include, exclude)
             return self.derivatives_single(
                 system,
-                positions,
+                centers,
                 indices,
                 method=method,
                 attach=attach,
@@ -135,8 +135,8 @@ class DescriptorLocal(Descriptor):
 
         # Check input validity
         n_samples = len(system)
-        if positions is None:
-            positions = [None] * n_samples
+        if centers is None:
+            centers = [None] * n_samples
         if include is None:
             include = [None] * n_samples
         elif is1d(include, np.integer):
@@ -145,10 +145,10 @@ class DescriptorLocal(Descriptor):
             exclude = [None] * n_samples
         elif is1d(exclude, np.integer):
             exclude = [exclude] * n_samples
-        n_pos = len(positions)
+        n_pos = len(centers)
         if n_pos != n_samples:
             raise ValueError(
-                "The given number of positions does not match the given "
+                "The given number of centers does not match the given "
                 "number of systems."
             )
         n_inc = len(include)
@@ -174,7 +174,7 @@ class DescriptorLocal(Descriptor):
         inp = list(
             zip(
                 system,
-                positions,
+                centers,
                 indices,
                 [method] * n_samples,
                 [attach] * n_samples,
@@ -190,11 +190,11 @@ class DescriptorLocal(Descriptor):
         def get_shapes(job):
             centers = job[1]
             if centers is None:
-                n_positions = len(job[0])
+                n_centers = len(job[0])
             else:
-                n_positions = 1 if self.average != "off" else len(centers)
+                n_centers = 1 if self.average != "off" else len(centers)
             n_indices = len(job[2])
-            return (n_positions, n_indices, 3, n_features), (n_positions, n_features)
+            return (n_centers, n_indices, 3, n_features), (n_centers, n_features)
 
         derivatives_shape, descriptor_shape = get_shapes(inp[0])
 
@@ -243,7 +243,7 @@ class DescriptorLocal(Descriptor):
     def derivatives_single(
         self,
         system,
-        positions,
+        centers,
         indices,
         method="numerical",
         attach=False,
@@ -252,19 +252,19 @@ class DescriptorLocal(Descriptor):
         """Return the derivatives for the given system.
         Args:
             system (:class:`ase.Atoms`): Atomic structure.
-            positions (list): Positions where to calculate SOAP. Can be
+            centers (list): Centers where to calculate SOAP. Can be
                 provided as cartesian positions or atomic indices. If no
-                positions are defined, the SOAP output will be created for all
+                centers are defined, the SOAP output will be created for all
                 atoms in the system. When calculating SOAP for multiple
-                systems, provide the positions as a list for each system.
+                systems, provide the centers as a list for each system.
             indices (list): Indices of atoms for which the derivatives will be
                 computed for.
             method (str): The method for calculating the derivatives. Supports
                 'numerical'.
-            attach (bool): Controls the behaviour of positions defined as
-                atomic indices. If True, the positions tied to an atomic index will
+            attach (bool): Controls the behaviour of centers defined as
+                atomic indices. If True, the centers tied to an atomic index will
                 move together with the atoms with respect to which the derivatives
-                are calculated against. If False, positions defined as atomic
+                are calculated against. If False, centers defined as atomic
                 indices will be converted into cartesian locations that are
                 completely independent of the atom location during derivative
                 calculation.
@@ -275,7 +275,7 @@ class DescriptorLocal(Descriptor):
             If return_descriptor is True, returns a tuple, where the first item
             is the derivative array and the second is the descriptor array.
             Otherwise only returns the derivatives array. The derivatives array
-            is a 4D numpy array. The dimensions are: [n_positions, n_atoms, 3,
+            is a 4D numpy array. The dimensions are: [n_centers, n_atoms, 3,
             n_features]. The first dimension goes over the SOAP centers in the
             same order as they were given in the argument. The second dimension
             goes over the included atoms. The order is same as the order of
@@ -284,7 +284,7 @@ class DescriptorLocal(Descriptor):
             features in the default order.
         """
         n_indices = len(indices)
-        n_centers = len(system) if positions is None else len(positions)
+        n_centers = len(system) if centers is None else len(centers)
 
         # Initialize numpy arrays for storing the descriptor and derivatives.
         if return_descriptor:
@@ -296,11 +296,11 @@ class DescriptorLocal(Descriptor):
         # Calculate numerically with extension
         if method == "numerical":
             self.derivatives_numerical(
-                d, c, system, positions, indices, attach, return_descriptor
+                d, c, system, centers, indices, attach, return_descriptor
             )
         elif method == "analytical":
             self.derivatives_analytical(
-                d, c, system, positions, indices, attach, return_descriptor
+                d, c, system, centers, indices, attach, return_descriptor
             )
 
         d = self.format_array(d)
@@ -315,7 +315,7 @@ class DescriptorLocal(Descriptor):
         d,
         c,
         system,
-        positions,
+        centers,
         indices,
         attach=False,
         return_descriptor=True,
@@ -328,17 +328,17 @@ class DescriptorLocal(Descriptor):
             d (np.array): The derivatives array.
             c (np.array): The descriptor array.
             system (:class:`ase.Atoms`): Atomic structure.
-            positions (list): Positions where to calculate SOAP. Can be
+            centers (list): Centers where to calculate SOAP. Can be
                 provided as cartesian positions or atomic indices. If no
-                positions are defined, the SOAP output will be created for all
+                centers are defined, the SOAP output will be created for all
                 atoms in the system. When calculating SOAP for multiple
-                systems, provide the positions as a list for each system.
+                systems, provide the centers as a list for each system.
             indices (list): Indices of atoms for which the derivatives will be
                 computed for.
-            attach (bool): Controls the behaviour of positions defined as
-                atomic indices. If True, the positions tied to an atomic index will
+            attach (bool): Controls the behaviour of centers defined as
+                atomic indices. If True, the centers tied to an atomic index will
                 move together with the atoms with respect to which the derivatives
-                are calculated against. If False, positions defined as atomic
+                are calculated against. If False, centers defined as atomic
                 indices will be converted into cartesian locations that are
                 completely independent of the atom location during derivative
                 calculation.
@@ -349,13 +349,13 @@ class DescriptorLocal(Descriptor):
         h = 0.0001
         coeffs = [-1.0 / 2.0, 1.0 / 2.0]
         deltas = [-1.0, 1.0]
-        if positions is None:
-            positions = range(len(system))
-        if not attach and np.issubdtype(type(positions[0]), np.integer):
-            positions = system.get_positions()[positions]
+        if centers is None:
+            centers = range(len(system))
+        if not attach and np.issubdtype(type(centers[0]), np.integer):
+            centers = system.get_positions()[centers]
 
         for index, i_atom in enumerate(indices):
-            for i_center, center in enumerate(positions):
+            for i_center, center in enumerate(centers):
                 for i_comp in range(3):
                     for i_stencil in range(2):
                         system_disturbed = system.copy()
@@ -369,5 +369,5 @@ class DescriptorLocal(Descriptor):
             index += 1
 
         if return_descriptor:
-            d0 = self.create_single(system, positions)
+            d0 = self.create_single(system, centers)
             np.copyto(c, d0)

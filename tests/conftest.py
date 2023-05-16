@@ -238,7 +238,7 @@ def assert_derivatives(
                                 coeffs[i_stencil] * d1[0, :] / h
                             )
         derivatives_cpp, d_cpp = descriptor.derivatives(
-            system, positions=centers, attach=attach, method=method
+            system, centers=centers, attach=attach, method=method
         )
     else:
         derivatives_python = np.zeros((n_atoms, n_comp, n_features))
@@ -446,7 +446,7 @@ def assert_n_features(descriptor_func, n_features):
     assert n_features_reported == n_features_actual == n_features
 
 
-def assert_parallellization(descriptor_func, n_jobs, sparse, positions=None, **kwargs):
+def assert_parallellization(descriptor_func, n_jobs, sparse, centers=None, **kwargs):
     """Tests creating output and derivatives parallelly."""
     # Periodic systems are used since all descriptors support them.
     CO = molecule("CO")
@@ -463,28 +463,28 @@ def assert_parallellization(descriptor_func, n_jobs, sparse, positions=None, **k
         all_kwargs = {}
         a_kwargs = {}
         b_kwargs = {}
-        if positions == "all":
-            all_kwargs["positions"] = None
-            a_kwargs["positions"] = None
-            b_kwargs["positions"] = None
-        elif positions == "indices_fixed":
-            all_kwargs["positions"] = [[0, 1], [0, 1]]
-            a_kwargs["positions"] = [0, 1]
-            b_kwargs["positions"] = [0, 1]
-        elif positions == "indices_variable":
-            all_kwargs["positions"] = [[0], [0, 1]]
-            a_kwargs["positions"] = [0]
-            b_kwargs["positions"] = [0, 1]
-        elif positions == "cartesian_fixed":
-            all_kwargs["positions"] = [[[0, 0, 0], [1, 2, 0]], [[0, 0, 0], [1, 2, 0]]]
-            a_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
-            b_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
-        elif positions == "cartesian_variable":
-            all_kwargs["positions"] = [[[1, 2, 0]], [[0, 0, 0], [1, 2, 0]]]
-            a_kwargs["positions"] = [[1, 2, 0]]
-            b_kwargs["positions"] = [[0, 0, 0], [1, 2, 0]]
-        elif positions is not None:
-            raise ValueError("Unknown positions option")
+        if centers == "all":
+            all_kwargs["centers"] = None
+            a_kwargs["centers"] = None
+            b_kwargs["centers"] = None
+        elif centers == "indices_fixed":
+            all_kwargs["centers"] = [[0, 1], [0, 1]]
+            a_kwargs["centers"] = [0, 1]
+            b_kwargs["centers"] = [0, 1]
+        elif centers == "indices_variable":
+            all_kwargs["centers"] = [[0], [0, 1]]
+            a_kwargs["centers"] = [0]
+            b_kwargs["centers"] = [0, 1]
+        elif centers == "cartesian_fixed":
+            all_kwargs["centers"] = [[[0, 0, 0], [1, 2, 0]], [[0, 0, 0], [1, 2, 0]]]
+            a_kwargs["centers"] = [[0, 0, 0], [1, 2, 0]]
+            b_kwargs["centers"] = [[0, 0, 0], [1, 2, 0]]
+        elif centers == "cartesian_variable":
+            all_kwargs["centers"] = [[[1, 2, 0]], [[0, 0, 0], [1, 2, 0]]]
+            a_kwargs["centers"] = [[1, 2, 0]]
+            b_kwargs["centers"] = [[0, 0, 0], [1, 2, 0]]
+        elif centers is not None:
+            raise ValueError("Unknown centers option")
 
         if func == "create":
             output = desc.create(samples, n_jobs=n_jobs, **all_kwargs)
@@ -617,11 +617,11 @@ def assert_normalization(
         assert norm == pytest.approx(norm_abs, 0, 1e-8)
 
 
-def assert_positions(descriptor_func):
-    """Tests that local descriptors handle the position argument correctly."""
+def assert_centers(descriptor_func):
+    """Tests that local descriptors handle the centers argument correctly."""
     system = get_simple_finite()
     desc = descriptor_func()([system])
-    positions = [
+    centers = [
         ([0, 1, 2], 3),
         ([[0, 1, 2], [0, 1, 1]], 2),
         (np.array([[0, 1, 2], [0, 1, 1]]), 2),
@@ -629,12 +629,12 @@ def assert_positions(descriptor_func):
         ((3), 0),
         ((-1), 0),
     ]
-    for pos, n_pos in positions:
+    for pos, n_pos in centers:
         if not n_pos:
             with pytest.raises(Exception):
-                desc.create(system, positions=pos)
+                desc.create(system, centers=pos)
         else:
-            feat = desc.create(system, positions=pos)
+            feat = desc.create(system, centers=pos)
             assert feat.shape[0] == n_pos
 
 

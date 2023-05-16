@@ -13,7 +13,7 @@ from conftest import (
     assert_parallellization,
     assert_symmetries,
     assert_normalization,
-    assert_positions,
+    assert_centers,
     assert_derivatives,
     assert_derivatives_exclude,
     assert_derivatives_include,
@@ -88,7 +88,7 @@ def test_dtype(dtype, sparse):
 @pytest.mark.parametrize("n_jobs", (1,))
 @pytest.mark.parametrize("sparse", (True, False))
 @pytest.mark.parametrize(
-    "positions",
+    "centers",
     [
         "all",
         "indices_fixed",
@@ -97,8 +97,8 @@ def test_dtype(dtype, sparse):
         "cartesian_variable",
     ],
 )
-def test_parallellization(n_jobs, sparse, positions):
-    assert_parallellization(lmbtr_default_k2, n_jobs, sparse, positions)
+def test_parallellization(n_jobs, sparse, centers):
+    assert_parallellization(lmbtr_default_k2, n_jobs, sparse, centers)
 
 
 def test_no_system_modification():
@@ -177,8 +177,8 @@ def test_normalization(normalization, norm_rel, norm_abs):
     assert_normalization(lmbtr_default_k2, system, normalization, norm_rel, norm_abs)
 
 
-def test_positions():
-    assert_positions(lmbtr_default_k2)
+def test_centers():
+    assert_centers(lmbtr_default_k2)
 
 
 @pytest.mark.parametrize("k", [2, 3])

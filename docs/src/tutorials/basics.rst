@@ -17,9 +17,10 @@ various purposes, e.g.
  - Measuring similarity of structures or local structural sites.
  - etc.
 
-Please read more details in our open-access article: `DScribe: Library of
-descriptors for machine learning in materials science
-<https://doi.org/10.1016/j.cpc.2019.106949>`_
+You can find more details in our open-access articles:
+
+  * `DScribe: Library of descriptors for machine learning in materials science <https://doi.org/10.1016/j.cpc.2019.106949>`_
+  * `Updates to the DScribe Library: New Descriptors and Derivatives <https://doi.org/10.48550/arXiv.2303.14046>`_
 
 Terminology
 -----------
@@ -67,10 +68,10 @@ Typical workflow
 3. Setup the descriptor object. The exact setup depends on the used descriptor
    and your use case. Notice that typically you will want to instantiate only
    one descriptor object which will handle all structures in your dataset. You
-   should read the original articles or the specific tutorials to understand
-   the meaning of different settings. For machine learning purposes you may
-   also want to cross-validate the different settings to find the
-   best-performing ones.
+   should read our open-access articles or the specific tutorials to understand
+   the meaning of different settings. For machine learning purposes you may also
+   want to cross-validate the different settings to find the best-performing
+   ones.
 
    For example:
 
@@ -80,16 +81,29 @@ Typical workflow
 
 4. Call the :code:`create()` function of the descriptor object on a single Atoms object
    or a list of them. Optionally provide a number of cores to parallelize the
-   work across the structures (note that parallellization for a single structure
-   is not supported).
+   work across the structures. Note that the computation is parallellized across
+   different structures and you will only see proper scaling once you feed more
+   than one structure to :code:`create`.
 
    .. literalinclude:: ../../../examples/basics.py
     :language: python
     :lines: 30-31
 
-5. The output is either 2D (number of structures :math:`\times` number of features) `numpy
+   The output is either 2D (number of structures :math:`\times` number of features) `numpy
    array
    <https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html>`_ or
    `sparse.COO array <https://sparse.pydata.org/en/stable/generated/sparse.COO.html>`_. (depends on the
    :code:`sparse` setting of your descriptor object) that you can store store
-   for later use. Have fun!
+   for later use. For more information about the sparse format, please see
+   :doc:`the documentation on sparse formats<sparse>`.
+
+5. If you are interested in the derivatives with respect to atomic positions,
+   use the :code:`derivatives()` function. It can also be configured to return
+   the descriptor at the same time which can be faster than calculating the two
+   separately.
+
+   .. literalinclude:: ../../../examples/basics.py
+    :language: python
+    :lines: 33-
+
+   For more information on the derivatives, please see :doc:`the documentation on derivatives <derivatives>`.

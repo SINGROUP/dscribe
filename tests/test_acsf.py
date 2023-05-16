@@ -83,9 +83,9 @@ def test_dtype(dtype, sparse):
 
 @pytest.mark.parametrize("n_jobs", [1, 2])
 @pytest.mark.parametrize("sparse", [True, False])
-@pytest.mark.parametrize("positions", ["all", "indices_fixed", "indices_variable"])
-def test_parallellization(n_jobs, sparse, positions):
-    assert_parallellization(acsf, n_jobs, sparse, positions)
+@pytest.mark.parametrize("centers", ["all", "indices_fixed", "indices_variable"])
+def test_parallellization(n_jobs, sparse, centers):
+    assert_parallellization(acsf, n_jobs, sparse, centers)
 
 
 @pytest.mark.parametrize("cell", ["collapsed_periodic", "collapsed_finite"])
