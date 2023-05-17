@@ -171,11 +171,11 @@
         <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">include</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">include</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span>
-        <span class="k">elif</span> <span class="n">is1d</span><span class="p">(</span><span class="n">include</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">is1d</span><span class="p">(</span><span class="n">include</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
             <span class="n">include</span> <span class="o">=</span> <span class="p">[</span><span class="n">include</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span>
         <span class="k">if</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">exclude</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span>
-        <span class="k">elif</span> <span class="n">is1d</span><span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">is1d</span><span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
             <span class="n">exclude</span> <span class="o">=</span> <span class="p">[</span><span class="n">exclude</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span>
         <span class="n">n_inc</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">include</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">n_inc</span> <span class="o">!=</span> <span class="n">n_samples</span><span class="p">:</span>
