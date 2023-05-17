@@ -128,7 +128,7 @@
 <span class="sd">    Euclidean norm to measure distance between vectors, it is advisable to use</span>
 <span class="sd">    some form of normalization. This implementation does not support the use of</span>
 <span class="sd">    a non-identity correlation matrix.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Notice that the species of the central atom is not encoded in the output,</span>
 <span class="sd">    but is instead represented by a chemical species X with atomic number 0.</span>
 <span class="sd">    This allows LMBTR to be also used on general positions not corresponding to</span>
@@ -137,6 +137,7 @@
 <span class="sd">    distinguish the central species, one can for example train a different model</span>
 <span class="sd">    for each central species.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="LMBTR.__init__"><a class="viewcode-back" href="../../../tutorials/descriptors/lmbtr.html#dscribe.descriptors.lmbtr.LMBTR.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -159,7 +160,7 @@
 <span class="sd">                The geometry function determines the degree :math:`k` for MBTR.</span>
 <span class="sd">                The order :math:`k` tells how many atoms are involved in the</span>
 <span class="sd">                calculation and thus also heavily influence the computational</span>
-<span class="sd">                time. </span>
+<span class="sd">                time.</span>
 
 <span class="sd">                The following geometry functions are available:</span>
 
@@ -510,7 +511,7 @@
                     <span class="s2">&quot;components.&quot;</span>
                 <span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">centers</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="nb">int</span><span class="p">):</span>
                     <span class="n">i_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">i_len</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>

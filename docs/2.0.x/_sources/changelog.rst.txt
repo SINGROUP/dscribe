@@ -1,5 +1,8 @@
 Changelog
 =========
+ - 2.0.1:
+    - Removed:
+        - Use of deprecated :code:`np.int`
  - 2.0.0:
     - Added:
         - Added numerical derivatives for :code:`SineMatrix`, :code:`EwaldSumMatrix`, :code:`ACSF`, :code:`MBTR`, :code:`LMBTR` and :code:`ValleOganov`.
