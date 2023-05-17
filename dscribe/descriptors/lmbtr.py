@@ -427,7 +427,7 @@ class LMBTR(DescriptorLocal):
                     "components."
                 )
             for i in centers:
-                if np.issubdtype(type(i), int):
+                if np.issubdtype(type(i), np.integer):
                     i_len = len(system)
                     if i >= i_len or i < 0:
                         raise ValueError(

@@ -139,11 +139,11 @@ class DescriptorLocal(Descriptor):
             centers = [None] * n_samples
         if include is None:
             include = [None] * n_samples
-        elif is1d(include, int):
+        elif is1d(include, np.integer):
             include = [include] * n_samples
         if exclude is None:
             exclude = [None] * n_samples
-        elif is1d(exclude, int):
+        elif is1d(exclude, np.integer):
             exclude = [exclude] * n_samples
         n_pos = len(centers)
         if n_pos != n_samples:
@@ -351,7 +351,7 @@ class DescriptorLocal(Descriptor):
         deltas = [-1.0, 1.0]
         if centers is None:
             centers = range(len(system))
-        if not attach and np.issubdtype(type(centers[0]), int):
+        if not attach and np.issubdtype(type(centers[0]), np.integer):
             centers = system.get_positions()[centers]
 
         for index, i_atom in enumerate(indices):

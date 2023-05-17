@@ -16,7 +16,7 @@ limitations under the License.
 import numpy as np
 
 
-def is1d(array, dtype=int):
+def is1d(array, dtype=np.integer):
     try:
         for i in array:
             if not np.issubdtype(type(i), dtype):
@@ -26,7 +26,7 @@ def is1d(array, dtype=int):
     return True
 
 
-def is2d(array, dtype=int):
+def is2d(array, dtype=np.integer):
     try:
         for i in array:
             for j in i:

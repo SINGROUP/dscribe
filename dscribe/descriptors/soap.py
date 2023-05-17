@@ -304,9 +304,9 @@ class SOAP(DescriptorLocal):
             if not isinstance(centers, (list, tuple, np.ndarray)) or len(centers) == 0:
                 raise error
             list_positions = []
-            indices = np.full(len(centers), -1, dtype=int)
+            indices = np.full(len(centers), -1, dtype=np.int64)
             for idx, i in enumerate(centers):
-                if np.issubdtype(type(i), int):
+                if np.issubdtype(type(i), np.integer):
                     list_positions.append(system.get_positions()[i])
                     indices[idx] = i
                 elif isinstance(i, (list, tuple, np.ndarray)):

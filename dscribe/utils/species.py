@@ -54,12 +54,12 @@ def get_atomic_numbers(species):
     """
     # Check that an iterable is given
     is_iterable = hasattr(species, "__iter__")
-    is_string = isinstance(species, str)
+    is_string = isinstance(species, (str, np.str_))
     if not is_iterable or is_string:
         raise ValueError("Please provide the species as an iterable, e.g. a list.")
 
     # Determine if the given species are atomic numbers or chemical symbols
-    if all(isinstance(x, int) for x in species):
+    if all(isinstance(x, (int, np.integer)) for x in species):
         if any([x < 0 for x in species]):
             raise ValueError(
                 "The given list of species contains negative integers. Please use only non-negative integers"

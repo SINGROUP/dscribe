@@ -87,11 +87,11 @@ class DescriptorGlobal(Descriptor):
         n_samples = len(system)
         if include is None:
             include = [None] * n_samples
-        elif is1d(include, int):
+        elif is1d(include, np.integer):
             include = [include] * n_samples
         if exclude is None:
             exclude = [None] * n_samples
-        elif is1d(exclude, int):
+        elif is1d(exclude, np.integer):
             exclude = [exclude] * n_samples
         n_inc = len(include)
         if n_inc != n_samples:
