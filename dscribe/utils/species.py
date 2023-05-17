@@ -65,7 +65,7 @@ def get_atomic_numbers(species):
                 "The given list of species contains negative integers. Please use only non-negative integers"
             )
         atomic_numbers = species
-    elif all(isinstance(x, str) for x in species):
+    elif all(isinstance(x, (str, np.str_)) for x in species):
         atomic_numbers = symbols_to_numbers(species)
     else:
         raise ValueError(
