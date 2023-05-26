@@ -74,6 +74,7 @@ PYBIND11_MODULE(ext, m) {
         .def(py::init<double , vector<vector<double> > , vector<double> , vector<vector<double> > , vector<vector<double> > , vector<int> >())
         .def(py::init<>())
         .def("create", &ACSF::create)
+        .def("derivatives_analytical", &ACSF::derivatives_analytical)
         .def("set_g2_params", &ACSF::setG2Params)
         .def("get_g2_params", &ACSF::getG2Params)
         .def_readwrite("n_types", &ACSF::nTypes)

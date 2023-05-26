@@ -88,9 +88,8 @@ class ACSF(DescriptorLocal):
         self.g5_params = g5_params
         self.r_cut = r_cut
 
-    def create(
-        self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False
-    ):
+    def create(self, system, positions=None, n_jobs=1, only_physical_cores=False, verbose=False):
+
         """Return the ACSF output for the given systems and given positions.
 
         Args:
@@ -290,12 +289,20 @@ class ACSF(DescriptorLocal):
 
         return int(descsize)
 
+
     def validate_derivatives_method(self, method, attach):
-        if not attach:
-            raise ValueError(
-                "ACSF derivatives can only be calculated with attach=True."
-            )
-        return super().validate_derivatives_method(method, attach)
+        """Used to validate and determine the final method for calculating the
+        derivatives.
+        """
+        methods = {"numerical", "analytical", "auto"}
+        if method not in methods:
+            raise ValueError("Invalid method specified. Please choose from: {}".format(methods))
+        
+        # I really do not understand this attach thing...
+        if method == "auto":
+            method = "analytical"
+
+        return method
 
     @property
     def species(self):
@@ -452,20 +459,45 @@ class ACSF(DescriptorLocal):
 
 
 
-    def derivatives_analytical(self):
+    def derivatives_analytical(
+        self,
+        d,                      # memory allocation for the output derivatives
+        c,                      # memory allocation for the descriptor
+        system,
+        desc_centers=None,      # list of atoms for which ACSFs will be computed
+        grad_centers=None,      # list of atoms for w.r.t. which ACSFs gradients will be computed
+        attach=False,
+        return_descriptor=True,
+    ):
 
-        # TODO: copy call signature from the SOAP one
+        """Return the analytical derivatives for the given system.
+        Args:
+            system (:class:`ase.Atoms`): Atomic structure.
+            indices (list): Indices of atoms for which the derivatives will be computed.
+            return_descriptor (bool): Whether to also calculate the descriptor
+                in the same function call. This is true by default as it
+                typically is faster to calculate both in one go.
+        Returns:
+            If return_descriptor is True, returns a tuple, where the first item
+            is the derivative array and the second is the descriptor array.
+            Otherwise only returns the derivatives array. The derivatives array
+            is a 3D numpy array. The dimensions are: [n_atoms, 3, n_features].
+            The first dimension goes over the included atoms. The order is same
+            as the order of atoms in the given system. The second dimension
+            goes over the cartesian components, x, y and z. The last dimension
+            goes over the features in the default order.
+        """ 
 
         # memory layout of d (derivatives tensor)
         # [n_centers, n_atoms, 3, n_features]
         #
-        # n_centers (positions) = number of positions where we want the ACSF gradients to be calculated
-        # n_atoms (indices) = atoms with respect to which the derivatives are calculated
+        # n_centers (desc_centers) = number of positions where we want the ACSF gradients to be calculated
+        # n_atoms (grad_centers) = atoms with respect to which the derivatives are calculated
         # 3 = cartesian directions
         # n_features = each feature
         #
         # d[i,j,k,l] = derivative of l-th ACSF of atom i, w.r.t. atom j coordinate k
-        #
+        # 
         # 
 
         '''
@@ -484,10 +516,89 @@ class ACSF(DescriptorLocal):
             to install the package with pip
             pip install -e <folder with setup.py>
             after editing the cpp source i need to run pip install -e to get it to recompile
-            
+
 
         '''
 
+        # Check if there are types that have not been declared
+        self.check_atomic_numbers(system.get_atomic_numbers())
+
+        # Create C-compatible list of atomic indices for which the ACSF is
+        # calculated
+        if desc_centers is None:
+            desc_centers = np.arange(len(system))
+        
+        # check if indices has all the possible indexes
+        s1 = set(desc_centers)
+        s2 = set(np.arange(len(system)))
+        calculate_all = (s1 == s2)
+
+        #indices = positions
+
+        # If periodicity is not requested, and the output is requested for all
+        # atoms, we skip all the intricate optimizations that will make things
+        # actually slower for this case.
+        if calculate_all and not self.periodic:
+            n_atoms = len(system)
+            all_pos = system.get_positions()
+            dmat = dscribe.utils.geometry.get_adjacency_matrix(self.r_cut, all_pos, all_pos)
+
+        # Otherwise the amount of pairwise distances that are calculated is
+        # kept at minimum. Only distances for the given indices (and possibly
+        # the secondary neighbours if G4 is specified) are calculated.
+        else:
+            # Create the extended system if periodicity is requested. For ACSF only
+            # the distance from central atom needs to be considered in extending
+            # the system.
+            if self.periodic:
+                system = dscribe.utils.geometry.get_extended_system(system, self.r_cut, return_cell_indices=False)
+
+            # First calculate distances from specified centers to all other
+            # atoms. This is already enough for everything else except G4.
+            n_atoms = len(system)
+            all_pos = system.get_positions()
+            central_pos = all_pos[desc_centers]
+            dmat_primary = dscribe.utils.geometry.get_adjacency_matrix(self.r_cut, central_pos, all_pos)
+
+            # Create symmetric full matrix
+            col = dmat_primary.col
+            row = [desc_centers[x] for x in dmat_primary.row]  # Fix row numbering to refer to original system
+            data = dmat_primary.data
+            dmat = coo_matrix((data, (row, col)), shape=(n_atoms, n_atoms))
+            dmat_lil = dmat.tolil()
+            dmat_lil[col, row] = dmat_lil[row, col]
+
+            # If G4 terms are requested, calculate also secondary neighbour distances
+            if len(self.g4_params) != 0:
+                neighbour_indices = np.unique(col)
+                neigh_pos = all_pos[neighbour_indices]
+                dmat_secondary = dscribe.utils.geometry.get_adjacency_matrix(self.r_cut, neigh_pos, neigh_pos)
+                col = [neighbour_indices[x] for x in dmat_secondary.col]  # Fix col numbering to refer to original system
+                row = [neighbour_indices[x] for x in dmat_secondary.row]  # Fix row numbering to refer to original system
+                dmat_lil[row, col] = np.array(dmat_secondary.data)
+
+            dmat = dmat_lil.tocoo()
+
+        # Get adjancency list and full dense adjancency matrix
+        neighbours = dscribe.utils.geometry.get_adjacency_list(dmat)
+        dmat_dense = np.full((n_atoms, n_atoms), sys.float_info.max)  # The non-neighbor values are treated as "infinitely far".
+        dmat_dense[dmat.col, dmat.row] = dmat.data
+
+        '''
+        print("this is what goes in:")
+        print("cshape", c.shape)
+        print("dshape", d.shape)
+        print("dc", desc_centers)
+        print("dmat", dmat_dense)
+        print("nns", neighbours)
+        print("gc", grad_centers)
+        print("allpos", all_pos)
+        '''
 
 
-        pass
+        # call the C++ function
+        self.acsf_wrapper.derivatives_analytical(d, c, system.get_atomic_numbers(), all_pos, dmat_dense, neighbours, desc_centers, grad_centers, return_descriptor)
+        
+
+
+        
