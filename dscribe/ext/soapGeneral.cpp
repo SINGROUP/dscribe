@@ -1806,6 +1806,62 @@ void getP(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cs, in
         }
     }
 }
+
+
+/**
+ * Used to calculate the partial power spectrum with feature compression
+ * as described in Darby et al. Currently only for the mu = 1, nu = 1
+ * compression described in Darby et al. (by far the best performing
+ * alternative that they evaluated). It could be adapted however to
+ * provide other compression alternatives. This compression scheme
+ * scales linearly with the number of elements and is thus far more
+ * practical for many-element systems.
+ *
+ * The power spectrum is multiplied by an l-dependent prefactor
+ * PI*sqrt(8.0/(2.0*l+1.0)); that comes from the normalization of the Wigner D
+ * matrices. This prefactor is mentioned in the errata of the original SOAP
+ * paper: On representing chemical environments, Phys. Rev. B 87, 184115
+ * (2013). Here the square root of the prefactor in the dot-product kernel is
+ * used, so that after a possible dot-product the full prefactor is recovered.
+ */
+void getPWithCompression(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cs,
+    double* CsSummed, int Nt, int lMax, int nMax, int Hs,
+    double rCut2, int nFeatures, int nCoeffs, int nCompressionCoeffs)
+{
+   // The current index in the final power spectrum array.
+    int pIdx = 0;
+
+    for (int i = 0; i < Hs; i++) {
+        pIdx = 0;
+        for (int Z1 = 0; Z1 < Nt; Z1++) {
+            for (int l = 0; l < lMax+1; l++) {
+                for (int N1 = 0; N1 < nMax; N1++) {
+                    for (int N2 = 0; N2 < nMax; N2++) {
+                        double sum = 0;
+                        for (int m = 0; m < l+1; m++) {
+                            if (m == 0) {
+                                sum += Cs[i*nCoeffs+2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1)] // m=0
+                                            *CsSummed[i*nCompressionCoeffs + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1)]; // m=0
+                            } else {
+                                sum += 2*(Cs[i*nCoeffs+2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m]
+                                                *CsSummed[i*nCompressionCoeffs + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m]
+                                                +Cs[i*nCoeffs+2*Z1*(lMax+1)*(lMax+1)*nMax + 2*(lMax+1)*(lMax+1)*N1 + l*2*(lMax+1) + 2*m + 1]
+                                                *CsSummed[i*nCompressionCoeffs + 2*(lMax+1)*(lMax+1)*N2 + l*2*(lMax+1) + 2*m + 1]);
+                            }
+                        }
+                        Ps(i, pIdx) = PI*sqrt(8.0/(2.0*l+1.0))*39.478417604*rCut2*sum;  // Normalization and other constants
+                        ++pIdx;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
 void soapGeneral(
     py::array_t<double> PsArr,
     py::array_t<double> positions,
@@ -1827,7 +1883,17 @@ void soapGeneral(
     int nAtoms = atomicNumbersArr.shape(0);
     int Nt = orderedSpeciesArr.shape(0);
     int Hs = HposArr.shape(0);
-    int nFeatures = crossover ? (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1) : Nt*(lMax+1)*((nMax+1)*nMax)/2;
+    int nFeatures = 0;
+    //Note that crossover is ignored if "m1n1_compression"
+    //is selected since this option uses a different definition
+    //of crossover.
+    if ( average == "m1n1_compression" ){
+        nFeatures = Nt*(lMax+1)*(nMax*nMax);
+    } else if (crossover){
+        nFeatures = (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1);
+    } else{
+        nFeatures = Nt*(lMax+1)*((nMax+1)*nMax)/2;
+    }
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
     auto species = orderedSpeciesArr.unchecked<1>();
     auto Ps = PsArr.mutable_unchecked<2>();
@@ -1853,6 +1919,7 @@ void soapGeneral(
     
     // Initialize arrays for storing the C coefficients.
     int nCoeffs = 2*(lMax+1)*(lMax+1)*nMax*Nt;
+    int nCompressionCoeffs = 0;
     int nCoeffsAll = nCoeffs*Hs;
     double* Cs = (double*) malloc(sizeof(double)*nCoeffsAll);
     double* CsAve;
@@ -1860,6 +1927,11 @@ void soapGeneral(
     if (average == "inner") {
         CsAve = (double*) malloc(nCoeffs*sizeof(double));
         memset(CsAve, 0.0, nCoeffs*sizeof(double));
+    }
+    else if (average == "m1n1_compression") {
+        nCompressionCoeffs = 2*(lMax+1)*(lMax+1)*nMax;
+        CsAve = (double*) malloc(Hs*nCompressionCoeffs*sizeof(double));
+        memset(CsAve, 0.0, Hs*nCompressionCoeffs*sizeof(double));
     }
 
     // Create a mapping between an atomic index and its internal index in the
@@ -1926,6 +1998,23 @@ void soapGeneral(
             CsAve[j] = CsAve[j] / (double)Hs;
         }
         getP(Ps, CsAve, Nt, lMax, nMax, 1, rCut2, nFeatures, crossover, nCoeffs);
+        free(CsAve);
+    //Perform Darby et al. mu=1, nu=1 compression by summing across all species
+    } else if (average == "m1n1_compression"){
+        for (int i = 0; i < Hs; i++) {
+            for (int j = 0; j < Nt; j++) {
+                for (int k = 0; k < nMax; k++){
+                    for (int l = 0; l < 2 * (lMax + 1) * (lMax + 1); l++){
+                        int inputPosition = i*nCoeffs + 2*j*(lMax+1)*(lMax+1)*nMax +
+                                2*k*(lMax+1)*(lMax+1) + l;
+                        int outputPosition = i*nCompressionCoeffs + 2*k*(lMax+1)*(lMax+1) + l;
+                        CsAve[outputPosition] += Cs[inputPosition];
+                    }
+                }
+            }
+        }
+        getPWithCompression(Ps, Cs, CsAve, Nt, lMax, nMax, Hs, rCut2, nFeatures,
+                        nCoeffs, nCompressionCoeffs);
         free(CsAve);
     // Average the power spectrum across atoms
     } else if (average == "outer") {

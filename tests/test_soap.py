@@ -165,6 +165,27 @@ def get_power_spectrum(coeffs, crossover=True, average="off"):
     n_species = shape[1]
     n_max = shape[2]
     l_max = shape[3] - 1
+    #If using m1n1_compression (Darby et al. mu=1 nu=1 compression),
+    #the number of features scales linearly with # of elements,
+    #and the calculation is slightly different.
+    if average == "m1n1_compression":
+        species_summed_coef = coeffs.sum(axis=1)
+        for i in range(n_centers):
+            i_spectrum = []
+            for zi in range(n_species):
+                for l in range(l_max + 1):
+                    for ni in range(n_max):
+                        for nj in range(n_max):
+                            value = np.dot(
+                                    coeffs[i, zi, ni, l, :],
+                                    species_summed_coef[i, nj, l, :]
+                                    )
+                            prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
+                            value *= prefactor
+                            i_spectrum.append(value)
+            numerical_power_spectrum.append(i_spectrum)
+        return np.array(numerical_power_spectrum)
+
     for i in range(n_centers):
         i_spectrum = []
         for zi in range(n_species):
@@ -223,19 +244,21 @@ def load_polynomial_coefficients(args):
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
 @pytest.mark.parametrize(
-    "species, n_max, l_max, crossover, n_features",
+    "species, n_max, l_max, crossover, average, n_features",
     [
-        (["H", "O"], 5, 5, True, int((5 + 1) * (5 * 2) * (5 * 2 + 1) / 2)),
-        (["H", "O"], 5, 5, False, int(5 * 2 * (5 + 1) / 2 * (5 + 1))),
+        (["H", "O"], 5, 5, True, "off", int((5 + 1) * (5 * 2) * (5 * 2 + 1) / 2)),
+        (["H", "O"], 5, 5, False, "off", int(5 * 2 * (5 + 1) / 2 * (5 + 1))),
+        (["H", "O"], 5, 5, True, "m1n1_compression", int(5 * 5 * (5 + 1) * 2)),
     ],
 )
-def test_number_of_features(species, n_max, l_max, crossover, n_features):
+def test_number_of_features(species, n_max, l_max, crossover, average, n_features):
     desc = soap(
         species=species,
         r_cut=3,
         n_max=n_max,
         l_max=l_max,
         crossover=crossover,
+        average = average,
         periodic=True,
     )
     assert_n_features(desc, n_features)
@@ -298,7 +321,7 @@ def test_basis(rbf):
 @pytest.mark.parametrize("rbf", ("gto",))
 @pytest.mark.parametrize("pbc", (False, True))
 @pytest.mark.parametrize("attach", (False, True))
-@pytest.mark.parametrize("average", ("off", "inner", "outer"))
+@pytest.mark.parametrize("average", ("off", "inner", "outer", "m1n1_compression"))
 @pytest.mark.parametrize("crossover", (True,))
 def test_derivatives_numerical(pbc, attach, average, rbf, crossover):
     descriptor_func = soap(
@@ -551,6 +574,27 @@ def test_average_outer(rbf):
     # Check that the averaging is done correctly
     assumed_average = (first + second) / 2
     assert np.allclose(average, assumed_average)
+
+
+@pytest.mark.parametrize("rbf", ["gto", "polynomial"])
+def test_average_m1n1_compression(rbf):
+    """Tests the mu=1, nu=1 Darby et al. feature compression scheme
+    ('m1n1_compression').
+    """
+    system, centers, args = globals()[f"get_soap_{rbf}_l_max_setup"]()
+    # Calculate the analytical power spectrum
+    soap = SOAP(**args, rbf=rbf, average="m1n1_compression")
+    analytical_inner = soap.create(system, centers=centers)
+
+    # Calculate the numerical power spectrum
+    coeffs = globals()[f"load_{rbf}_coefficients"](args)
+    numerical_inner = get_power_spectrum(
+        coeffs, crossover=args["crossover"], average="m1n1_compression"
+    )
+
+    # print(f"Numerical: {numerical_inner}")
+    # print(f"Analytical: {analytical_inner}")
+    assert np.allclose(numerical_inner, analytical_inner, atol=1e-15, rtol=0.01)
 
 
 @pytest.mark.parametrize("rbf", ["gto", "polynomial"])

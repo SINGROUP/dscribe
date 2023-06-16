@@ -2290,6 +2290,66 @@ void getPD(
     }
   }
 }
+
+
+//================================================================================================
+/**
+ * Used to calculate the partial power spectrum with the mu=1, nu=1 compression
+ * scheme from Darby et al. It is possible to implement the other compression
+ * schemes from Darby et al. by modifying the one shown here, although the mu=1
+ * nu=1 performed by far the best in their experiments and is most likely
+ * to be the one of interest for most purposes. This compression scheme
+ * scales linearly with the number of elements and is thus much more practical
+ * for many-element systems.
+ */
+void getPDWithCompression(
+  py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu,
+  py::detail::unchecked_reference<double, 4> &Cnnd_u,
+  py::detail::unchecked_reference<double, 3> &Cnnd_ave_mu,
+  int Ns,
+  int Ts,
+  int nCenters,
+  int lMax
+) {
+
+    // The power spectrum is multiplied by an l-dependent prefactor that comes
+    // from the normalization of the Wigner D matrices. This prefactor is
+    // mentioned in the arrata of the original SOAP paper: On representing
+    // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
+    // root of the prefactor in the dot-product kernel is used, so that after a
+    // possible dot-product the full prefactor is recovered.
+    for(int i = 0; i < nCenters; i++){
+      int shiftAll = 0;
+      for(int j = 0; j < Ts; j++){
+        for(int m=0; m <= lMax; m++){
+        double prel;
+        if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}
+        else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
+          for(int k = 0; k < Ns; k++){
+            for(int kd = 0; kd < Ns; kd++){
+              double buffDouble = 0;
+              for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
+                //Notice that we multiply the coefficient i,j,k,bS against
+                //the sum of coefficients (over all species in the environment)
+                //i,kd,bS. This is the mu=1,nu=1 compression scheme from Darby
+                //et al.
+                buffDouble += Cnnd_u(i,j,k,buffShift) * Cnnd_ave_mu(i,kd,buffShift);
+  	          }
+              descriptor_mu(i, shiftAll) = prel*buffDouble;
+              shiftAll++;
+            }
+          }
+       }
+    }
+  }
+}
+
+
+
+
+
+
+
 //===========================================================================================
 /**
  * Used to calculate the partial power spectrum derivatives.
@@ -2412,9 +2472,17 @@ void soapGTO(
   auto centers_u = centers.unchecked<2>(); 
   auto center_indices_u = center_indices.unchecked<1>(); 
   auto positions_u = positions.unchecked<2>(); 
-  const int nFeatures = crossover
-        ? (nSpecies*nMax)*(nSpecies*nMax+1)/2*(lMax+1) 
-        : nSpecies*(lMax+1)*((nMax+1)*nMax)/2;
+  int nFeatures = 0;
+  //Note that crossover is ignored if "m1n1_compression"
+  //is selected since this option uses a different definition
+  //of crossover.
+  if ( average == "m1n1_compression" ){
+    nFeatures = nSpecies*(lMax+1)*(nMax*nMax);
+  } else if (crossover){
+    nFeatures = (nSpecies*nMax)*(nSpecies*nMax+1)/2*(lMax+1);
+  } else{
+    nFeatures = nSpecies*(lMax+1)*((nMax+1)*nMax)/2;
+  }
   double* weights = (double*) malloc(sizeof(double)*totalAN);
   double* dx  = (double*)malloc(sizeof(double)*totalAN); double* dy  = (double*)malloc(sizeof(double)*totalAN); double* dz  = (double*)malloc(sizeof(double)*totalAN);
   double* x2  = (double*)malloc(sizeof(double)*totalAN); double* x4  = (double*)malloc(sizeof(double)*totalAN); double* x6  = (double*)malloc(sizeof(double)*totalAN);
@@ -2449,7 +2517,7 @@ void soapGTO(
   double* aOa = (double*) malloc((lMax+1)*nMax*sizeof(double));
   
   // Initialize temporary numpy array for storing the coefficients and the
-  // averaged coefficients if inner averaging was requested.
+  // averaged coefficients if inner averaging was requested
   const int n_coeffs = nSpecies*nMax*(lMax + 1) * (lMax + 1);
   double* cnnd_raw = new double[nCenters*n_coeffs]();
   py::array_t<double> cnnd({nCenters, nSpecies, nMax, (lMax + 1) * (lMax + 1)}, cnnd_raw);
@@ -2458,6 +2526,14 @@ void soapGTO(
   if (average == "inner") {
       cnnd_ave_raw = new double[n_coeffs]();
       cnnd_ave = py::array_t<double>({1, nSpecies, nMax, (lMax + 1) * (lMax + 1)}, cnnd_ave_raw);
+  }
+  //Also initialize temporary numpy array for storing the sum of the coefficients over all
+  //species without summing over m if feature compression was requested. This is an
+  //alternative to averaging (since it would not make much sense to do this if averaging)
+  //and thus is implemented as an averaging option.
+  else if (average == "m1n1_compression") {
+      cnnd_ave_raw = new double[nCenters*nMax*(lMax+1)*(lMax+1)]();
+      cnnd_ave = py::array_t<double>({nCenters, nMax, (lMax + 1) * (lMax + 1)}, cnnd_ave_raw);
   }
 
   auto cnnd_u = cnnd.unchecked<4>();
@@ -2552,6 +2628,22 @@ void soapGTO(
         }
         getPD(descriptor_mu, cnnd_ave_u, nMax, nSpecies, 1, lMax, crossover);
         delete [] cnnd_ave_raw;
+    // If alternatively we are using Darby et al. mu=1, nu=1 feature compression
+    //(implemented as an alternative to averaging) calculate the partial power spectrum
+    //using this modification.
+    } else if (average == "m1n1_compression"){
+      auto cnnd_ave_mu = cnnd_ave.mutable_unchecked<3>();
+      for (int i = 0; i < nCenters; i++) {
+            for (int j = 0; j < nSpecies; j++) {
+                for (int k = 0; k < nMax; k++) {
+                    for (int l = 0; l < (lMax + 1) * (lMax + 1); l++) {
+                        cnnd_ave_mu(i, k, l) += cnnd_u(i, j, k, l);
+                    }
+                }
+            }
+        }
+      getPDWithCompression(descriptor_mu, cnnd_u, cnnd_ave_mu, nMax, nSpecies, nCenters, lMax);
+      delete [] cnnd_ave_raw;
     // If outer averaging is requested, average the power spectrum across the
     // centers.
     } else if (average == "outer") {
@@ -2576,7 +2668,11 @@ void soapGTO(
     }
   }
 
-  // Calculate the derivatives
+  // Calculate the derivatives. Note that this should not be attempted usnig the
+  //function call sbelow if m1n1_averaging has been selected, in which
+  //case this will not return a correct result. Currently the Python wrapper
+  //does not in any case permit analytical derivative calculation if average != "off"
+  //in any case.
   if (return_derivatives) {
     getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
   }

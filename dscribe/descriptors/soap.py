@@ -138,13 +138,25 @@ class SOAP(DescriptorLocal):
                 and Z'. If disabled, the power spectrum does not contain
                 cross-species information and is only run over each unique
                 species Z. Turned on by default to correspond to the original
-                definition
+                definition. Note that if average == 'm1n1_compression',
+                crossover is ignored since this feature compression option
+                essentially uses crossover by default.
             average (str): The averaging mode over the centers of interest.
                 Valid options are:
 
                     * ``"off"``: No averaging.
                     * ``"inner"``: Averaging over sites before summing up the magnetic quantum numbers: :math:`p_{nn'l}^{Z_1,Z_2} \sim \sum_m (\\frac{1}{n} \sum_i c_{nlm}^{i, Z_1})^{*} (\\frac{1}{n} \sum_i c_{n'lm}^{i, Z_2})`
                     * ``"outer"``: Averaging over the power spectrum of different sites: :math:`p_{nn'l}^{Z_1,Z_2} \sim \\frac{1}{n} \sum_i \sum_m (c_{nlm}^{i, Z_1})^{*} (c_{n'lm}^{i, Z_2})`
+                    * ``"m1n1_compression"``: Implements the mu=1, nu=1 feature compression scheme from Darby et al.: :math:`p_{inn'l}^{Z_1,Z_2} \sum_m (c_{nlm}^{i, Z_1})^{*} (\sum_z c_{n'lm}^{i, z})`.
+                        In other words, each coefficient for each species is multiplied by a "species-agnostic" sum over the corresponding set of coefficients for all other species.
+                        If this option is selected, features are generated for each center, but the number of features (the size of each feature vector) scales linearly rather than
+                        quadratically with the number of elements in the system.
+
+                        For reference see:
+                            "Darby, J.P., Kermode, J.R. & Csányi, G.
+                            Compressing local atomic neighbourhood descriptors.
+                            npj Comput Mater 8, 166 (2022). https://doi.org/10.1038/s41524-022-00847-y"
+
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
                 the atomic numbers that are present for an individual system, but
@@ -192,7 +204,7 @@ class SOAP(DescriptorLocal):
             raise ValueError(
                 "Must have at least one radial basis function." "n_max={}".format(n_max)
             )
-        supported_average = set(("off", "inner", "outer"))
+        supported_average = set(("off", "inner", "outer", "m1n1_compression"))
         if average not in supported_average:
             raise ValueError(
                 "Invalid average mode '{}' given. Please use "
@@ -548,7 +560,7 @@ class SOAP(DescriptorLocal):
         # Averaged output is a global descriptor, and thus the first dimension
         # is squeezed out to keep the output size consistent with the size of
         # other global descriptors.
-        if self.average != "off":
+        if self.average not in ["off", "m1n1_compression"]:
             soap_mat = np.squeeze(soap_mat, axis=0)
 
         return soap_mat
@@ -812,11 +824,14 @@ class SOAP(DescriptorLocal):
             int: Number of features for this descriptor.
         """
         n_elem = len(self._atomic_numbers)
+        # Note that if "m1n1_compression" was selected as the option for averaging,
+        # self.crossover is ignored.
+        if self.average == "m1n1_compression":
+            return int(self._n_max**2 * (self._l_max + 1) * n_elem)
         if self.crossover:
             n_elem_radial = n_elem * self._n_max
             return int((n_elem_radial) * (n_elem_radial + 1) / 2 * (self._l_max + 1))
-        else:
-            return int(n_elem * self._n_max * (self._n_max + 1) / 2 * (self._l_max + 1))
+        return int(n_elem * self._n_max * (self._n_max + 1) / 2 * (self._l_max + 1))
 
     def get_location(self, species):
         """Can be used to query the location of a species combination in the
@@ -865,8 +880,10 @@ class SOAP(DescriptorLocal):
         i = numbers[0]
         j = numbers[1]
         n_elem_feat_symm = self._n_max * (self._n_max + 1) / 2 * (self._l_max + 1)
+        if self.average == "m1n1_compression":
+            n_elem_feat_symm = self._n_max**2 * (self._l_max + 1)
 
-        if self.crossover:
+        if self.crossover and self.average != "m1n1_compression":
             n_elem_feat_unsymm = self._n_max * self._n_max * (self._l_max + 1)
             n_elem_feat = n_elem_feat_symm if i == j else n_elem_feat_unsymm
 
