@@ -209,7 +209,7 @@ def assert_derivatives(
         else:
             centers = [np.sum(system.get_cell(), axis=0) / 2, system.get_positions()[0]]
         average = descriptor.average
-        if average != "off":
+        if average not in ["off", "m1n1_compression"]:
             n_centers = 1
             derivatives_python = np.zeros((n_atoms, n_comp, n_features))
         else:
@@ -220,7 +220,7 @@ def assert_derivatives(
             for i_center in range(n_centers):
                 for i_comp in range(3):
                     for i_stencil in range(2):
-                        if average == "off":
+                        if average in ["off", "m1n1_compression"]:
                             i_cent = [centers[i_center]]
                         else:
                             i_cent = centers
@@ -229,7 +229,7 @@ def assert_derivatives(
                         i_pos[i_atom, i_comp] += h * deltas[i_stencil]
                         system_disturbed.set_positions(i_pos)
                         d1 = descriptor.create(system_disturbed, i_cent, **create_args)
-                        if average != "off":
+                        if average not in ["off", "m1n1_compression"]:
                             derivatives_python[i_atom, i_comp, :] += (
                                 coeffs[i_stencil] * d1 / h
                             )

@@ -127,9 +127,14 @@ void SOAPGTO::create(
 int SOAPGTO::get_number_of_features() const
 {
     int n_species = this->species.shape(0);
-    return this->crossover
-        ? (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1) 
-        : n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
+    if (this->average == "m1n1_compression"){
+        return (n_species*this->nmax*this->nmax) * (this->lmax+1);
+    }
+    else{
+        return this->crossover
+            ? (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1) 
+            : n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
+    }
 }
 
 void SOAPGTO::derivatives_analytical(

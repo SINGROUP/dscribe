@@ -172,7 +172,7 @@ void Descriptor::derivatives_numerical(
         // centers.
         int n_centers;
         py::array_t<double> centers_local_pos;
-        if (this->average == "off") {
+        if (this->average == "off" || this->average == "m1n1_compression") {
             centers_local_pos = py::array_t<double>({n_locals, 3});
             auto centers_local_pos_mu = centers_local_pos.mutable_unchecked<2>();
             for (int i_local = 0; i_local < n_locals; ++i_local) {
