@@ -896,13 +896,18 @@ class SOAP(DescriptorLocal):
                             "if supplied, must contain the same keys as "
                             "the list of accepted species.")
             species_weights = []
-            species_list = list(self.species)
-            for specie, atomic_number in zip(species_list, get_atomic_numbers(species_list)):
+            for specie in list(self.species):
                 if specie not in value:
                     raise ValueError("The species_weighting dictionary, "
                             "if supplied, must contain the same keys as "
                             "the list of accepted species.")
-                species_weights.append( (value[specie], atomic_number) )
+                if isinstance(specie, (int, np.integer)):
+                    if specie <= 0:
+                        raise ValueError("Species weighting {} contained a zero or negative "
+                                "atomic number.".format(value))
+                    species_weights.append( (value[specie], specie) )
+                else:
+                    species_weights.append( (value[specie], ase.data.atomic_numbers.get(specie)) )
 
             species_weights = [s[0] for s in sorted(species_weights, key = lambda x: x[1])]
             self._species_weights = np.array(species_weights).astype(np.float64)

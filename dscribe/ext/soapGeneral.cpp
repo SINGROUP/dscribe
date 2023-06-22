@@ -1893,9 +1893,9 @@ void soapGeneral(
         nFeatures = Nt*(lMax+1)*(nMax*nMax);
     } else if( compression == "agnostic" ){
         Nt = 1;
-        nFeatures = nMax*(nMax+1)*(lMax+1);
+        nFeatures = nMax*(nMax+1)*(lMax+1)/2;
     } else if (crossover){
-        nFeatures = (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1);
+        nFeatures = (Nt*nMax)*(Nt*nMax+1)*(lMax+1)/2;
     } else{
         nFeatures = Nt*(lMax+1)*((nMax+1)*nMax)/2;
     }
@@ -1966,30 +1966,56 @@ void soapGeneral(
         // Sort the neighbours by type, unless using agnostic compression, in
         // which case we essentially assume all neighbors are same type (except
         // for weighting purposes).
-        map<int, vector<int>> atomicTypeMap;
         if (compression != "agnostic"){
+            map<int, vector<int>> atomicTypeMap;
             for (const int &idx : result.indices) {
                 int Z = atomicNumbers(idx);
                 atomicTypeMap[Z].push_back(idx);
             };
+            // Loop through neighbours sorted by type
+            for (const auto &ZIndexPair : atomicTypeMap) {
+
+                // j is the internal index for this atomic number
+                int j = ZIndexMap[ZIndexPair.first];
+
+                double* Ylmi; double* Flir; double* summed;
+
+                // Notice that due to the numerical integration the getDeltas
+                // function here has special functionality for positions that are
+                // centered on an atom.
+                pair<int, int> neighbours = getDeltas(dx, dy, dz, ris, rw, rCut, oOri, oO4arri, minExp, pluExp, eta, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
+                int nNeighbours = neighbours.first;
+                int nCenters = neighbours.second;
+
+                getWeights(nNeighbours + min(nCenters, 1), ris, NULL, false, weighting, weights);
+                //Multiply all of the weights by the element-specific weights (default to 1).
+                //This enables straightforward implementation of element-specific weighting
+                //if so specified by user.
+                for(std::size_t k = 0; k < ZIndexPair.second.size(); ++k){
+                    int Z = atomicNumbers(ZIndexPair.second[k]);
+                    int speciesIdx = ZIndexMap[Z];
+                    double weight = speciesWeights(speciesIdx);
+                    weights[k] *= weight;
+                }
+
+                Flir = getFlir(oO4arri, ris, minExp, pluExp, nNeighbours, rsize, lMax);
+                Ylmi = getYlmi(dx, dy, dz, oOri, cf, nNeighbours, lMax);
+                summed = getIntegrand(Flir, Ylmi, rsize, nNeighbours, lMax, weights);
+
+                getC(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, nCenters, nNeighbours, eta, weights);
+                accumC(Cs, C, lMax, nMax, j, i, nCoeffs);
+            
+                free(Flir);
+                free(Ylmi);
+                free(summed);
+            }
         } else {
-            for (const int &idx : result.indices) {
-                atomicTypeMap[0].push_back(idx);
-            };
-        }
-
-        // Loop through neighbours sorted by type
-        for (const auto &ZIndexPair : atomicTypeMap) {
-
-            // j is the internal index for this atomic number
-            int j = ZIndexMap[ZIndexPair.first];
-
             double* Ylmi; double* Flir; double* summed;
 
             // Notice that due to the numerical integration the getDeltas
             // function here has special functionality for positions that are
             // centered on an atom.
-            pair<int, int> neighbours = getDeltas(dx, dy, dz, ris, rw, rCut, oOri, oO4arri, minExp, pluExp, eta, positions, ix, iy, iz, ZIndexPair.second, rsize, i, j);
+            pair<int, int> neighbours = getDeltas(dx, dy, dz, ris, rw, rCut, oOri, oO4arri, minExp, pluExp, eta, positions, ix, iy, iz, result.indices, rsize, i, 0);
             int nNeighbours = neighbours.first;
             int nCenters = neighbours.second;
 
@@ -1997,8 +2023,8 @@ void soapGeneral(
             //Multiply all of the weights by the element-specific weights (default to 1).
             //This enables straightforward implementation of element-specific weighting
             //if so specified by user.
-            for(std::size_t k = 0; k < ZIndexPair.second.size(); ++k){
-                int Z = atomicNumbers(ZIndexPair.second[k]);
+            for(std::size_t k = 0; k < result.indices.size(); ++k){
+                int Z = atomicNumbers(result.indices[k]);
                 int speciesIdx = ZIndexMap[Z];
                 double weight = speciesWeights(speciesIdx);
                 weights[k] *= weight;
@@ -2009,7 +2035,7 @@ void soapGeneral(
             summed = getIntegrand(Flir, Ylmi, rsize, nNeighbours, lMax, weights);
 
             getC(C, ws, rw2, gss, summed, rCut, lMax, rsize, nMax, nCenters, nNeighbours, eta, weights);
-            accumC(Cs, C, lMax, nMax, j, i, nCoeffs);
+            accumC(Cs, C, lMax, nMax, 0, i, nCoeffs);
             
             free(Flir);
             free(Ylmi);

@@ -192,7 +192,7 @@ class DescriptorLocal(Descriptor):
             if centers is None:
                 n_centers = len(job[0])
             else:
-                if self.average != "off":
+                if self.average == "off":
                     n_centers = len(centers)
                 else:
                     n_centers = 1

@@ -341,7 +341,6 @@ def test_derivatives_numerical(pbc, attach, average, rbf, crossover, compression
     )
     assert_derivatives(descriptor_func, "numerical", pbc, attach=attach)
 
-
 @pytest.mark.parametrize("pbc, average, rbf", [(False, "off", "gto")])
 @pytest.mark.parametrize("attach", (False, True))
 @pytest.mark.parametrize("crossover", (True, False))
@@ -712,6 +711,23 @@ def test_weighting(rbf, weighting):
         atol=1e-15,
         rtol=0.01,
     )
+
+
+@pytest.mark.parametrize("species_weighting, species, expected_weights",
+        [
+            ( {"H":1, "O":2, "F":1.2}, ["H", "O", "F"], np.array([1, 2, 1.2]) ),
+            ( {"F":1, "Zn":2, "H":1.2}, ["H", "Zn", "F"], np.array([1.2, 1, 2]) ),
+            ( {"C":1, "H":2, "Li":1.2}, ["Li", "H", "C"], np.array([2, 1.2, 1]) ),
+            ( None, ["H", "O", "C"], np.ones(3) )
+        ],
+)
+def test_species_weighting(species_weighting, species, expected_weights):
+    """Tests that species weights can be supplied and set correctly.
+    """
+    soaper = SOAP(r_cut=5, n_max=3, l_max=3, rbf="gto", compression="m1n1", average="off",
+            species = species, species_weighting = species_weighting)
+    species_weights = soaper.species_weights
+    assert np.allclose(species_weights, expected_weights)
 
 
 def test_padding():
