@@ -192,7 +192,7 @@ class DescriptorLocal(Descriptor):
             if centers is None:
                 n_centers = len(job[0])
             else:
-                if self.average in ["off", "m1n1_compression"]:
+                if self.average != "off":
                     n_centers = len(centers)
                 else:
                     n_centers = 1
@@ -229,7 +229,7 @@ class DescriptorLocal(Descriptor):
     def init_descriptor_array(self, n_centers):
         """Return a zero-initialized numpy array for the descriptor."""
         n_features = self.get_number_of_features()
-        if self.average not in ["off", "m1n1_compression"]:
+        if self.average != "off":
             c = np.zeros((1, n_features), dtype=np.float64)
         else:
             c = np.zeros((n_centers, n_features), dtype=np.float64)
@@ -238,7 +238,7 @@ class DescriptorLocal(Descriptor):
     def init_derivatives_array(self, n_centers, n_indices):
         """Return a zero-initialized numpy array for the derivatives."""
         n_features = self.get_number_of_features()
-        if self.average not in ["off", "m1n1_compression"]:
+        if self.average != "off":
             return np.zeros((1, n_indices, 3, n_features), dtype=np.float64)
         else:
             return np.zeros((n_centers, n_indices, 3, n_features), dtype=np.float64)

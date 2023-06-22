@@ -1997,11 +1997,11 @@ void soapGeneral(
             //Multiply all of the weights by the element-specific weights (default to 1).
             //This enables straightforward implementation of element-specific weighting
             //if so specified by user.
-            for(std::size_t i = 0; i < ZIndexPair.second.size(); ++i){
-                int Z = atomicNumbers(ZIndexPair.second[i]);
+            for(std::size_t k = 0; k < ZIndexPair.second.size(); ++k){
+                int Z = atomicNumbers(ZIndexPair.second[k]);
                 int speciesIdx = ZIndexMap[Z];
                 double weight = speciesWeights(speciesIdx);
-                weights[i] *= weight;
+                weights[k] *= weight;
             }
 
             Flir = getFlir(oO4arri, ris, minExp, pluExp, nNeighbours, rsize, lMax);

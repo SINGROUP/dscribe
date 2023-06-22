@@ -136,7 +136,7 @@ int SOAPGTO::get_number_of_features() const
     if ( this->compression == "m1n1" ){
         return (n_species*this->nmax*this->nmax) * (this->lmax+1);
     } else if ( this->compression == "agnostic" ){
-        return (this->nmax * (this->nmax+1) * (this->lmax+1));
+        return (this->nmax * (this->nmax+1) * (this->lmax+1) / 2);
     }
     else{
         return this->crossover
@@ -305,7 +305,7 @@ int SOAPPolynomial::get_number_of_features() const
     if ( this->compression == "m1n1" ){
         return (n_species*this->nmax*this->nmax) * (this->lmax+1);
     } else if ( this->compression == "agnostic" ){
-        return (this->nmax * (this->nmax+1) * (this->lmax+1));
+        return (this->nmax * (this->nmax+1) * (this->lmax+1) / 2);
     }
     return this->crossover
         ? (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1) 

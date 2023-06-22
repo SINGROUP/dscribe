@@ -178,9 +178,9 @@ class SOAP(DescriptorLocal):
                 encountered when creating the descriptors for a set of systems.
                 Keeping the number of chemical species as low as possible is
                 preferable.
-            species_weighting (dict): Either None or a dictionary mapping each atomic number to a
+            species_weighting (dict): Either None or a dictionary mapping each species to a
                 species-specific weight. If None, there is no species-specific weighting. If a dictionary,
-                must contain a matching atomic number for each species in the ``species`` iterable.
+                must contain a matching key for each species in the ``species`` iterable.
                 The main use of species weighting is to weight each element differently when using
                 the "agnostic" option for ``compression``; if not using ``compression="agnostic"``,
                 species weighting is not recommended.
@@ -630,6 +630,11 @@ class SOAP(DescriptorLocal):
                 raise ValueError(
                     "Analytical derivatives not currently available for averaged output."
                 )
+            if self.compression != "off":
+                raise ValueError(
+                        "Analytical derivatives not currently available for compressed "
+                        "output."
+                )
             if self.periodic:
                 raise ValueError(
                     "Analytical derivatives are currently not available for periodic systems."
@@ -699,7 +704,6 @@ class SOAP(DescriptorLocal):
                 self.periodic,
                 self.compression,
             )
-
             # Calculate numerically with extension
             soap_gto.derivatives_numerical(
                 d,
@@ -915,7 +919,7 @@ class SOAP(DescriptorLocal):
         n_elem = len(self._atomic_numbers)
         if self.compression != "off":
             if self.compression == "agnostic":
-                return int((self._n_max) * (self._n_max + 1) / 2 * (self._l_max + 1))
+                return int((self._n_max) * (self._n_max + 1) * (self._l_max + 1) / 2)
             elif self.compression == "m1n1":
                 return int(self._n_max**2 * n_elem * (self._l_max + 1))
 

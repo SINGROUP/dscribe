@@ -2539,7 +2539,7 @@ void soapGTO(
   double* cnnd_compressed_raw;
   py::array_t<double> cnnd_compressed;
   if (compression == "m1n1") {
-      if (average != "off"){
+      if (average == "inner"){
         cnnd_compressed_raw = new double[nMax*(lMax+1)*(lMax+1)]();
         cnnd_compressed = py::array_t<double>({1, nMax, (lMax + 1) * (lMax + 1)}, cnnd_compressed_raw);
       } else{
@@ -2581,36 +2581,56 @@ void soapGTO(
 
     // Sort the neighbours by type, UNLESS using the agnostic compression scheme,
     // in which case we basically treat all neighbors as same type.
-    map<int, vector<int>> atomicTypeMap;
     if (compression != "agnostic"){
+        map<int, vector<int>> atomicTypeMap;
         for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
-    } else {
-        for (const int &idx : result.indices) {atomicTypeMap[0].push_back(idx);};
-    }
-    // Loop through neighbours sorted by type
-    for (const auto &ZIndexPair : atomicTypeMap) {
+        // Loop through neighbours sorted by type
+        for (const auto &ZIndexPair : atomicTypeMap) {
 
-        // j is the internal index for this atomic number
-        int j = ZIndexMap[ZIndexPair.first];
-        int n_neighbours = ZIndexPair.second.size();
+            // j is the internal index for this atomic number
+            int j = ZIndexMap[ZIndexPair.first];
+            int n_neighbours = ZIndexPair.second.size();
+         
+            // Save the neighbour distances into the arrays dx, dy and dz
+            getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
+            getRsZsD(dx, x2, x4, x6, x8, x10, x12, x14, x16, x18, dy, y2, y4, y6, y8, y10, y12, y14, y16, y18, dz, r2, r4, r6, r8, r10, r12, r14, r16, r18,  z2, z4, z6, z8, z10, z12, z14, z16, z18, r20, x20, y20, z20, n_neighbours, lMax);
+            getWeights(n_neighbours, r1, r2, true, weighting, weights);
+      
+            //Multiply all of the weights by the element-specific weights (default to 1).
+            //This enables straightforward implementation of element-specific weighting
+            //if so specified by user.
+            for(std::size_t k = 0; k < ZIndexPair.second.size(); ++k){
+                int Z = atomicNumbers(ZIndexPair.second[k]);
+                int speciesIdx = ZIndexMap[Z];
+                double weight = speciesWeights(speciesIdx);
+                weights[k] *= weight;
+            }
+
+            getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18,r20, x20,y20,z20, totalAN, lMax, return_derivatives);
+            getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, centerAtomI, j, ZIndexPair.second, attach, return_derivatives);
+        }
+    // If using agnostic compression, treat all neighbors as being same element,
+    // except for user-specified element-specific weighting.
+    } else {
+        int n_neighbours = result.indices.size();
          
         // Save the neighbour distances into the arrays dx, dy and dz
-        getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
+        getDeltaD(dx, dy, dz, positions, ix, iy, iz, result.indices);
         getRsZsD(dx, x2, x4, x6, x8, x10, x12, x14, x16, x18, dy, y2, y4, y6, y8, y10, y12, y14, y16, y18, dz, r2, r4, r6, r8, r10, r12, r14, r16, r18,  z2, z4, z6, z8, z10, z12, z14, z16, z18, r20, x20, y20, z20, n_neighbours, lMax);
         getWeights(n_neighbours, r1, r2, true, weighting, weights);
       
         //Multiply all of the weights by the element-specific weights (default to 1).
         //This enables straightforward implementation of element-specific weighting
         //if so specified by user.
-        for(std::size_t i = 0; i < ZIndexPair.second.size(); ++i){
-            int Z = atomicNumbers(ZIndexPair.second[i]);
+        for(std::size_t k = 0; k < result.indices.size(); ++k){
+            int Z = atomicNumbers(result.indices[k]);
             int speciesIdx = ZIndexMap[Z];
             double weight = speciesWeights(speciesIdx);
-            weights[i] *= weight;
+            weights[k] *= weight;
         }
 
         getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18,r20, x20,y20,z20, totalAN, lMax, return_derivatives);
-        getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, centerAtomI, j, ZIndexPair.second, attach, return_derivatives);
+        getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, centerAtomI, 0, result.indices, attach, return_derivatives);
     }
   }
   free(dx); free(x2); free(x4); free(x6); free(x8); free(x10); free(x12); free(x14); free(x16); free(x18);

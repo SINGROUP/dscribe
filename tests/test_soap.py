@@ -31,7 +31,7 @@ folder = Path(__file__).parent
 
 
 def soap(**kwargs):
-    """Returns a function that can be used to create a valid ACSF
+    """Returns a function that can be used to create a valid SOAP
     descriptor for a dataset.
     """
 
@@ -157,7 +157,7 @@ def get_soap_polynomial_l_max_setup():
     return (system, centers, soap_arguments)
 
 
-def get_power_spectrum(coeffs, crossover=True, average="off"):
+def get_power_spectrum(coeffs, crossover=True, average="off", compression="off"):
     """Given the expansion coefficients, returns the power spectrum."""
     numerical_power_spectrum = []
     shape = coeffs.shape
@@ -165,10 +165,10 @@ def get_power_spectrum(coeffs, crossover=True, average="off"):
     n_species = shape[1]
     n_max = shape[2]
     l_max = shape[3] - 1
-    #If using m1n1_compression (Darby et al. mu=1 nu=1 compression),
-    #the number of features scales linearly with # of elements,
-    #and the calculation is slightly different.
-    if average == "m1n1_compression":
+    # If using m1n1 compression (Darby et al. mu=1 nu=1 compression),
+    # the number of features scales linearly with # of elements,
+    # and the calculation is slightly different.
+    if compression == "m1n1":
         species_summed_coef = coeffs.sum(axis=1)
         for i in range(n_centers):
             i_spectrum = []
@@ -244,14 +244,15 @@ def load_polynomial_coefficients(args):
 # =============================================================================
 # Common tests with parametrizations that may be specific to this descriptor
 @pytest.mark.parametrize(
-    "species, n_max, l_max, crossover, average, n_features",
+    "species, n_max, l_max, crossover, average, n_features, compression",
     [
-        (["H", "O"], 5, 5, True, "off", int((5 + 1) * (5 * 2) * (5 * 2 + 1) / 2)),
-        (["H", "O"], 5, 5, False, "off", int(5 * 2 * (5 + 1) / 2 * (5 + 1))),
-        (["H", "O"], 5, 5, True, "m1n1_compression", int(5 * 5 * (5 + 1) * 2)),
+        (["H", "O"], 5, 5, True, "off", int((5 + 1) * (5 * 2) * (5 * 2 + 1) / 2), "off"),
+        (["H", "O"], 5, 5, False, "off", int(5 * 2 * (5 + 1) / 2 * (5 + 1)), "off"),
+        (["H", "O"], 5, 5, True, "off", int(5 * 5 * (5 + 1) * 2), "m1n1"),
+        (["H", "O"], 5, 5, True, "off", int(5 * (5 + 1) * (5 + 1) / 2), "agnostic"),
     ],
 )
-def test_number_of_features(species, n_max, l_max, crossover, average, n_features):
+def test_number_of_features(species, n_max, l_max, crossover, average, n_features, compression):
     desc = soap(
         species=species,
         r_cut=3,
@@ -260,6 +261,7 @@ def test_number_of_features(species, n_max, l_max, crossover, average, n_feature
         crossover=crossover,
         average = average,
         periodic=True,
+        compression=compression
     )
     assert_n_features(desc, n_features)
 
@@ -321,9 +323,10 @@ def test_basis(rbf):
 @pytest.mark.parametrize("rbf", ("gto",))
 @pytest.mark.parametrize("pbc", (False, True))
 @pytest.mark.parametrize("attach", (False, True))
-@pytest.mark.parametrize("average", ("off", "inner", "outer", "m1n1_compression"))
+@pytest.mark.parametrize("average", ("off", "inner", "outer"))
 @pytest.mark.parametrize("crossover", (True,))
-def test_derivatives_numerical(pbc, attach, average, rbf, crossover):
+@pytest.mark.parametrize("compression", ("off", "m1n1", "agnostic"))
+def test_derivatives_numerical(pbc, attach, average, rbf, crossover, compression):
     descriptor_func = soap(
         r_cut=3,
         n_max=4,
@@ -334,6 +337,7 @@ def test_derivatives_numerical(pbc, attach, average, rbf, crossover):
         crossover=crossover,
         periodic=pbc,
         dtype="float64",
+        compression=compression
     )
     assert_derivatives(descriptor_func, "numerical", pbc, attach=attach)
 
@@ -466,6 +470,17 @@ def test_exceptions():
         args["weighting"] = {"function": "invalid", "c": 1, "d": 1, "r0": 1}
         SOAP(**args)
 
+    # Invalid species weighting
+    with pytest.raises(ValueError):
+        args["species_weighting"] = {"H":1, "O":0.1, "X":3.4}
+        SOAP(**args)
+    with pytest.raises(ValueError):
+        args["species_weighting"] = {"H":1}
+        SOAP(**args)
+    with pytest.raises(ValueError):
+        args["species_weighting"] = {1:0, 8:2}
+        SOAP(**args)
+
     # Test that trying to get analytical derivatives with averaged output
     # raises an exception
     centers = [[0.0, 0.0, 0.0]]
@@ -475,6 +490,14 @@ def test_exceptions():
         soap.derivatives(system, centers=centers, method="analytical")
     with pytest.raises(ValueError):
         args["average"] = "outer"
+        soap = SOAP(**args)
+        soap.derivatives(system, centers=centers, method="analytical")
+    with pytest.raises(ValueError):
+        args["compression"] = "m1n1"
+        soap = SOAP(**args)
+        soap.derivatives(system, centers=centers, method="analytical")
+    with pytest.raises(ValueError):
+        args["compression"] = "agnostic"
         soap = SOAP(**args)
         soap.derivatives(system, centers=centers, method="analytical")
 
@@ -577,19 +600,19 @@ def test_average_outer(rbf):
 
 
 @pytest.mark.parametrize("rbf", ["gto", "polynomial"])
-def test_average_m1n1_compression(rbf):
+def test_m1n1_compression(rbf):
     """Tests the mu=1, nu=1 Darby et al. feature compression scheme
-    ('m1n1_compression').
+    ('m1n1' compression).
     """
     system, centers, args = globals()[f"get_soap_{rbf}_l_max_setup"]()
     # Calculate the analytical power spectrum
-    soap = SOAP(**args, rbf=rbf, average="m1n1_compression")
+    soap = SOAP(**args, rbf=rbf, compression="m1n1", average="off")
     analytical_inner = soap.create(system, centers=centers)
 
     # Calculate the numerical power spectrum
     coeffs = globals()[f"load_{rbf}_coefficients"](args)
     numerical_inner = get_power_spectrum(
-        coeffs, crossover=args["crossover"], average="m1n1_compression"
+        coeffs, crossover=args["crossover"], compression="m1n1"
     )
 
     # print(f"Numerical: {numerical_inner}")
