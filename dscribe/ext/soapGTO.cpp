@@ -2443,6 +2443,7 @@ void soapGTO(
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
     py::array_t<int> orderedSpeciesArr,
+    py::array_t<double> speciesWeightsArr,
     const double rCut,
     const double cutoffPadding,
     const int nMax,
@@ -2451,6 +2452,7 @@ void soapGTO(
     py::dict weighting,
     const bool crossover,
     string average,
+    string compression,
     py::array_t<int> indices,
     const bool attach,
     const bool return_descriptor,
@@ -2462,6 +2464,8 @@ void soapGTO(
   auto derivatives_mu = derivatives.mutable_unchecked<4>();
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
   auto species = orderedSpeciesArr.unchecked<1>();
+  auto speciesWeights = speciesWeightsArr.unchecked<1>();
+
   int nSpecies = orderedSpeciesArr.shape(0);
   auto indices_u = indices.unchecked<1>();
   double *alphas = (double*)alphasArr.request().ptr;
@@ -2476,8 +2480,11 @@ void soapGTO(
   //Note that crossover is ignored if "m1n1_compression"
   //is selected since this option uses a different definition
   //of crossover.
-  if ( average == "m1n1_compression" ){
+  if ( compression == "m1n1" ){
     nFeatures = nSpecies*(lMax+1)*(nMax*nMax);
+  } else if ( compression == "agnostic" ){
+      nSpecies = 1;
+      nFeatures = nMax * (nMax+1) * (lMax+1) / 2;
   } else if (crossover){
     nFeatures = (nSpecies*nMax)*(nSpecies*nMax+1)/2*(lMax+1);
   } else{
@@ -2528,12 +2535,17 @@ void soapGTO(
       cnnd_ave = py::array_t<double>({1, nSpecies, nMax, (lMax + 1) * (lMax + 1)}, cnnd_ave_raw);
   }
   //Also initialize temporary numpy array for storing the sum of the coefficients over all
-  //species without summing over m if feature compression was requested. This is an
-  //alternative to averaging (since it would not make much sense to do this if averaging)
-  //and thus is implemented as an averaging option.
-  else if (average == "m1n1_compression") {
-      cnnd_ave_raw = new double[nCenters*nMax*(lMax+1)*(lMax+1)]();
-      cnnd_ave = py::array_t<double>({nCenters, nMax, (lMax + 1) * (lMax + 1)}, cnnd_ave_raw);
+  //species without summing over m if feature compression was requested.
+  double* cnnd_compressed_raw;
+  py::array_t<double> cnnd_compressed;
+  if (compression == "m1n1") {
+      if (average != "off"){
+        cnnd_compressed_raw = new double[nMax*(lMax+1)*(lMax+1)]();
+        cnnd_compressed = py::array_t<double>({1, nMax, (lMax + 1) * (lMax + 1)}, cnnd_compressed_raw);
+      } else{
+        cnnd_compressed_raw = new double[nCenters*nMax*(lMax+1)*(lMax+1)]();
+        cnnd_compressed = py::array_t<double>({nCenters, nMax, (lMax + 1) * (lMax + 1)}, cnnd_compressed_raw);
+      }
   }
 
   auto cnnd_u = cnnd.unchecked<4>();
@@ -2567,23 +2579,38 @@ void soapGTO(
     double ix = centers_u(i, 0); double iy = centers_u(i, 1); double iz = centers_u(i, 2);
     CellListResult result = cell_list_atoms.getNeighboursForPosition(ix, iy, iz);
 
-    // Sort the neighbours by type
+    // Sort the neighbours by type, UNLESS using the agnostic compression scheme,
+    // in which case we basically treat all neighbors as same type.
     map<int, vector<int>> atomicTypeMap;
-    for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
-
+    if (compression != "agnostic"){
+        for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
+    } else {
+        for (const int &idx : result.indices) {atomicTypeMap[0].push_back(idx);};
+    }
     // Loop through neighbours sorted by type
     for (const auto &ZIndexPair : atomicTypeMap) {
 
-      // j is the internal index for this atomic number
-      int j = ZIndexMap[ZIndexPair.first];
-      int n_neighbours = ZIndexPair.second.size();
+        // j is the internal index for this atomic number
+        int j = ZIndexMap[ZIndexPair.first];
+        int n_neighbours = ZIndexPair.second.size();
+         
+        // Save the neighbour distances into the arrays dx, dy and dz
+        getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
+        getRsZsD(dx, x2, x4, x6, x8, x10, x12, x14, x16, x18, dy, y2, y4, y6, y8, y10, y12, y14, y16, y18, dz, r2, r4, r6, r8, r10, r12, r14, r16, r18,  z2, z4, z6, z8, z10, z12, z14, z16, z18, r20, x20, y20, z20, n_neighbours, lMax);
+        getWeights(n_neighbours, r1, r2, true, weighting, weights);
+      
+        //Multiply all of the weights by the element-specific weights (default to 1).
+        //This enables straightforward implementation of element-specific weighting
+        //if so specified by user.
+        for(std::size_t i = 0; i < ZIndexPair.second.size(); ++i){
+            int Z = atomicNumbers(ZIndexPair.second[i]);
+            int speciesIdx = ZIndexMap[Z];
+            double weight = speciesWeights(speciesIdx);
+            weights[i] *= weight;
+        }
 
-      // Save the neighbour distances into the arrays dx, dy and dz
-      getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
-      getRsZsD(dx, x2, x4, x6, x8, x10, x12, x14, x16, x18, dy, y2, y4, y6, y8, y10, y12, y14, y16, y18, dz, r2, r4, r6, r8, r10, r12, r14, r16, r18,  z2, z4, z6, z8, z10, z12, z14, z16, z18, r20, x20, y20, z20, n_neighbours, lMax);
-      getWeights(n_neighbours, r1, r2, true, weighting, weights);
-      getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18,r20, x20,y20,z20, totalAN, lMax, return_derivatives);
-      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, centerAtomI, j, ZIndexPair.second, attach, return_derivatives);
+        getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18,r20, x20,y20,z20, totalAN, lMax, return_derivatives);
+        getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, centerAtomI, j, ZIndexPair.second, attach, return_derivatives);
     }
   }
   free(dx); free(x2); free(x4); free(x6); free(x8); free(x10); free(x12); free(x14); free(x16); free(x18);
@@ -2626,24 +2653,22 @@ void soapGTO(
                 }
             }
         }
-        getPD(descriptor_mu, cnnd_ave_u, nMax, nSpecies, 1, lMax, crossover);
-        delete [] cnnd_ave_raw;
-    // If alternatively we are using Darby et al. mu=1, nu=1 feature compression
-    //(implemented as an alternative to averaging) calculate the partial power spectrum
-    //using this modification.
-    } else if (average == "m1n1_compression"){
-      auto cnnd_ave_mu = cnnd_ave.mutable_unchecked<3>();
-      for (int i = 0; i < nCenters; i++) {
+        if (compression == "m1n1"){
+            auto cnnd_compressed_mu = cnnd_compressed.mutable_unchecked<3>();
             for (int j = 0; j < nSpecies; j++) {
                 for (int k = 0; k < nMax; k++) {
                     for (int l = 0; l < (lMax + 1) * (lMax + 1); l++) {
-                        cnnd_ave_mu(i, k, l) += cnnd_u(i, j, k, l);
+                            cnnd_compressed_mu(0, k, l) += cnnd_ave_mu(0, j, k, l);
                     }
                 }
             }
+            getPDWithCompression(descriptor_mu, cnnd_ave_mu, cnnd_compressed_mu, nMax, nSpecies, 1, lMax);
+            delete [] cnnd_compressed_raw;
+            delete [] cnnd_ave_raw;
+        } else{
+            getPD(descriptor_mu, cnnd_ave_u, nMax, nSpecies, 1, lMax, crossover);
+            delete [] cnnd_ave_raw;
         }
-      getPDWithCompression(descriptor_mu, cnnd_u, cnnd_ave_mu, nMax, nSpecies, nCenters, lMax);
-      delete [] cnnd_ave_raw;
     // If outer averaging is requested, average the power spectrum across the
     // centers.
     } else if (average == "outer") {
@@ -2652,7 +2677,23 @@ void soapGTO(
         double* ps_temp_raw = new double[nCenters*nFeatures]();
         py::array_t<double> ps_temp({nCenters, nFeatures}, ps_temp_raw);
         auto ps_temp_mu = ps_temp.mutable_unchecked<2>();
-        getPD(ps_temp_mu, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
+        
+        if (compression == "m1n1"){
+            auto cnnd_compressed_mu = cnnd_compressed.mutable_unchecked<3>();
+            for (int i = 0; i < nCenters; i++) {
+                for (int j = 0; j < nSpecies; j++) {
+                    for (int k = 0; k < nMax; k++) {
+                        for (int l = 0; l < (lMax + 1) * (lMax + 1); l++) {
+                            cnnd_compressed_mu(i, k, l) += cnnd_u(i, j, k, l);
+                        }
+                    }
+                }
+            }
+            getPDWithCompression(ps_temp_mu, cnnd_u, cnnd_compressed_mu, nMax, nSpecies, nCenters, lMax);
+            delete [] cnnd_compressed_raw;
+        } else{
+            getPD(ps_temp_mu, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
+        }
         for (int i = 0; i < nCenters; i++) {
             for (int j = 0; j < nFeatures; j++) {
                 descriptor_mu(0, j) += ps_temp_mu(i, j);
@@ -2664,15 +2705,30 @@ void soapGTO(
         delete [] ps_temp_raw;
     // Regular power spectrum without averaging
     } else {
-        getPD(descriptor_mu, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
+        if (compression == "m1n1"){
+            auto cnnd_compressed_mu = cnnd_compressed.mutable_unchecked<3>();
+            for (int i = 0; i < nCenters; i++) {
+                for (int j = 0; j < nSpecies; j++) {
+                    for (int k = 0; k < nMax; k++) {
+                        for (int l = 0; l < (lMax + 1) * (lMax + 1); l++) {
+                            cnnd_compressed_mu(i, k, l) += cnnd_u(i, j, k, l);
+                        }
+                    }
+                }
+            }
+            getPDWithCompression(descriptor_mu, cnnd_u, cnnd_compressed_mu, nMax, nSpecies, nCenters, lMax);
+            delete [] cnnd_compressed_raw;
+        } else{
+            getPD(descriptor_mu, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
+        }
     }
   }
 
   // Calculate the derivatives. Note that this should not be attempted usnig the
-  //function call sbelow if m1n1_averaging has been selected, in which
-  //case this will not return a correct result. Currently the Python wrapper
-  //does not in any case permit analytical derivative calculation if average != "off"
-  //in any case.
+  // function call below if m1n1 compression has been selected, in which
+  // case this will not return a correct result. Currently the Python wrapper
+  // does not in any case permit analytical derivative calculation if m1n1 compression
+  // is used.
   if (return_derivatives) {
     getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
   }

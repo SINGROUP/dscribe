@@ -40,12 +40,16 @@ double* getIntegrand(double* Flir, double* Ylmi,int rsize, int icount, int lMax)
 void getC(double* Cs, double* ws, double* rw2, double * gns, double* summed, double rCut,int lMax, int rsize, int gnsize, int nCenters, int nNeighbours, double eta, double* weights);
 void accumC(double* Cs, double* C, int lMax, int gnsize, int typeI, int i, int nCoeffs);
 void getP(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cts, int Nt, int lMax, int nMax, int Hs, double rCut2, int nFeatures, bool crossover, int nCoeffs);
+void getPWithCompression(py::detail::unchecked_mutable_reference<double, 2> &Ps, double* Cs,
+    double* CsSummed, int Nt, int lMax, int nMax, int Hs,
+    double rCut2, int nFeatures, int nCoeffs, int nCompressionCoeffs);
 void soapGeneral(
     py::array_t<double> PsArr,
     py::array_t<double> positions,
     py::array_t<double> HposArr,
     py::array_t<int> atomicNumbersArr,
     py::array_t<int> orderedSpeciesArr,
+    py::array_t<double> speciesWeightsArr,
     double rCut,
     double cutoffPadding,
     int nMax,
@@ -56,6 +60,7 @@ void soapGeneral(
     py::array_t<double> gssArr,
     bool crossover,
     string average,
+    string compression,
     CellList cellList
 );
 

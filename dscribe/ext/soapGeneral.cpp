@@ -1868,6 +1868,7 @@ void soapGeneral(
     py::array_t<double> HposArr,
     py::array_t<int> atomicNumbersArr,
     py::array_t<int> orderedSpeciesArr,
+    py::array_t<double> speciesWeightsArr,
     double rCut,
     double cutoffPadding,
     int nMax,
@@ -1878,17 +1879,21 @@ void soapGeneral(
     py::array_t<double> gssArr,
     bool crossover,
     string average,
+    string compression,
     CellList cellList)
 {
     int nAtoms = atomicNumbersArr.shape(0);
     int Nt = orderedSpeciesArr.shape(0);
     int Hs = HposArr.shape(0);
     int nFeatures = 0;
-    //Note that crossover is ignored if "m1n1_compression"
+    //Note that crossover is ignored if "m1n1" compression
     //is selected since this option uses a different definition
     //of crossover.
-    if ( average == "m1n1_compression" ){
+    if ( compression == "m1n1" ){
         nFeatures = Nt*(lMax+1)*(nMax*nMax);
+    } else if( compression == "agnostic" ){
+        Nt = 1;
+        nFeatures = nMax*(nMax+1)*(lMax+1);
     } else if (crossover){
         nFeatures = (Nt*nMax)*(Nt*nMax+1)/2*(lMax+1);
     } else{
@@ -1897,6 +1902,7 @@ void soapGeneral(
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
     auto species = orderedSpeciesArr.unchecked<1>();
     auto Ps = PsArr.mutable_unchecked<2>();
+    auto speciesWeights = speciesWeightsArr.unchecked<1>();
     double *Hpos = (double*)HposArr.request().ptr;
     double *rw = (double*)rwArr.request().ptr;
     double *gss = (double*)gssArr.request().ptr;
@@ -1928,10 +1934,17 @@ void soapGeneral(
         CsAve = (double*) malloc(nCoeffs*sizeof(double));
         memset(CsAve, 0.0, nCoeffs*sizeof(double));
     }
-    else if (average == "m1n1_compression") {
-        nCompressionCoeffs = 2*(lMax+1)*(lMax+1)*nMax;
-        CsAve = (double*) malloc(Hs*nCompressionCoeffs*sizeof(double));
-        memset(CsAve, 0.0, Hs*nCompressionCoeffs*sizeof(double));
+    double* CsCompressed;
+    if (compression == "m1n1") {
+        if (average == "inner"){
+            nCompressionCoeffs = 2*(lMax+1)*(lMax+1)*nMax;
+            CsCompressed = (double*) malloc(nCompressionCoeffs*sizeof(double));
+            memset(CsCompressed, 0.0, nCompressionCoeffs*sizeof(double));
+        } else{
+            nCompressionCoeffs = 2*(lMax+1)*(lMax+1)*nMax;
+            CsCompressed = (double*) malloc(Hs*nCompressionCoeffs*sizeof(double));
+            memset(CsCompressed, 0.0, Hs*nCompressionCoeffs*sizeof(double));
+        }
     }
 
     // Create a mapping between an atomic index and its internal index in the
@@ -1950,12 +1963,20 @@ void soapGeneral(
         double iz = Hpos[3*i+2];
         CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
 
-        // Sort the neighbours by type
+        // Sort the neighbours by type, unless using agnostic compression, in
+        // which case we essentially assume all neighbors are same type (except
+        // for weighting purposes).
         map<int, vector<int>> atomicTypeMap;
-        for (const int &idx : result.indices) {
-            int Z = atomicNumbers(idx);
-            atomicTypeMap[Z].push_back(idx);
-        };
+        if (compression != "agnostic"){
+            for (const int &idx : result.indices) {
+                int Z = atomicNumbers(idx);
+                atomicTypeMap[Z].push_back(idx);
+            };
+        } else {
+            for (const int &idx : result.indices) {
+                atomicTypeMap[0].push_back(idx);
+            };
+        }
 
         // Loop through neighbours sorted by type
         for (const auto &ZIndexPair : atomicTypeMap) {
@@ -1973,6 +1994,16 @@ void soapGeneral(
             int nCenters = neighbours.second;
 
             getWeights(nNeighbours + min(nCenters, 1), ris, NULL, false, weighting, weights);
+            //Multiply all of the weights by the element-specific weights (default to 1).
+            //This enables straightforward implementation of element-specific weighting
+            //if so specified by user.
+            for(std::size_t i = 0; i < ZIndexPair.second.size(); ++i){
+                int Z = atomicNumbers(ZIndexPair.second[i]);
+                int speciesIdx = ZIndexMap[Z];
+                double weight = speciesWeights(speciesIdx);
+                weights[i] *= weight;
+            }
+
             Flir = getFlir(oO4arri, ris, minExp, pluExp, nNeighbours, rsize, lMax);
             Ylmi = getYlmi(dx, dy, dz, oOri, cf, nNeighbours, lMax);
             summed = getIntegrand(Flir, Ylmi, rsize, nNeighbours, lMax, weights);
@@ -1997,25 +2028,24 @@ void soapGeneral(
         for (int j = 0; j < nCoeffs; j++) {
             CsAve[j] = CsAve[j] / (double)Hs;
         }
-        getP(Ps, CsAve, Nt, lMax, nMax, 1, rCut2, nFeatures, crossover, nCoeffs);
-        free(CsAve);
-    //Perform Darby et al. mu=1, nu=1 compression by summing across all species
-    } else if (average == "m1n1_compression"){
-        for (int i = 0; i < Hs; i++) {
+        if (compression == "m1n1"){
             for (int j = 0; j < Nt; j++) {
                 for (int k = 0; k < nMax; k++){
                     for (int l = 0; l < 2 * (lMax + 1) * (lMax + 1); l++){
-                        int inputPosition = i*nCoeffs + 2*j*(lMax+1)*(lMax+1)*nMax +
+                        int inputPosition = 2*j*(lMax+1)*(lMax+1)*nMax +
                                 2*k*(lMax+1)*(lMax+1) + l;
-                        int outputPosition = i*nCompressionCoeffs + 2*k*(lMax+1)*(lMax+1) + l;
-                        CsAve[outputPosition] += Cs[inputPosition];
+                        int outputPosition = 2*k*(lMax+1)*(lMax+1) + l;
+                        CsCompressed[outputPosition] += CsAve[inputPosition];
                     }
                 }
             }
-        }
-        getPWithCompression(Ps, Cs, CsAve, Nt, lMax, nMax, Hs, rCut2, nFeatures,
+            getPWithCompression(Ps, CsAve, CsCompressed, Nt, lMax, nMax, 1, rCut2, nFeatures,
                         nCoeffs, nCompressionCoeffs);
-        free(CsAve);
+            free(CsCompressed);
+        }
+        else{
+            getP(Ps, CsAve, Nt, lMax, nMax, 1, rCut2, nFeatures, crossover, nCoeffs);
+        }
     // Average the power spectrum across atoms
     } else if (average == "outer") {
         // We allocate the memory and give array_t a pointer to it. This way
@@ -2023,7 +2053,28 @@ void soapGeneral(
         double* PsTemp = new double[nFeatures*Hs];
         py::array_t<double> PsTempArrChecked({Hs, nFeatures}, PsTemp);
         auto PsTempArr = PsTempArrChecked.mutable_unchecked<2>();
-        getP(PsTempArr, Cs, Nt, lMax, nMax, Hs, rCut2, nFeatures, crossover, nCoeffs);
+
+        if (compression == "m1n1"){
+            for (int i = 0; i < Hs; i++) {
+                for (int j = 0; j < Nt; j++) {
+                    for (int k = 0; k < nMax; k++){
+                        for (int l = 0; l < 2 * (lMax + 1) * (lMax + 1); l++){
+                            int inputPosition = i*nCoeffs + 2*j*(lMax+1)*(lMax+1)*nMax +
+                                2*k*(lMax+1)*(lMax+1) + l;
+                            int outputPosition = i*nCompressionCoeffs + 2*k*(lMax+1)*(lMax+1) + l;
+                            CsCompressed[outputPosition] += Cs[inputPosition];
+                        }
+                    }
+                }
+            }
+            getPWithCompression(PsTempArr, Cs, CsCompressed, Nt, lMax, nMax, Hs, rCut2, nFeatures,
+                        nCoeffs, nCompressionCoeffs);
+            free(CsCompressed);
+        }
+        else {
+            getP(PsTempArr, Cs, Nt, lMax, nMax, Hs, rCut2, nFeatures, crossover, nCoeffs);
+        }
+
         for (int i = 0; i < Hs; i++) {
             for (int j = 0; j < nFeatures; j++) {
                 Ps(0, j) += PsTempArr(i, j);
@@ -2035,7 +2086,25 @@ void soapGeneral(
         free(PsTemp);
     // Regular power spectrum without averaging
     } else {
-        getP(Ps, Cs, Nt, lMax, nMax, Hs, rCut2, nFeatures, crossover, nCoeffs);
+        if (compression == "m1n1"){
+            for (int i = 0; i < Hs; i++) {
+                for (int j = 0; j < Nt; j++) {
+                    for (int k = 0; k < nMax; k++){
+                        for (int l = 0; l < 2 * (lMax + 1) * (lMax + 1); l++){
+                            int inputPosition = i*nCoeffs + 2*j*(lMax+1)*(lMax+1)*nMax +
+                                2*k*(lMax+1)*(lMax+1) + l;
+                            int outputPosition = i*nCompressionCoeffs + 2*k*(lMax+1)*(lMax+1) + l;
+                            CsCompressed[outputPosition] += Cs[inputPosition];
+                        }
+                    }
+                }
+            }
+            getPWithCompression(Ps, Cs, CsCompressed, Nt, lMax, nMax, Hs, rCut2, nFeatures,
+                        nCoeffs, nCompressionCoeffs);
+            free(CsCompressed);
+        } else {
+            getP(Ps, Cs, Nt, lMax, nMax, Hs, rCut2, nFeatures, crossover, nCoeffs);
+        }
     }
 
     free(Cs);

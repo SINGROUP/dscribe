@@ -22,6 +22,7 @@ from ase import Atoms
 import ase.geometry.cell
 import ase.data
 
+from dscribe.utils.species import get_atomic_numbers
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
 import dscribe.ext
 
@@ -59,7 +60,9 @@ class SOAP(DescriptorLocal):
         weighting=None,
         crossover=True,
         average="off",
+        compression="off",
         species=None,
+        species_weighting=None,
         periodic=False,
         sparse=False,
         dtype="float64",
@@ -147,15 +150,26 @@ class SOAP(DescriptorLocal):
                     * ``"off"``: No averaging.
                     * ``"inner"``: Averaging over sites before summing up the magnetic quantum numbers: :math:`p_{nn'l}^{Z_1,Z_2} \sim \sum_m (\\frac{1}{n} \sum_i c_{nlm}^{i, Z_1})^{*} (\\frac{1}{n} \sum_i c_{n'lm}^{i, Z_2})`
                     * ``"outer"``: Averaging over the power spectrum of different sites: :math:`p_{nn'l}^{Z_1,Z_2} \sim \\frac{1}{n} \sum_i \sum_m (c_{nlm}^{i, Z_1})^{*} (c_{n'lm}^{i, Z_2})`
-                    * ``"m1n1_compression"``: Implements the mu=1, nu=1 feature compression scheme from Darby et al.: :math:`p_{inn'l}^{Z_1,Z_2} \sum_m (c_{nlm}^{i, Z_1})^{*} (\sum_z c_{n'lm}^{i, z})`.
+            compression (str): The feature compression to apply. Applying compression can slightly reduce the
+                accuracy of models trained on the feature representation but can also dramatically reduce the
+                size of the feature vector and hence the computational cost.
+                Valid options are:
+
+                    * ``"off"``: No compression; default.
+                    * ``"agnostic"``: The SOAP feature vector is generated in an element-agnostic way, so that
+                        the size of the feature vector is now independent of the number of elements (see Darby et al
+                        below for details). It is still possible when using this option to construct a feature
+                        vector that distinguishes between elements by supplying element-specific weighting under
+                        "species_weighting", see below.
+                    * ``"m1n1"``: Implements the mu=1, nu=1 feature compression scheme from Darby et al.: :math:`p_{inn'l}^{Z_1,Z_2} \sum_m (c_{nlm}^{i, Z_1})^{*} (\sum_z c_{n'lm}^{i, z})`.
                         In other words, each coefficient for each species is multiplied by a "species-agnostic" sum over the corresponding set of coefficients for all other species.
                         If this option is selected, features are generated for each center, but the number of features (the size of each feature vector) scales linearly rather than
                         quadratically with the number of elements in the system.
 
-                        For reference see:
-                            "Darby, J.P., Kermode, J.R. & Csányi, G.
-                            Compressing local atomic neighbourhood descriptors.
-                            npj Comput Mater 8, 166 (2022). https://doi.org/10.1038/s41524-022-00847-y"
+                    For reference see:
+                        "Darby, J.P., Kermode, J.R. & Csányi, G.
+                        Compressing local atomic neighbourhood descriptors.
+                        npj Comput Mater 8, 166 (2022). https://doi.org/10.1038/s41524-022-00847-y"
 
             species (iterable): The chemical species as a list of atomic
                 numbers or as a list of chemical symbols. Notice that this is not
@@ -164,6 +178,18 @@ class SOAP(DescriptorLocal):
                 encountered when creating the descriptors for a set of systems.
                 Keeping the number of chemical species as low as possible is
                 preferable.
+            species_weighting (dict): Either None or a dictionary mapping each atomic number to a
+                species-specific weight. If None, there is no species-specific weighting. If a dictionary,
+                must contain a matching atomic number for each species in the ``species`` iterable.
+                The main use of species weighting is to weight each element differently when using
+                the "agnostic" option for ``compression``; if not using ``compression="agnostic"``,
+                species weighting is not recommended.
+
+                For reference see:
+                    "Darby, J.P., Kermode, J.R. & Csányi, G.
+                    Compressing local atomic neighbourhood descriptors.
+                    npj Comput Mater 8, 166 (2022). https://doi.org/10.1038/s41524-022-00847-y"
+
             periodic (bool): Set to True if you want the descriptor output to
                 respect the periodicity of the atomic systems (see the
                 pbc-parameter in the constructor of ase.Atoms).
@@ -186,6 +212,10 @@ class SOAP(DescriptorLocal):
         # Setup the involved chemical species
         self.species = species
 
+        #If species weighting is supplied, ensure it is valid and set
+        #it up.
+        self.species_weights = species_weighting
+
         # Test that general settings are valid
         if sigma <= 0:
             raise ValueError(
@@ -204,11 +234,18 @@ class SOAP(DescriptorLocal):
             raise ValueError(
                 "Must have at least one radial basis function." "n_max={}".format(n_max)
             )
-        supported_average = set(("off", "inner", "outer", "m1n1_compression"))
+        supported_average = set(("off", "inner", "outer"))
         if average not in supported_average:
             raise ValueError(
                 "Invalid average mode '{}' given. Please use "
                 "one of the following: {}".format(average, supported_average)
+            )
+
+        supported_compression = set(("off", "agnostic", "m1n1"))
+        if compression not in supported_compression:
+            raise ValueError(
+                "Invalid compression mode '{}' given. Please use "
+                "one of the following: {}".format(compression, supported_compression)
             )
 
         if not (weighting or r_cut):
@@ -287,6 +324,7 @@ class SOAP(DescriptorLocal):
         self._rbf = rbf
         self.average = average
         self.crossover = crossover
+        self.compression = compression
 
     def prepare_centers(self, system, centers=None):
         """Validates and prepares the centers for the C++ extension."""
@@ -431,7 +469,7 @@ class SOAP(DescriptorLocal):
         # Determine if the outputs have a fixed size
         n_features = self.get_number_of_features()
         static_size = None
-        if self.average == "outer" or self.average == "inner":
+        if self.average != "off":
             static_size = [n_features]
         else:
             if centers is None:
@@ -515,7 +553,9 @@ class SOAP(DescriptorLocal):
                 alphas,
                 betas,
                 self._atomic_numbers,
+                self.species_weights,
                 self.periodic,
+                self.compression,
             )
 
             # Calculate analytically with extension
@@ -546,7 +586,9 @@ class SOAP(DescriptorLocal):
                 rx,
                 gss,
                 self._atomic_numbers,
+                self.species_weights,
                 self.periodic,
+                self.compression,
             )
             soap_poly.create(
                 soap_mat,
@@ -560,7 +602,7 @@ class SOAP(DescriptorLocal):
         # Averaged output is a global descriptor, and thus the first dimension
         # is squeezed out to keep the output size consistent with the size of
         # other global descriptors.
-        if self.average not in ["off", "m1n1_compression"]:
+        if self.average != "off":
             soap_mat = np.squeeze(soap_mat, axis=0)
 
         return soap_mat
@@ -653,7 +695,9 @@ class SOAP(DescriptorLocal):
                 alphas,
                 betas,
                 self._atomic_numbers,
+                self.species_weights,
                 self.periodic,
+                self.compression,
             )
 
             # Calculate numerically with extension
@@ -687,7 +731,9 @@ class SOAP(DescriptorLocal):
                 rx,
                 gss,
                 self._atomic_numbers,
+                self.species_weights,
                 self.periodic,
+                self.compression,
             )
             soap_poly.derivatives_numerical(
                 d,
@@ -756,7 +802,9 @@ class SOAP(DescriptorLocal):
             alphas,
             betas,
             self._atomic_numbers,
+            self.species_weights,
             self.periodic,
+            self.compression,
         )
 
         # These arrays are only used internally by the C++ code.
@@ -816,6 +864,47 @@ class SOAP(DescriptorLocal):
             self.index_to_atomic_number[i_atom] = atomic_number
         self.n_elements = len(self._atomic_numbers)
 
+    @property
+    def species_weights(self):
+        return self._species_weights
+
+    @species_weights.setter
+    def species_weights(self, value):
+        """Used to check the validity of species weighting and set it up.
+        Note that species must already be set up in order to set species
+        weighting.
+
+        Args:
+            value(iterable): Chemical species either as a list of atomic
+                numbers or list of chemical symbols.
+        """
+        if value is None:
+            self._species_weights = np.ones((self.n_elements))
+        else:
+            if not isinstance(value, dict):
+                raise ValueError(
+                    "Invalid species weighting '{}' given. Species weighting must "
+                    "be either None or a dict.".format(value)
+                )
+
+            if len(value) != self.n_elements:
+                raise ValueError("The species_weighting dictionary, "
+                            "if supplied, must contain the same keys as "
+                            "the list of accepted species.")
+            species_weights = []
+            species_list = list(self.species)
+            for specie, atomic_number in zip(species_list, get_atomic_numbers(species_list)):
+                if specie not in value:
+                    raise ValueError("The species_weighting dictionary, "
+                            "if supplied, must contain the same keys as "
+                            "the list of accepted species.")
+                species_weights.append( (value[specie], atomic_number) )
+
+            species_weights = [s[0] for s in sorted(species_weights, key = lambda x: x[1])]
+            self._species_weights = np.array(species_weights).astype(np.float64)
+
+
+
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
         will have.
@@ -824,11 +913,13 @@ class SOAP(DescriptorLocal):
             int: Number of features for this descriptor.
         """
         n_elem = len(self._atomic_numbers)
-        # Note that if "m1n1_compression" was selected as the option for averaging,
-        # self.crossover is ignored.
-        if self.average == "m1n1_compression":
-            return int(self._n_max**2 * (self._l_max + 1) * n_elem)
-        if self.crossover:
+        if self.compression != "off":
+            if self.compression == "agnostic":
+                return int((self._n_max) * (self._n_max + 1) / 2 * (self._l_max + 1))
+            elif self.compression == "m1n1":
+                return int(self._n_max**2 * n_elem * (self._l_max + 1))
+
+        elif self.crossover:
             n_elem_radial = n_elem * self._n_max
             return int((n_elem_radial) * (n_elem_radial + 1) / 2 * (self._l_max + 1))
         return int(n_elem * self._n_max * (self._n_max + 1) / 2 * (self._l_max + 1))
@@ -879,11 +970,12 @@ class SOAP(DescriptorLocal):
             numbers = list(reversed(numbers))
         i = numbers[0]
         j = numbers[1]
-        n_elem_feat_symm = self._n_max * (self._n_max + 1) / 2 * (self._l_max + 1)
-        if self.average == "m1n1_compression":
+        if self.compression in ["off", "agnostic"]:
+            n_elem_feat_symm = self._n_max * (self._n_max + 1) / 2 * (self._l_max + 1)
+        else:
             n_elem_feat_symm = self._n_max**2 * (self._l_max + 1)
 
-        if self.crossover and self.average != "m1n1_compression":
+        if self.crossover and self.compression == "off":
             n_elem_feat_unsymm = self._n_max * self._n_max * (self._l_max + 1)
             n_elem_feat = n_elem_feat_symm if i == j else n_elem_feat_unsymm
 
@@ -895,9 +987,12 @@ class SOAP(DescriptorLocal):
             start = int(m_symm * n_elem_feat_symm + m_unsymm * n_elem_feat_unsymm)
             end = int(start + n_elem_feat)
         else:
+            if self.compression == "agnostic":
+                return slice(0, n_elem_feat_symm)
             if i != j:
                 raise ValueError(
-                    "Crossover is set to False. No cross-species output " "available"
+                    "Either crossover is set to False or compression has been selected. "
+                    "No cross-species output available"
                 )
             start = int(i * n_elem_feat_symm)
             end = int(start + n_elem_feat_symm)

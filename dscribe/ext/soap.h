@@ -44,7 +44,9 @@ class SOAPGTO: public Descriptor {
             py::array_t<double> alphas,
             py::array_t<double> betas,
             py::array_t<int> species,
-            bool periodic
+            py::array_t<double> species_weights,
+            bool periodic,
+            string compression
         );
         /**
          * For creating SOAP output.
@@ -109,6 +111,8 @@ class SOAPGTO: public Descriptor {
         const py::array_t<double> alphas;
         const py::array_t<double> betas;
         const py::array_t<int> species;
+        const py::array_t<double> species_weights;
+        const string compression;
 };
 
 /**
@@ -131,7 +135,9 @@ class SOAPPolynomial: public Descriptor {
             py::array_t<double> rx,
             py::array_t<double> gss,
             py::array_t<int> species,
-            bool periodic
+            py::array_t<double> species_weights,
+            bool periodic,
+            string compression
         );
         /**
          * For creating SOAP output.
@@ -176,6 +182,8 @@ class SOAPPolynomial: public Descriptor {
         const py::array_t<double> rx;
         const py::array_t<double> gss;
         const py::array_t<int> species;
+        const py::array_t<double> species_weights;
+        const string compression;
 };
 
 #endif

@@ -31,7 +31,9 @@ SOAPGTO::SOAPGTO(
     py::array_t<double> alphas,
     py::array_t<double> betas,
     py::array_t<int> species,
-    bool periodic
+    py::array_t<double> species_weights,
+    bool periodic,
+    string compression
 )
     : Descriptor(periodic, average, rcut+cutoff_padding)
     , rcut(rcut)
@@ -44,6 +46,8 @@ SOAPGTO::SOAPGTO(
     , alphas(alphas)
     , betas(betas)
     , species(species)
+    , species_weights(species_weights)
+    , compression(compression)
 {
 }
 
@@ -108,6 +112,7 @@ void SOAPGTO::create(
         this->betas,
         atomic_numbers,
         this->species,
+        this->species_weights,
         this->rcut,
         this->cutoff_padding,
         this->nmax,
@@ -116,6 +121,7 @@ void SOAPGTO::create(
         this->weighting,
         this->crossover,
         this->average,
+        this->compression,
         indices,
         false,
         true,
@@ -127,8 +133,10 @@ void SOAPGTO::create(
 int SOAPGTO::get_number_of_features() const
 {
     int n_species = this->species.shape(0);
-    if (this->average == "m1n1_compression"){
+    if ( this->compression == "m1n1" ){
         return (n_species*this->nmax*this->nmax) * (this->lmax+1);
+    } else if ( this->compression == "agnostic" ){
+        return (this->nmax * (this->nmax+1) * (this->lmax+1));
     }
     else{
         return this->crossover
@@ -179,6 +187,7 @@ void SOAPGTO::derivatives_analytical(
         this->betas,
         atomic_numbers,
         this->species,
+        this->species_weights,
         this->rcut,
         this->cutoff_padding,
         this->nmax,
@@ -187,6 +196,7 @@ void SOAPGTO::derivatives_analytical(
         this->weighting,
         this->crossover,
         this->average,
+        this->compression,
         indices,
         attach,
         return_descriptor,
@@ -207,7 +217,9 @@ SOAPPolynomial::SOAPPolynomial(
     py::array_t<double> rx,
     py::array_t<double> gss,
     py::array_t<int> species,
-    bool periodic
+    py::array_t<double> species_weights,
+    bool periodic,
+    string compression
 )
     : Descriptor(periodic, average, rcut+cutoff_padding)
     , rcut(rcut)
@@ -220,6 +232,8 @@ SOAPPolynomial::SOAPPolynomial(
     , rx(rx)
     , gss(gss)
     , species(species)
+    , species_weights(species_weights)
+    , compression(compression)
 {
 }
 
@@ -269,6 +283,7 @@ void SOAPPolynomial::create(
         centers,
         atomic_numbers,
         this->species,
+        this->species_weights,
         this->rcut,
         this->cutoff_padding,
         this->nmax,
@@ -279,6 +294,7 @@ void SOAPPolynomial::create(
         this->gss,
         this->crossover,
         this->average,
+        this->compression,
         cell_list
     );
 }
@@ -286,6 +302,11 @@ void SOAPPolynomial::create(
 int SOAPPolynomial::get_number_of_features() const
 {
     int n_species = this->species.shape(0);
+    if ( this->compression == "m1n1" ){
+        return (n_species*this->nmax*this->nmax) * (this->lmax+1);
+    } else if ( this->compression == "agnostic" ){
+        return (this->nmax * (this->nmax+1) * (this->lmax+1));
+    }
     return this->crossover
         ? (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1) 
         : n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
