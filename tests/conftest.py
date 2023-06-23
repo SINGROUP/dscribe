@@ -183,7 +183,6 @@ def assert_periodic(descriptor_func):
     assert np.allclose(feat_ref, feat_periodic)
 
 
-
 def assert_derivatives(
     descriptor_func,
     method,

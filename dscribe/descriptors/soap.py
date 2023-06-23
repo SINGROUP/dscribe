@@ -212,8 +212,8 @@ class SOAP(DescriptorLocal):
         # Setup the involved chemical species
         self.species = species
 
-        #If species weighting is supplied, ensure it is valid and set
-        #it up.
+        # If species weighting is supplied, ensure it is valid and set
+        # it up.
         self.species_weights = species_weighting
 
         # Test that general settings are valid
@@ -632,8 +632,8 @@ class SOAP(DescriptorLocal):
                 )
             if self.compression != "off":
                 raise ValueError(
-                        "Analytical derivatives not currently available for compressed "
-                        "output."
+                    "Analytical derivatives not currently available for compressed "
+                    "output."
                 )
             if self.periodic:
                 raise ValueError(
@@ -892,27 +892,35 @@ class SOAP(DescriptorLocal):
                 )
 
             if len(value) != self.n_elements:
-                raise ValueError("The species_weighting dictionary, "
-                            "if supplied, must contain the same keys as "
-                            "the list of accepted species.")
+                raise ValueError(
+                    "The species_weighting dictionary, "
+                    "if supplied, must contain the same keys as "
+                    "the list of accepted species."
+                )
             species_weights = []
             for specie in list(self.species):
                 if specie not in value:
-                    raise ValueError("The species_weighting dictionary, "
-                            "if supplied, must contain the same keys as "
-                            "the list of accepted species.")
+                    raise ValueError(
+                        "The species_weighting dictionary, "
+                        "if supplied, must contain the same keys as "
+                        "the list of accepted species."
+                    )
                 if isinstance(specie, (int, np.integer)):
                     if specie <= 0:
-                        raise ValueError("Species weighting {} contained a zero or negative "
-                                "atomic number.".format(value))
-                    species_weights.append( (value[specie], specie) )
+                        raise ValueError(
+                            "Species weighting {} contained a zero or negative "
+                            "atomic number.".format(value)
+                        )
+                    species_weights.append((value[specie], specie))
                 else:
-                    species_weights.append( (value[specie], ase.data.atomic_numbers.get(specie)) )
+                    species_weights.append(
+                        (value[specie], ase.data.atomic_numbers.get(specie))
+                    )
 
-            species_weights = [s[0] for s in sorted(species_weights, key = lambda x: x[1])]
+            species_weights = [
+                s[0] for s in sorted(species_weights, key=lambda x: x[1])
+            ]
             self._species_weights = np.array(species_weights).astype(np.float64)
-
-
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor

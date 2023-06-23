@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local Many-body Tensor Representation &mdash; DScribe 2.0.x documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script defer="defer" src="../../_static/js/versions.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Valle-Oganov descriptor" href="valleoganov.html" />
+    <link rel="prev" title="Many-body Tensor Representation" href="mbtr.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.0.x
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../tutorials.html#basics">Basics</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../tutorials.html#descriptors">Descriptors</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="coulomb_matrix.html">Coulomb Matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sine_matrix.html">Sine matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ewald_sum_matrix.html">Ewald sum matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="acsf.html">Atom-centered Symmetry Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="soap.html">Smooth Overlap of Atomic Positions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mbtr.html">Many-body Tensor Representation</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Local Many-body Tensor Representation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#creation">Creation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="valleoganov.html">Valle-Oganov descriptor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials.html#machine-learning">Machine Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials.html#visualization">Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials.html#similarity-analysis">Similarity Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DScribe</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../tutorials.html">Tutorials</a></li>
+      <li class="breadcrumb-item active">Local Many-body Tensor Representation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/tutorials/descriptors/lmbtr.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="local-many-body-tensor-representation">
+<h1>Local Many-body Tensor Representation<a class="headerlink" href="#local-many-body-tensor-representation" title="Permalink to this heading"></a></h1>
+<p>As the name suggests, the Local Many-body Tensor Representation (LMBTR) is a
+modification of MBTR for local environments. It is advisable to first check out
+the <a class="reference internal" href="mbtr.html"><span class="doc">MBTR tutorial</span></a> to understand the basics of the MBTR framework. The main
+differences compared to MBTR are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Only geometry functions with degree <span class="math notranslate nohighlight">\(k&gt;1\)</span> are available. Encoding the species present within
+a local region is quite tricky, and would essentially require some kind of
+distance information to weight the contribution of species correctly, making any
+<span class="math notranslate nohighlight">\(k=1\)</span> geometry function more closer to <span class="math notranslate nohighlight">\(k=2\)</span>.</p></li>
+<li><p>LMBTR uses the chemical species X (atomic number 0) for the central
+position. This makes it possible to also encode spatial locations that are
+not centered at any particular atom. It does however mean that you should
+be careful not to mix information from outputs that have different
+central species. If the chemical identify of the central species is
+important, you may want to consider a custom output stratification scheme
+based on the chemical identity of the central species. When used as input
+for machine learning, training a separate model for each central species is
+also possible.</p></li>
+</ul>
+</div></blockquote>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
+<p>Instantiating an LMBTR descriptor can be done as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">LMBTR</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">mpl</span>
+
+<span class="c1"># Setup</span>
+<span class="n">lmbtr</span> <span class="o">=</span> <span class="n">LMBTR</span><span class="p">(</span>
+    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">],</span>
+    <span class="n">geometry</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">},</span>
+    <span class="n">grid</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span>
+    <span class="n">weighting</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">},</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;l2&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The arguments have the following effect:</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dscribe.descriptors.lmbtr.LMBTR.__init__">
+<span class="sig-prename descclassname"><span class="pre">LMBTR.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize_gaussians</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float64'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/lmbtr.html#LMBTR.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.lmbtr.LMBTR.__init__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geometry</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Setup the geometry function.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The geometry function determines the degree <span class="math notranslate nohighlight">\(k\)</span> for MBTR.
+The order <span class="math notranslate nohighlight">\(k\)</span> tells how many atoms are involved in the
+calculation and thus also heavily influence the computational
+time.</p>
+<p>The following geometry functions are available:</p>
+<ul>
+<li><dl class="simple">
+<dt><span class="math notranslate nohighlight">\(k=2\)</span></dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;distance&quot;</span></code>: Pairwise distance in angstroms.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;inverse_distance&quot;</span></code>: Pairwise inverse distance in 1/angstrom.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><span class="math notranslate nohighlight">\(k=3\)</span></dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;angle&quot;</span></code>: Angle in degrees.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;cosine&quot;</span></code>: Cosine of the angle.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+<li><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Setup the discretization grid.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>In the grid setup <em>min</em> is the minimum value of the axis, <em>max</em>
+is the maximum value of the axis, <em>sigma</em> is the standard
+deviation of the gaussian broadening and <em>n</em> is the number of
+points sampled on the grid.</p>
+</p></li>
+<li><p><strong>weighting</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Setup the weighting function and its parameters.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;weighting&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;r_cut&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The following weighting functions are available:</p>
+<ul>
+<li><dl class="simple">
+<dt><span class="math notranslate nohighlight">\(k=2\)</span></dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;unity&quot;</span></code>: No weighting.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;exp&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;inverse_square&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(1/(x^2)\)</span></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><span class="math notranslate nohighlight">\(k=3\)</span></dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;unity&quot;</span></code>: No weighting.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;exp&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(e^{-sx}\)</span></p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;smooth_cutoff&quot;</span></code>: Weighting of the form <span class="math notranslate nohighlight">\(f_{ij}f_{ik}\)</span>,</dt><dd><p>where <span class="math notranslate nohighlight">\(f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}\)</span></p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The meaning of <span class="math notranslate nohighlight">\(x\)</span> changes for different terms as follows:</p>
+<ul>
+<li><p>For <span class="math notranslate nohighlight">\(k=2\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance between A-&gt;B</p></li>
+<li><p>For <span class="math notranslate nohighlight">\(k=3\)</span>: <span class="math notranslate nohighlight">\(x\)</span> = Distance from A-&gt;B-&gt;C-&gt;A.</p></li>
+</ul>
+<p>The exponential weighting is motivated by the exponential decay
+of screened Coulombic interactions in solids. In the exponential
+weighting the parameters <strong>threshold</strong> determines the value of
+the weighting function after which the rest of the terms will be
+ignored. Either the parameter <strong>scale</strong> or <strong>r_cut</strong> can be used
+to determine the parameter <span class="math notranslate nohighlight">\(s\)</span>: <strong>scale</strong> directly
+corresponds to this value whereas <strong>r_cut</strong> can be used to
+indirectly determine it through <span class="math notranslate nohighlight">\(s=-\log()\)</span>:.</p>
+<p>The inverse square and smooth cutoff function weightings use a
+cutoff parameter <strong>r_cut</strong>, which is a radial distance after
+which the rest of the atoms will be ignored. For the smooth
+cutoff function, additional weighting key <strong>sharpness</strong> can be
+added, which changes the value of <span class="math notranslate nohighlight">\(y\)</span>. If a value for it
+is not provided, it defaults to <cite>2</cite>.</p>
+</p></li>
+<li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Determines whether the gaussians are
+normalized to an area of 1. Defaults to True. If False, the
+normalization factor is dropped and the gaussians have the form.
+<span class="math notranslate nohighlight">\(e^{-(x-\mu)^2/2\sigma^2}\)</span></p></li>
+<li><p><strong>normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>Determines the method for normalizing the
+output. The available options are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>: No normalization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;l2&quot;</span></code>: Normalize the Euclidean length of the output to unity.</p></li>
+</ul>
+</p></li>
+<li><p><strong>species</strong> (<em>iterable</em>) – The chemical species as a list of atomic
+numbers or as a list of chemical symbols. Notice that this is not
+the atomic numbers that are present for an individual system, but
+should contain all the elements that are ever going to be
+encountered when creating the descriptors for a set of systems.
+Keeping the number of chemical speices as low as possible is
+preferable.</p></li>
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Set to true if you want the descriptor output to
+respect the periodicity of the atomic systems (see the
+pbc-parameter in the constructor of ase.Atoms).</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+dense numpy array.</p></li>
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>The data type of the output. Valid options are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code>: Single precision floating point numbers.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;float64&quot;</span></code>: Double precision floating point numbers.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="creation">
+<h2>Creation<a class="headerlink" href="#creation" title="Permalink to this heading"></a></h2>
+<p>After LMBTR has been set up, it may be used on atomic structures with the
+<a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.create" title="dscribe.descriptors.lmbtr.LMBTR.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
+
+<span class="n">water</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create MBTR output for the system</span>
+<span class="n">mbtr_water</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">water</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mbtr_water</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The call syntax for the create-function is as follows:</p>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">LMBTR.</span></span><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_physical_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/lmbtr.html#LMBTR.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Return the LMBTR output for the given systems and given centers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
+many atomic structures.</p></li>
+<li><p><strong>centers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Centers where to calculate LMBTR. Can be
+provided as cartesian positions or atomic indices. If no
+centers are defined, the LMBTR output will be created for all
+atoms in the system. When calculating LMBTR for multiple
+systems, provide the centers as a list for each system.</p></li>
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+the calculation across samples. Defaults to serial calculation
+with n_jobs=1. If a negative number is given, the used cpus
+will be calculated with, n_cpus + n_jobs, where n_cpus is the
+amount of CPUs as reported by the OS. With only_physical_cores
+you can control which types of CPUs are counted in n_cpus.</p></li>
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If a negative n_jobs is given,
+determines which types of CPUs are used in calculating the
+number of jobs. If set to False (default), also virtual CPUs
+are counted.  If set to True, only physical CPUs are counted.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Controls whether to print the progress of each job
+into to the console.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The LMBTR output for the given
+systems and centers. The return type depends on the
+‘sparse’-attribute. The first dimension is determined by the amount
+of centers and systems and the second dimension is determined by
+the get_number_of_features()-function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray | scipy.sparse.csr_matrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>The output will in this case be a numpy array with shape <code class="code docutils literal notranslate"><span class="pre">[n_positions,</span> <span class="pre">n_features]</span></code>.
+The number of features may be requested beforehand with the <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.lmbtr.LMBTR.get_number_of_features" title="dscribe.descriptors.lmbtr.LMBTR.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<p>The following examples demonstrate common use cases for the descriptor. These
+examples are also available in dscribe/examples/lmbtr.py.</p>
+<section id="adsorption-site-analysis">
+<h3>Adsorption site analysis<a class="headerlink" href="#adsorption-site-analysis" title="Permalink to this heading"></a></h3>
+<p>This example demonstrate the use of LMBTR as a way of analysing local sites in
+a structure. We build an Al(111) surface and analyze four different adsorption
+sites on this surface: top, bridge, hcp and fcc.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build a surface and extract different adsorption positions</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">fcc111</span><span class="p">,</span> <span class="n">add_adsorbate</span>
+<span class="n">slab_pure</span> <span class="o">=</span> <span class="n">fcc111</span><span class="p">(</span><span class="s1">&#39;Al&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">vacuum</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="n">slab_ads</span> <span class="o">=</span> <span class="n">slab_pure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">add_adsorbate</span><span class="p">(</span><span class="n">slab_ads</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s1">&#39;ontop&#39;</span><span class="p">)</span>
+<span class="n">ontop_pos</span> <span class="o">=</span> <span class="n">slab_ads</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">add_adsorbate</span><span class="p">(</span><span class="n">slab_ads</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s1">&#39;bridge&#39;</span><span class="p">)</span>
+<span class="n">bridge_pos</span> <span class="o">=</span> <span class="n">slab_ads</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">add_adsorbate</span><span class="p">(</span><span class="n">slab_ads</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s1">&#39;hcp&#39;</span><span class="p">)</span>
+<span class="n">hcp_pos</span> <span class="o">=</span> <span class="n">slab_ads</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">add_adsorbate</span><span class="p">(</span><span class="n">slab_ads</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">)</span>
+<span class="n">fcc_pos</span> <span class="o">=</span> <span class="n">slab_ads</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>These four sites are described by LMBTR with pairwise <span class="math notranslate nohighlight">\(k=2\)</span> term.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># LMBTR Setup</span>
+<span class="n">lmbtr</span> <span class="o">=</span> <span class="n">LMBTR</span><span class="p">(</span>
+    <span class="n">species</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Al&quot;</span><span class="p">],</span>
+    <span class="n">geometry</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;distance&quot;</span><span class="p">},</span>
+    <span class="n">grid</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">},</span>
+    <span class="n">weighting</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">},</span>
+    <span class="n">periodic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Create output for each site</span>
+<span class="n">sites</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">slab_pure</span><span class="p">,</span>
+    <span class="n">centers</span><span class="o">=</span><span class="p">[</span><span class="n">ontop_pos</span><span class="p">,</span> <span class="n">bridge_pos</span><span class="p">,</span> <span class="n">hcp_pos</span><span class="p">,</span> <span class="n">fcc_pos</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Plotting the output from these sites reveals the different patterns in these
+sites.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot the site-aluminum distributions for each site</span>
+<span class="n">al_slice</span> <span class="o">=</span> <span class="n">lmbtr</span><span class="o">.</span><span class="n">get_location</span><span class="p">((</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Al&quot;</span><span class="p">))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">)</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;bridge&quot;</span><span class="p">)</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;hcp&quot;</span><span class="p">)</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sites</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="n">al_slice</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;fcc&quot;</span><span class="p">)</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Site-Al distance (Å)&quot;</span><span class="p">)</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">mpl</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id15">
+<a class="reference internal image-reference" href="../../_images/sites.png"><img alt="LMBTR sites" src="../../_images/sites.png" style="width: 512.0px; height: 384.0px;" /></a>
+<figcaption>
+<p><span class="caption-text">The LMBTR k=2 fingerprints for different adsoprtion sites on an Al(111)
+surface.</span><a class="headerlink" href="#id15" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Correctly tuned, such information could for example be used to train an
+automatic adsorption site classifier with machine learning.</p>
+<span class="target" id="id1"></span></section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mbtr.html" class="btn btn-neutral float-left" title="Many-body Tensor Representation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="valleoganov.html" class="btn btn-neutral float-right" title="Valle-Oganov descriptor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 2.0.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+<script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

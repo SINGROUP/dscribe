@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dscribe.descriptors.mbtr &mdash; DScribe 2.0.x documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script defer="defer" src="../../../_static/js/versions.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.0.x
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citing.html">Citing DScribe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DScribe</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dscribe.descriptors.mbtr</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dscribe.descriptors.mbtr</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Copyright 2019 DScribe developers</span>
+
+<span class="sd">Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="sd">you may not use this file except in compliance with the License.</span>
+<span class="sd">You may obtain a copy of the License at</span>
+
+<span class="sd">    http://www.apache.org/licenses/LICENSE-2.0</span>
+
+<span class="sd">Unless required by applicable law or agreed to in writing, software</span>
+<span class="sd">distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="sd">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="sd">See the License for the specific language governing permissions and</span>
+<span class="sd">limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">import</span> <span class="nn">ase.data</span>
+
+<span class="kn">from</span> <span class="nn">dscribe.core</span> <span class="kn">import</span> <span class="n">System</span>
+<span class="kn">from</span> <span class="nn">dscribe.descriptors.descriptorglobal</span> <span class="kn">import</span> <span class="n">DescriptorGlobal</span>
+<span class="kn">from</span> <span class="nn">dscribe.ext</span> <span class="kn">import</span> <span class="n">MBTRWrapper</span>
+<span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
+
+
+<span class="n">k1_geometry_functions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">])</span>
+<span class="n">k2_geometry_functions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="s2">&quot;inverse_distance&quot;</span><span class="p">])</span>
+<span class="n">k3_geometry_functions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;angle&quot;</span><span class="p">,</span> <span class="s2">&quot;cosine&quot;</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="check_grid"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.check_grid">[docs]</a><span class="k">def</span> <span class="nf">check_grid</span><span class="p">(</span><span class="n">grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Used to ensure that the given grid settings are valid.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        grid(dict): Dictionary containing the grid setup.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;The grid information is missing the value for </span><span class="si">{}</span><span class="s2">&quot;</span>
+    <span class="n">val_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">val_name</span> <span class="ow">in</span> <span class="n">val_names</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">grid</span><span class="p">[</span><span class="n">val_name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val_name</span><span class="p">))</span>
+
+    <span class="c1"># Make the n into integer</span>
+    <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The min value should be smaller than the max value.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="check_geometry"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.check_geometry">[docs]</a><span class="k">def</span> <span class="nf">check_geometry</span><span class="p">(</span><span class="n">geometry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Used to ensure that the given geometry settings are valid.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        geometry: Dictionary containing the geometry setup.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="s2">&quot;function&quot;</span> <span class="ow">in</span> <span class="n">geometry</span><span class="p">:</span>
+        <span class="n">function</span> <span class="o">=</span> <span class="n">geometry</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+        <span class="n">valid_functions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">k1_geometry_functions</span> <span class="o">|</span> <span class="n">k2_geometry_functions</span> <span class="o">|</span> <span class="n">k3_geometry_functions</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">function</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_functions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown geometry function. Please use one of the following: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">valid_functions</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please specify a geometry function.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="check_weighting"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.check_weighting">[docs]</a><span class="k">def</span> <span class="nf">check_weighting</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">weighting</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">periodic</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Used to ensure that the given weighting settings are valid.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        k: The MBTR degree.</span>
+<span class="sd">        weighting: Dictionary containing the weighting setup.</span>
+<span class="sd">        periodic: Whether the descriptor is periodic or not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">weighting</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">valid_functions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;unity&quot;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">valid_functions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;unity&quot;</span><span class="p">,</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;inverse_square&quot;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">valid_functions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;unity&quot;</span><span class="p">,</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;smooth_cutoff&quot;</span><span class="p">])</span>
+        <span class="n">function</span> <span class="o">=</span> <span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;function&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">function</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_functions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown weighting function specified for k=</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">. Please use one of the following: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">valid_functions</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">function</span> <span class="o">==</span> <span class="s2">&quot;exp&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;threshold&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">weighting</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing value for &#39;threshold&#39; in the weighting.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;scale&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">weighting</span> <span class="ow">and</span> <span class="s2">&quot;r_cut&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">weighting</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Provide either &#39;scale&#39; or &#39;r_cut&#39; in the weighting.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;scale&quot;</span> <span class="ow">in</span> <span class="n">weighting</span> <span class="ow">and</span> <span class="s2">&quot;r_cut&quot;</span> <span class="ow">in</span> <span class="n">weighting</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Provide either &#39;scale&#39; or &#39;r_cut&#39;, not both in the weighting.&quot;</span>
+                    <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">function</span> <span class="o">==</span> <span class="s2">&quot;inverse_square&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;r_cut&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">weighting</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing value for &#39;r_cut&#39; in the weighting.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">function</span> <span class="o">==</span> <span class="s2">&quot;smooth_cutoff&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;r_cut&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">weighting</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing value for &#39;r_cut&#39; in the weighting.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check that weighting function is specified for periodic systems</span>
+    <span class="k">if</span> <span class="n">periodic</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">weighting</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">function</span> <span class="o">=</span> <span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;function&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">function</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">function</span> <span class="o">!=</span> <span class="s2">&quot;unity&quot;</span><span class="p">:</span>
+                    <span class="n">valid</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Periodic systems need to have a weighting function.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MBTR"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR">[docs]</a><span class="k">class</span> <span class="nc">MBTR</span><span class="p">(</span><span class="n">DescriptorGlobal</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implementation of the Many-body tensor representation.</span>
+
+<span class="sd">    You can use this descriptor for finite and periodic systems. When dealing</span>
+<span class="sd">    with periodic systems or when using machine learning models that use the</span>
+<span class="sd">    Euclidean norm to measure distance between vectors, it is advisable to use</span>
+<span class="sd">    some form of normalization. This implementation does not support the use of</span>
+<span class="sd">    a non-identity correlation matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MBTR.__init__"><a class="viewcode-back" href="../../../tutorials/descriptors/mbtr.html#dscribe.descriptors.mbtr.MBTR.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">weighting</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">normalize_gaussians</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+        <span class="n">species</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            geometry (dict): Setup the geometry function.</span>
+<span class="sd">                For example::</span>
+
+<span class="sd">                &quot;geometry&quot;: {&quot;function&quot;: &quot;atomic_number&quot;}</span>
+
+<span class="sd">                The geometry function determines the degree :math:`k` for MBTR.</span>
+<span class="sd">                The order :math:`k` tells how many atoms are involved in the</span>
+<span class="sd">                calculation and thus also heavily influence the computational</span>
+<span class="sd">                time.</span>
+
+<span class="sd">                The following geometry functions are available:</span>
+
+<span class="sd">                * :math:`k=1`</span>
+<span class="sd">                    * ``&quot;atomic_number&quot;``: The atomic number.</span>
+<span class="sd">                * :math:`k=2`</span>
+<span class="sd">                    * ``&quot;distance&quot;``: Pairwise distance in angstroms.</span>
+<span class="sd">                    * ``&quot;inverse_distance&quot;``: Pairwise inverse distance in 1/angstrom.</span>
+<span class="sd">                * :math:`k=3`</span>
+<span class="sd">                    * ``&quot;angle&quot;``: Angle in degrees.</span>
+<span class="sd">                    * ``&quot;cosine&quot;``: Cosine of the angle.</span>
+
+<span class="sd">            grid (dict): Setup the discretization grid.</span>
+<span class="sd">                For example::</span>
+
+<span class="sd">                &quot;grid&quot;: {&quot;min&quot;: 0.1, &quot;max&quot;: 2, &quot;sigma&quot;: 0.1, &quot;n&quot;: 50}</span>
+
+<span class="sd">                In the grid setup *min* is the minimum value of the axis, *max*</span>
+<span class="sd">                is the maximum value of the axis, *sigma* is the standard</span>
+<span class="sd">                deviation of the gaussian broadening and *n* is the number of</span>
+<span class="sd">                points sampled on the grid.</span>
+
+<span class="sd">            weighting (dict): Setup the weighting function and its parameters.</span>
+<span class="sd">                For example::</span>
+
+<span class="sd">                &quot;weighting&quot; : {&quot;function&quot;: &quot;exp&quot;, &quot;r_cut&quot;: 10, &quot;threshold&quot;: 1e-3}</span>
+
+<span class="sd">                The following weighting functions are available:</span>
+
+<span class="sd">                * :math:`k=1`</span>
+<span class="sd">                    * ``&quot;unity&quot;``: No weighting.</span>
+<span class="sd">                * :math:`k=2`</span>
+<span class="sd">                    * ``&quot;unity&quot;``: No weighting.</span>
+<span class="sd">                    * ``&quot;exp&quot;``: Weighting of the form :math:`e^{-sx}`</span>
+<span class="sd">                    * ``&quot;inverse_square&quot;``: Weighting of the form :math:`1/(x^2)`</span>
+<span class="sd">                * :math:`k=3`</span>
+<span class="sd">                    * ``&quot;unity&quot;``: No weighting.</span>
+<span class="sd">                    * ``&quot;exp&quot;``: Weighting of the form :math:`e^{-sx}`</span>
+<span class="sd">                    * ``&quot;smooth_cutoff&quot;``: Weighting of the form :math:`f_{ij}f_{ik}`,</span>
+<span class="sd">                        where :math:`f = 1+y(x/r_{cut})^{y+1}-(y+1)(x/r_{cut})^{y}`</span>
+
+<span class="sd">                The meaning of :math:`x` changes for different terms as follows:</span>
+
+<span class="sd">                * For :math:`k=2`: :math:`x` = Distance between A-&gt;B</span>
+<span class="sd">                * For :math:`k=3`: :math:`x` = Distance from A-&gt;B-&gt;C-&gt;A.</span>
+
+<span class="sd">                The exponential weighting is motivated by the exponential decay</span>
+<span class="sd">                of screened Coulombic interactions in solids. In the exponential</span>
+<span class="sd">                weighting the parameters **threshold** determines the value of</span>
+<span class="sd">                the weighting function after which the rest of the terms will be</span>
+<span class="sd">                ignored. Either the parameter **scale** or **r_cut** can be used</span>
+<span class="sd">                to determine the parameter :math:`s`: **scale** directly</span>
+<span class="sd">                corresponds to this value whereas **r_cut** can be used to</span>
+<span class="sd">                indirectly determine it through :math:`s=-\log()`:.</span>
+
+<span class="sd">                The inverse square and smooth cutoff function weightings use a</span>
+<span class="sd">                cutoff parameter **r_cut**, which is a radial distance after</span>
+<span class="sd">                which the rest of the atoms will be ignored. For the smooth</span>
+<span class="sd">                cutoff function, additional weighting key **sharpness** can be</span>
+<span class="sd">                added, which changes the value of :math:`y`. If a value for it</span>
+<span class="sd">                is not provided, it defaults to `2`.</span>
+
+<span class="sd">            normalize_gaussians (bool): Determines whether the gaussians are</span>
+<span class="sd">                normalized to an area of 1. Defaults to True. If False, the</span>
+<span class="sd">                normalization factor is dropped and the gaussians have the form.</span>
+<span class="sd">                :math:`e^{-(x-\mu)^2/2\sigma^2}`</span>
+<span class="sd">            normalization (str): Determines the method for normalizing the</span>
+<span class="sd">                output. The available options are:</span>
+
+<span class="sd">                * ``&quot;none&quot;``: No normalization.</span>
+<span class="sd">                * ``&quot;l2&quot;``: Normalize the Euclidean length of the output to unity.</span>
+<span class="sd">                * ``&quot;n_atoms&quot;``: Normalize the output by dividing it with the number</span>
+<span class="sd">                  of atoms in the system. If the system is periodic, the number</span>
+<span class="sd">                  of atoms is determined from the given unit cell.</span>
+<span class="sd">                * ``&quot;valle_oganov&quot;``: Use Valle-Oganov descriptor normalization, with</span>
+<span class="sd">                  system cell volume and numbers of different atoms in the cell.</span>
+<span class="sd">            species (iterable): The chemical species as a list of atomic</span>
+<span class="sd">                numbers or as a list of chemical symbols. Notice that this is not</span>
+<span class="sd">                the atomic numbers that are present for an individual system, but</span>
+<span class="sd">                should contain all the elements that are ever going to be</span>
+<span class="sd">                encountered when creating the descriptors for a set of systems.</span>
+<span class="sd">                Keeping the number of chemical speices as low as possible is</span>
+<span class="sd">                preferable.</span>
+<span class="sd">            periodic (bool): Set to true if you want the descriptor output to</span>
+<span class="sd">                respect the periodicity of the atomic systems (see the</span>
+<span class="sd">                pbc-parameter in the constructor of ase.Atoms).</span>
+<span class="sd">            sparse (bool): Whether the output should be a sparse matrix or a</span>
+<span class="sd">                dense numpy array.</span>
+<span class="sd">            dtype (str): The data type of the output. Valid options are:</span>
+
+<span class="sd">                    * ``&quot;float32&quot;``: Single precision floating point numbers.</span>
+<span class="sd">                    * ``&quot;float64&quot;``: Double precision floating point numbers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">geometry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span> <span class="o">=</span> <span class="n">weighting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">=</span> <span class="n">normalization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span> <span class="o">=</span> <span class="n">normalize_gaussians</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;valle_oganov&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">periodic</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Valle-Oganov normalization does not support non-periodic systems.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Initializing .create() level variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span>
+
+    <span class="nd">@grid</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">check_grid</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span>
+
+    <span class="nd">@geometry</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">check_geometry</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">k_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;atomic_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;distance&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;inverse_distance&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;angle&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;cosine&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k_map</span><span class="p">[</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">weighting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weighting</span>
+
+    <span class="nd">@weighting</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">weighting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">check_weighting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_weighting</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span>
+
+    <span class="nd">@species</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
+<span class="sd">        the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(iterable): Chemical species either as a list of atomic</span>
+<span class="sd">                numbers or list of chemical symbols.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The species are stored as atomic numbers for internal use.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_species</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># Setup mappings between atom indices and types together with some</span>
+        <span class="c1"># statistics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_to_atomic_number</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i_atom</span><span class="p">,</span> <span class="n">atomic_number</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">atomic_number</span><span class="p">]</span> <span class="o">=</span> <span class="n">i_atom</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index_to_atomic_number</span><span class="p">[</span><span class="n">i_atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">atomic_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_atomic_number</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_atomic_number</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalization</span>
+
+    <span class="nd">@normalization</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks that the given normalization is valid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(str): The normalization method to use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norm_options</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;l2&quot;</span><span class="p">,</span> <span class="s2">&quot;n_atoms&quot;</span><span class="p">,</span> <span class="s2">&quot;valle_oganov&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">norm_options</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unknown normalization option given. Please use one of the &quot;</span>
+                <span class="s2">&quot;following: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">norm_options</span><span class="p">))))</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normalization</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="MBTR.create"><a class="viewcode-back" href="../../../tutorials/descriptors/valleoganov.html#dscribe.descriptors.mbtr.MBTR.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return MBTR output for the given systems.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or many atomic structures.</span>
+<span class="sd">            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes</span>
+<span class="sd">                the calculation across samples. Defaults to serial calculation</span>
+<span class="sd">                with n_jobs=1. If a negative number is given, the used cpus</span>
+<span class="sd">                will be calculated with, n_cpus + n_jobs, where n_cpus is the</span>
+<span class="sd">                amount of CPUs as reported by the OS. With only_physical_cores</span>
+<span class="sd">                you can control which types of CPUs are counted in n_cpus.</span>
+<span class="sd">            only_physical_cores (bool): If a negative n_jobs is given,</span>
+<span class="sd">                determines which types of CPUs are used in calculating the</span>
+<span class="sd">                number of jobs. If set to False (default), also virtual CPUs</span>
+<span class="sd">                are counted.  If set to True, only physical CPUs are counted.</span>
+<span class="sd">            verbose(bool): Controls whether to print the progress of each job</span>
+<span class="sd">                into to the console.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray | sparse.COO: MBTR for the given systems. The return type</span>
+<span class="sd">            depends on the &#39;sparse&#39; attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Combine input arguments</span>
+        <span class="n">system</span> <span class="o">=</span> <span class="p">[</span><span class="n">system</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">Atoms</span><span class="p">)</span> <span class="k">else</span> <span class="n">system</span>
+        <span class="n">inp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i_sys</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i_sys</span> <span class="ow">in</span> <span class="n">system</span><span class="p">]</span>
+
+        <span class="c1"># Determine if the outputs have a fixed size</span>
+        <span class="n">static_size</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()]</span>
+
+        <span class="c1"># Create in parallel</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_parallel</span><span class="p">(</span>
+            <span class="n">inp</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_single</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="p">,</span>
+            <span class="n">static_size</span><span class="p">,</span>
+            <span class="n">only_physical_cores</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="MBTR.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the many-body tensor representation for the given system.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray | sparse.COO: A single concatenated output vector is</span>
+<span class="sd">            returned, either as a sparse or a dense vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Ensuring variables are re-initialized when a new system is introduced</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="n">system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+
+        <span class="c1"># Check that the system does not have elements that are not in the list</span>
+        <span class="c1"># of atomic numbers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
+
+        <span class="n">mbtr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_get_k</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)(</span><span class="n">system</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Handle normalization</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;l2&quot;</span><span class="p">:</span>
+            <span class="n">mbtr</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mbtr</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;n_atoms&quot;</span><span class="p">:</span>
+            <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+            <span class="n">mbtr</span> <span class="o">/=</span> <span class="n">n_atoms</span>
+
+        <span class="k">return</span> <span class="n">mbtr</span></div>
+
+<div class="viewcode-block" id="MBTR.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
+<span class="sd">        will have.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Number of features for this descriptor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
+        <span class="n">n_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">n_features</span> <span class="o">=</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="n">n_grid</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">n_features</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_grid</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">n_features</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_grid</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_features</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MBTR.get_location"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_location">[docs]</a>    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Can be used to query the location of a species combination in the</span>
+<span class="sd">        the output.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            species(tuple): A tuple containing a species combination as</span>
+<span class="sd">                chemical symbols or atomic numbers. The tuple can be for example</span>
+<span class="sd">                (&quot;H&quot;), (&quot;H&quot;, &quot;O&quot;) or (&quot;H&quot;, &quot;O&quot;, &quot;H&quot;).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            slice: slice containing the location of the specified species</span>
+<span class="sd">                combination. The location is given as a python slice-object, that</span>
+<span class="sd">                can be directly used to target ranges in the output.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the requested species combination is not in the</span>
+<span class="sd">                output or if invalid species defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check that the corresponding part is calculated</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">k</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot retrieve the location for </span><span class="si">{}</span><span class="s2">, as the term k=</span><span class="si">{}</span><span class="s2"> has not &quot;</span>
+                <span class="s2">&quot;been specified.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Change chemical elements into atomic numbers</span>
+        <span class="n">numbers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">specie</span> <span class="ow">in</span> <span class="n">species</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specie</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">specie</span> <span class="o">=</span> <span class="n">ase</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="p">[</span><span class="n">specie</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid chemical species: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">specie</span><span class="p">))</span>
+            <span class="n">numbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">specie</span><span class="p">)</span>
+
+        <span class="c1"># Check that species exists</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+
+        <span class="c1"># Change into internal indexing</span>
+        <span class="n">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">]</span>
+        <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="c1"># k=2</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">numbers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">numbers</span><span class="p">))</span>
+
+            <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
+            <span class="c1"># elements of an upper triangular matrix from left to right and top</span>
+            <span class="c1"># to bottom.</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="c1"># k=3</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="n">numbers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">numbers</span><span class="p">))</span>
+
+            <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+            <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
+            <span class="c1"># elements of a three-dimensional array where for valid elements</span>
+            <span class="c1"># k&gt;=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,</span>
+            <span class="c1"># n_elem, n_elem], looping the elements in the order k, i, j.</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">j</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">k</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_k1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates the first order term and/or its derivatives with</span>
+<span class="sd">        regard to atomic positions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            1D or 3D ndarray: K1 values. Returns a 1D array. If</span>
+<span class="sd">                return_descriptor=False, returns an array of shape (0).</span>
+<span class="sd">            3D ndarray: K1 derivatives. If return_derivatives=False, returns an</span>
+<span class="sd">                array of shape (0,0,0).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span>
+
+        <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="n">n</span>
+
+        <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
+            <span class="c1"># Determine the geometry function</span>
+            <span class="n">geom_func_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+
+            <span class="n">cmbtr</span> <span class="o">=</span> <span class="n">MBTRWrapper</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">)</span>
+
+            <span class="n">k1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="n">cmbtr</span><span class="o">.</span><span class="n">get_k1</span><span class="p">(</span>
+                <span class="n">k1</span><span class="p">,</span>
+                <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
+                <span class="n">geom_func_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+                <span class="sa">b</span><span class="s2">&quot;unity&quot;</span><span class="p">,</span>
+                <span class="p">{},</span>
+                <span class="n">start</span><span class="p">,</span>
+                <span class="n">stop</span><span class="p">,</span>
+                <span class="n">sigma</span><span class="p">,</span>
+                <span class="n">n</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_derivatives</span><span class="p">:</span>
+            <span class="n">k1_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k1_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># Denormalize if requested</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span><span class="p">:</span>
+            <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+            <span class="n">k1</span> <span class="o">/=</span> <span class="n">max_val</span>
+            <span class="n">k1_d</span> <span class="o">/=</span> <span class="n">max_val</span>
+
+        <span class="c1"># Convert to the final output precision.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;float32&quot;</span><span class="p">:</span>
+            <span class="n">k1</span> <span class="o">=</span> <span class="n">k1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">k1_d</span> <span class="o">=</span> <span class="n">k1_d</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">k1</span><span class="p">,</span> <span class="n">k1_d</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_k2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates the second order term and/or its derivatives with</span>
+<span class="sd">        regard to atomic positions.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            1D ndarray:   K2 values. Returns a 1D array. If</span>
+<span class="sd">                return_descriptor=False, returns an array of shape (0).</span>
+<span class="sd">            3D ndarray: K2 derivatives. If return_derivatives=False, returns an</span>
+<span class="sd">                array of shape (0,0,0).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Determine the weighting function and possible radial cutoff</span>
+        <span class="n">r_cut</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">weighting_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">weighting_function</span> <span class="o">==</span> <span class="s2">&quot;exp&quot;</span><span class="p">:</span>
+                <span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;threshold&quot;</span><span class="p">]</span>
+                <span class="n">r_cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r_cut&quot;</span><span class="p">)</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">scale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">r_cut</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">r_cut</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span>
+                <span class="k">elif</span> <span class="n">scale</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">r_cut</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">scale</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span> <span class="o">/</span> <span class="n">r_cut</span>
+                <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="sa">b</span><span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="n">threshold</span><span class="p">}</span>
+            <span class="k">elif</span> <span class="n">weighting_function</span> <span class="o">==</span> <span class="s2">&quot;inverse_square&quot;</span><span class="p">:</span>
+                <span class="n">r_cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">weighting_function</span> <span class="o">=</span> <span class="s2">&quot;unity&quot;</span>
+
+        <span class="c1"># Determine the geometry function</span>
+        <span class="n">geom_func_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+
+        <span class="c1"># If needed, create the extended system</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+            <span class="n">ext_system</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_extended_system</span><span class="p">(</span>
+                <span class="n">system</span><span class="p">,</span> <span class="n">r_cut</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">ext_system</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">from_atoms</span><span class="p">(</span><span class="n">ext_system</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ext_system</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">from_atoms</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+            <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">cmbtr</span> <span class="o">=</span> <span class="n">MBTRWrapper</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span> <span class="n">cell_indices</span>
+        <span class="p">)</span>
+
+        <span class="c1"># If radial cutoff is finite, use it to calculate the sparse</span>
+        <span class="c1"># distance matrix to reduce computational complexity from O(n^2) to</span>
+        <span class="c1"># O(n log(n))</span>
+        <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ext_system</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r_cut</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dmat</span> <span class="o">=</span> <span class="n">ext_system</span><span class="o">.</span><span class="n">get_distance_matrix_within_radius</span><span class="p">(</span><span class="n">r_cut</span><span class="p">)</span>
+            <span class="n">adj_list</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_list</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
+            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span>
+            <span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
+            <span class="n">dmat_dense</span><span class="p">[</span><span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">,</span> <span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">data</span>
+        <span class="c1"># If no weighting is used, the full distance matrix is calculated</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">ext_system</span><span class="o">.</span><span class="n">get_distance_matrix</span><span class="p">()</span>
+            <span class="n">adj_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">),</span> <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
+            <span class="n">k2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_derivatives</span><span class="p">:</span>
+            <span class="n">k2_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k2_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># Generate derivatives for k=2 term</span>
+        <span class="n">cmbtr</span><span class="o">.</span><span class="n">get_k2</span><span class="p">(</span>
+            <span class="n">k2</span><span class="p">,</span>
+            <span class="n">k2_d</span><span class="p">,</span>
+            <span class="n">return_descriptor</span><span class="p">,</span>
+            <span class="n">return_derivatives</span><span class="p">,</span>
+            <span class="n">ext_system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
+            <span class="n">ext_system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span>
+            <span class="n">dmat_dense</span><span class="p">,</span>
+            <span class="n">adj_list</span><span class="p">,</span>
+            <span class="n">geom_func_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">weighting_function</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">parameters</span><span class="p">,</span>
+            <span class="n">start</span><span class="p">,</span>
+            <span class="n">stop</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="p">,</span>
+            <span class="n">n</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Denormalize if requested</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span><span class="p">:</span>
+            <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+            <span class="n">k2</span> <span class="o">/=</span> <span class="n">max_val</span>
+            <span class="n">k2_d</span> <span class="o">/=</span> <span class="n">max_val</span>
+
+        <span class="c1"># Valle-Oganov normalization is calculated separately for each pair.</span>
+        <span class="c1"># Not implemented for derivatives.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;valle_oganov&quot;</span><span class="p">:</span>
+            <span class="n">volume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">volume</span>
+            <span class="c1"># Calculate the amount of each element for N_A*N_B term</span>
+            <span class="n">values</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">counts</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">counts</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i_z</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">j_z</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">i_z</span><span class="p">]</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">j_z</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                        <span class="n">count_product</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">i_z</span><span class="p">]</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">j_z</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">count_product</span> <span class="o">=</span> <span class="n">counts</span><span class="p">[</span><span class="n">i_z</span><span class="p">]</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">j_z</span><span class="p">]</span>
+
+                    <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
+                    <span class="c1"># elements of an upper triangular matrix from left to right and top</span>
+                    <span class="c1"># to bottom.</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">-</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">m</span> <span class="o">*</span> <span class="n">n</span>
+                    <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span>
+                    <span class="n">norm_factor</span> <span class="o">=</span> <span class="n">volume</span> <span class="o">/</span> <span class="p">(</span><span class="n">count_product</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+                    <span class="n">k2</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">*=</span> <span class="n">norm_factor</span>
+                    <span class="n">k2_d</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">*=</span> <span class="n">norm_factor</span>
+
+        <span class="c1"># Convert to the final output precision.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;float32&quot;</span><span class="p">:</span>
+            <span class="n">k2</span> <span class="o">=</span> <span class="n">k2</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">k2_d</span> <span class="o">=</span> <span class="n">k2_d</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="n">k2_d</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_k3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates the third order term and/or its derivatives with</span>
+<span class="sd">        regard to atomic positions.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            1D ndarray: K3 values. Returns a 1D array. If</span>
+<span class="sd">                return_descriptor=False, returns an array of shape (0).</span>
+<span class="sd">            3D ndarray: K3 derivatives. If return_derivatives=False, returns an</span>
+<span class="sd">                array of shape (0,0,0).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">]</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Determine the weighting function and possible radial cutoff</span>
+        <span class="n">r_cut</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">weighting_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">weighting_function</span> <span class="o">==</span> <span class="s2">&quot;exp&quot;</span><span class="p">:</span>
+                <span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;threshold&quot;</span><span class="p">]</span>
+                <span class="n">r_cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;r_cut&quot;</span><span class="p">)</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">)</span>
+                <span class="c1"># If we want to limit the triplets to a distance r_cut, we need</span>
+                <span class="c1"># to allow x=2*r_cut in the case of k=3.</span>
+                <span class="k">if</span> <span class="n">scale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">r_cut</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">r_cut</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span>
+                <span class="k">elif</span> <span class="n">scale</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">r_cut</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">scale</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span> <span class="o">/</span> <span class="n">r_cut</span>
+                <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="sa">b</span><span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="n">threshold</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">weighting_function</span> <span class="o">==</span> <span class="s2">&quot;smooth_cutoff&quot;</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">sharpness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;sharpness&quot;</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">sharpness</span> <span class="o">=</span> <span class="mi">2</span>
+                <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="sa">b</span><span class="s2">&quot;sharpness&quot;</span><span class="p">:</span> <span class="n">sharpness</span><span class="p">,</span>
+                    <span class="sa">b</span><span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">],</span>
+                <span class="p">}</span>
+                <span class="c1"># Evaluating smooth-cutoff weighting values requires distances</span>
+                <span class="c1"># between two neighbours of an atom, and the maximum distance</span>
+                <span class="c1"># between them is twice the cutoff radius. To include the</span>
+                <span class="c1"># neighbour-to-neighbour distances in the distance matrix, the</span>
+                <span class="c1"># neighbour list is generated with double radius.</span>
+                <span class="n">r_cut</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighting</span><span class="p">[</span><span class="s2">&quot;r_cut&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">weighting_function</span> <span class="o">=</span> <span class="s2">&quot;unity&quot;</span>
+
+        <span class="c1"># Determine the geometry function</span>
+        <span class="n">geom_func_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+
+        <span class="c1"># If needed, create the extended system</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+            <span class="n">ext_system</span><span class="p">,</span> <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_extended_system</span><span class="p">(</span>
+                <span class="n">system</span><span class="p">,</span> <span class="n">r_cut</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">ext_system</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">from_atoms</span><span class="p">(</span><span class="n">ext_system</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ext_system</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">from_atoms</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+            <span class="n">cell_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">cmbtr</span> <span class="o">=</span> <span class="n">MBTRWrapper</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span> <span class="n">cell_indices</span>
+        <span class="p">)</span>
+
+        <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ext_system</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r_cut</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dmat</span> <span class="o">=</span> <span class="n">ext_system</span><span class="o">.</span><span class="n">get_distance_matrix_within_radius</span><span class="p">(</span><span class="n">r_cut</span><span class="p">)</span>
+            <span class="n">adj_list</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_list</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
+            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span>
+            <span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
+            <span class="n">dmat_dense</span><span class="p">[</span><span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">data</span>
+        <span class="c1"># If no weighting is used, the full distance matrix is calculated</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">ext_system</span><span class="o">.</span><span class="n">get_distance_matrix</span><span class="p">()</span>
+            <span class="n">adj_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">),</span> <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">n_elem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">n_elem</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
+            <span class="n">k3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_derivatives</span><span class="p">:</span>
+            <span class="n">k3_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k3_d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># Compute the k=3 term and its derivative</span>
+        <span class="n">cmbtr</span><span class="o">.</span><span class="n">get_k3</span><span class="p">(</span>
+            <span class="n">k3</span><span class="p">,</span>
+            <span class="n">k3_d</span><span class="p">,</span>
+            <span class="n">return_descriptor</span><span class="p">,</span>
+            <span class="n">return_derivatives</span><span class="p">,</span>
+            <span class="n">ext_system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
+            <span class="n">ext_system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span>
+            <span class="n">dmat_dense</span><span class="p">,</span>
+            <span class="n">adj_list</span><span class="p">,</span>
+            <span class="n">geom_func_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">weighting_function</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span>
+            <span class="n">parameters</span><span class="p">,</span>
+            <span class="n">start</span><span class="p">,</span>
+            <span class="n">stop</span><span class="p">,</span>
+            <span class="n">sigma</span><span class="p">,</span>
+            <span class="n">n</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Denormalize if requested</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_gaussians</span><span class="p">:</span>
+            <span class="n">max_val</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+            <span class="n">k3</span> <span class="o">/=</span> <span class="n">max_val</span>
+            <span class="n">k3_d</span> <span class="o">/=</span> <span class="n">max_val</span>
+
+        <span class="c1"># Valle-Oganov normalization is calculated separately for each triplet</span>
+        <span class="c1"># Not implemented for derivatives.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;valle_oganov&quot;</span><span class="p">:</span>
+            <span class="n">volume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">volume</span>
+            <span class="c1"># Calculate the amount of each element for N_A*N_B*N_C term</span>
+            <span class="n">values</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">counts</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">counts</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i_z</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">j_z</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">k_z</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                        <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">i_z</span><span class="p">]</span>
+                        <span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">j_z</span><span class="p">]</span>
+                        <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atomic_number_to_index</span><span class="p">[</span><span class="n">k_z</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                        <span class="c1"># This is the index of the spectrum. It is given by enumerating the</span>
+                        <span class="c1"># elements of a three-dimensional array where for valid elements</span>
+                        <span class="c1"># k&gt;=i. The enumeration begins from [0, 0, 0], and ends at [n_elem,</span>
+                        <span class="c1"># n_elem, n_elem], looping the elements in the order j, i, k.</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                            <span class="n">j</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+                            <span class="o">+</span> <span class="n">k</span>
+                            <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">n_elem</span>
+                            <span class="o">-</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+                        <span class="p">)</span>
+                        <span class="n">start</span> <span class="o">=</span> <span class="n">m</span> <span class="o">*</span> <span class="n">n</span>
+                        <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span>
+                        <span class="n">count_product</span> <span class="o">=</span> <span class="n">counts</span><span class="p">[</span><span class="n">i_z</span><span class="p">]</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">j_z</span><span class="p">]</span> <span class="o">*</span> <span class="n">counts</span><span class="p">[</span><span class="n">k_z</span><span class="p">]</span>
+                        <span class="n">norm_factor</span> <span class="o">=</span> <span class="n">volume</span> <span class="o">/</span> <span class="n">count_product</span>
+
+                        <span class="n">k3</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">*=</span> <span class="n">norm_factor</span>
+                        <span class="n">k3_d</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">*=</span> <span class="n">norm_factor</span>
+
+        <span class="c1"># Convert to the final output precision.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;float32&quot;</span><span class="p">:</span>
+            <span class="n">k3</span> <span class="o">=</span> <span class="n">k3</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">k3_d</span> <span class="o">=</span> <span class="n">k3_d</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">k3</span><span class="p">,</span> <span class="n">k3_d</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MBTR.validate_derivatives_method"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.validate_derivatives_method">[docs]</a>    <span class="k">def</span> <span class="nf">validate_derivatives_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to validate and determine the final method for calculating the</span>
+<span class="sd">        derivatives.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;numerical&quot;</span><span class="p">,</span> <span class="s2">&quot;analytical&quot;</span><span class="p">,</span> <span class="s2">&quot;auto&quot;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid method specified. Please choose from: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;numerical&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">method</span>
+
+        <span class="c1"># Check if analytical derivatives can be used</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">supported_normalization</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;n_atoms&quot;</span><span class="p">,</span> <span class="s2">&quot;valle_oganov&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_normalization</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Analytical derivatives not implemented for normalization option &#39;</span><span class="si">{}</span><span class="s2">&#39;. Please choose from: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">,</span> <span class="n">supported_normalization</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="c1"># Derivatives are not currently implemented for all k3 options</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="c1"># &quot;angle&quot; function is not differentiable</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;angle&quot;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Analytical derivatives not implemented for k3 geometry function &#39;angle&#39;.&quot;</span>
+                    <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;analytical&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>
+            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;numerical&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+                <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;analytical&quot;</span>
+
+        <span class="k">return</span> <span class="n">method</span></div>
+
+<div class="viewcode-block" id="MBTR.derivatives_analytical"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.derivatives_analytical">[docs]</a>    <span class="k">def</span> <span class="nf">derivatives_analytical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">):</span>
+        <span class="c1"># Ensuring variables are re-initialized when a new system is introduced</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="n">system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+
+        <span class="c1"># Check that the system does not have elements that are not in the list</span>
+        <span class="c1"># of atomic numbers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
+
+        <span class="n">mbtr</span><span class="p">,</span> <span class="n">mbtr_d</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;_get_k</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)(</span><span class="n">system</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Handle normalization</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">==</span> <span class="s2">&quot;n_atoms&quot;</span><span class="p">:</span>
+            <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">)</span>
+            <span class="n">mbtr</span> <span class="o">/=</span> <span class="n">n_atoms</span>
+            <span class="n">mbtr_d</span> <span class="o">/=</span> <span class="n">n_atoms</span>
+
+        <span class="c1"># For now, the derivatives are calculated with regard to all atomic</span>
+        <span class="c1"># positions. The desired indices are extracted here at the end.</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">mbtr_d</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">return_descriptor</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">copyto</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">mbtr</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 2.0.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+<script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

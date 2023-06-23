@@ -177,9 +177,9 @@ def get_power_spectrum(coeffs, crossover=True, average="off", compression="off")
                     for ni in range(n_max):
                         for nj in range(n_max):
                             value = np.dot(
-                                    coeffs[i, zi, ni, l, :],
-                                    species_summed_coef[i, nj, l, :]
-                                    )
+                                coeffs[i, zi, ni, l, :],
+                                species_summed_coef[i, nj, l, :],
+                            )
                             prefactor = np.pi * np.sqrt(8 / (2 * l + 1))
                             value *= prefactor
                             i_spectrum.append(value)
@@ -246,22 +246,32 @@ def load_polynomial_coefficients(args):
 @pytest.mark.parametrize(
     "species, n_max, l_max, crossover, average, n_features, compression",
     [
-        (["H", "O"], 5, 5, True, "off", int((5 + 1) * (5 * 2) * (5 * 2 + 1) / 2), "off"),
+        (
+            ["H", "O"],
+            5,
+            5,
+            True,
+            "off",
+            int((5 + 1) * (5 * 2) * (5 * 2 + 1) / 2),
+            "off",
+        ),
         (["H", "O"], 5, 5, False, "off", int(5 * 2 * (5 + 1) / 2 * (5 + 1)), "off"),
         (["H", "O"], 5, 5, True, "off", int(5 * 5 * (5 + 1) * 2), "m1n1"),
         (["H", "O"], 5, 5, True, "off", int(5 * (5 + 1) * (5 + 1) / 2), "agnostic"),
     ],
 )
-def test_number_of_features(species, n_max, l_max, crossover, average, n_features, compression):
+def test_number_of_features(
+    species, n_max, l_max, crossover, average, n_features, compression
+):
     desc = soap(
         species=species,
         r_cut=3,
         n_max=n_max,
         l_max=l_max,
         crossover=crossover,
-        average = average,
+        average=average,
         periodic=True,
-        compression=compression
+        compression=compression,
     )
     assert_n_features(desc, n_features)
 
@@ -337,9 +347,10 @@ def test_derivatives_numerical(pbc, attach, average, rbf, crossover, compression
         crossover=crossover,
         periodic=pbc,
         dtype="float64",
-        compression=compression
+        compression=compression,
     )
     assert_derivatives(descriptor_func, "numerical", pbc, attach=attach)
+
 
 @pytest.mark.parametrize("pbc, average, rbf", [(False, "off", "gto")])
 @pytest.mark.parametrize("attach", (False, True))
@@ -471,13 +482,13 @@ def test_exceptions():
 
     # Invalid species weighting
     with pytest.raises(ValueError):
-        args["species_weighting"] = {"H":1, "O":0.1, "X":3.4}
+        args["species_weighting"] = {"H": 1, "O": 0.1, "X": 3.4}
         SOAP(**args)
     with pytest.raises(ValueError):
-        args["species_weighting"] = {"H":1}
+        args["species_weighting"] = {"H": 1}
         SOAP(**args)
     with pytest.raises(ValueError):
-        args["species_weighting"] = {1:0, 8:2}
+        args["species_weighting"] = {1: 0, 8: 2}
         SOAP(**args)
 
     # Test that trying to get analytical derivatives with averaged output
@@ -713,19 +724,27 @@ def test_weighting(rbf, weighting):
     )
 
 
-@pytest.mark.parametrize("species_weighting, species, expected_weights",
-        [
-            ( {"H":1, "O":2, "F":1.2}, ["H", "O", "F"], np.array([1, 2, 1.2]) ),
-            ( {"F":1, "Zn":2, "H":1.2}, ["H", "Zn", "F"], np.array([1.2, 1, 2]) ),
-            ( {"C":1, "H":2, "Li":1.2}, ["Li", "H", "C"], np.array([2, 1.2, 1]) ),
-            ( None, ["H", "O", "C"], np.ones(3) )
-        ],
+@pytest.mark.parametrize(
+    "species_weighting, species, expected_weights",
+    [
+        ({"H": 1, "O": 2, "F": 1.2}, ["H", "O", "F"], np.array([1, 2, 1.2])),
+        ({"F": 1, "Zn": 2, "H": 1.2}, ["H", "Zn", "F"], np.array([1.2, 1, 2])),
+        ({"C": 1, "H": 2, "Li": 1.2}, ["Li", "H", "C"], np.array([2, 1.2, 1])),
+        (None, ["H", "O", "C"], np.ones(3)),
+    ],
 )
 def test_species_weighting(species_weighting, species, expected_weights):
-    """Tests that species weights can be supplied and set correctly.
-    """
-    soaper = SOAP(r_cut=5, n_max=3, l_max=3, rbf="gto", compression="m1n1", average="off",
-            species = species, species_weighting = species_weighting)
+    """Tests that species weights can be supplied and set correctly."""
+    soaper = SOAP(
+        r_cut=5,
+        n_max=3,
+        l_max=3,
+        rbf="gto",
+        compression="m1n1",
+        average="off",
+        species=species,
+        species_weighting=species_weighting,
+    )
     species_weights = soaper.species_weights
     assert np.allclose(species_weights, expected_weights)
 
