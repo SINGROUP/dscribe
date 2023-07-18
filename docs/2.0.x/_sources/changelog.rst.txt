@@ -1,5 +1,11 @@
 Changelog
 =========
+ - 2.0.1:
+    - Added:
+        - Wheel distributions for linux and MacOS.
+    - Fixed:
+        - Issue with exception not being raised when analytical derivatives were requested for SOAP with weighting turned on.
+
  - 2.0.0:
     - Added:
         - Added numerical derivatives for :code:`SineMatrix`, :code:`EwaldSumMatrix`, :code:`ACSF`, :code:`MBTR`, :code:`LMBTR` and :code:`ValleOganov`.

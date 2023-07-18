@@ -16,7 +16,7 @@ For more details and tutorials, visit our documentation at:
 You can find even more details in the following articles:
 
 - [DScribe: Library of descriptors for machine learning in materials science](<https://doi.org/10.1016/j.cpc.2019.106949>)
-- [Updates to the DScribe Library: New Descriptors and Derivatives](https://doi.org/10.1063/5.0151031)
+- [Updates to the DScribe library: New descriptors and derivatives](https://doi.org/10.1063/5.0151031)
 
 
 # Quick Example
