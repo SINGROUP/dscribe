@@ -4,7 +4,7 @@ Changelog
     - Added:
         - Wheel distributions for linux and MacOS.
     - Fixed:
-        - Issue with exception not being raised when analytical derivatives were requested for SOAP with weighting turned on.
+        - Issue with exception not being raised when analytical derivatives were requested for SOAP with weighting turned on. See issue `#89 <https://github.com/SINGROUP/dscribe/issues/113>`_.
 
  - 2.0.0:
     - Added:
