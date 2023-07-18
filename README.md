@@ -13,10 +13,10 @@ similarity analysis, etc.
 For more details and tutorials, visit our documentation at:
 [https://singroup.github.io/dscribe/](https://singroup.github.io/dscribe/)
 
-You can find even more details in our open-access articles:
+You can find even more details in the following articles:
 
 - [DScribe: Library of descriptors for machine learning in materials science](<https://doi.org/10.1016/j.cpc.2019.106949>)
-- [Updates to the DScribe Library: New Descriptors and Derivatives](https://doi.org/10.48550/arXiv.2303.14046)
+- [Updates to the DScribe Library: New Descriptors and Derivatives](https://doi.org/10.1063/5.0151031)
 
 
 # Quick Example

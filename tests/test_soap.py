@@ -464,7 +464,10 @@ def test_exceptions():
             setup["average"] = average
             soap = SOAP(**setup)
             soap.derivatives(system, centers=centers, method="analytical")
-        assert str(excinfo.value) == "Analytical derivatives currently not available for averaged output."
+        assert (
+            str(excinfo.value)
+            == "Analytical derivatives currently not available for averaged output."
+        )
 
     # Test that trying to get analytical derivatives with polynomial basis
     # raises an exception.
@@ -473,7 +476,10 @@ def test_exceptions():
         setup["rbf"] = "polynomial"
         soap = SOAP(**setup)
         soap.derivatives(system, centers=centers, method="analytical")
-    assert str(excinfo.value) == "Analytical derivatives currently not available for polynomial radial basis functions."
+    assert (
+        str(excinfo.value)
+        == "Analytical derivatives currently not available for polynomial radial basis functions."
+    )
 
     # Test that trying to get analytical derivatives with periodicity on
     # raises an exception
@@ -483,16 +489,22 @@ def test_exceptions():
         setup["rbf"] = "gto"
         soap = SOAP(**setup)
         soap.derivatives(system, centers=centers, method="analytical")
-    assert str(excinfo.value) == "Analytical derivatives currently not available for periodic systems."
+    assert (
+        str(excinfo.value)
+        == "Analytical derivatives currently not available for periodic systems."
+    )
 
     # Test that trying to get analytical derivatives with weighting raises an
     # exception
     with pytest.raises(ValueError) as excinfo:
         setup = get_setup()
-        setup["weighting"] = {'function':'poly', 'r0': 3, 'c':1, 'm':1}
+        setup["weighting"] = {"function": "poly", "r0": 3, "c": 1, "m": 1}
         soap = SOAP(**setup)
         soap.derivatives(system, centers=centers, method="analytical")
-    assert str(excinfo.value) == "Analytical derivatives currently not available when weighting is used."
+    assert (
+        str(excinfo.value)
+        == "Analytical derivatives currently not available when weighting is used."
+    )
 
 
 w_poly = {"function": "poly", "c": 2, "m": 3, "r0": 4}

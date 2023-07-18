@@ -21,11 +21,12 @@ When using versions >= 2.0.0, please additionally cite:
 
 .. code-block:: bib
 
-    @misc{dscribe2,
-      title={Updates to the DScribe Library: New Descriptors and Derivatives}, 
-      author={Jarno Laakso and Lauri Himanen and Henrietta Homm and Eiaki V. Morooka and Marc O. J. Jäger and Milica Todorović and Patrick Rinke},
+    @article{dscribe2,
+      title={Updates to the DScribe library: New descriptors and derivatives},
+      author={Laakso, Jarno and Himanen, Lauri and Homm, Henrietta and Morooka, Eiaki V and J{\"a}ger, Marc OJ and Todorovi{\'c}, Milica and Rinke, Patrick},
+      journal={The Journal of Chemical Physics},
+      volume={158},
+      number={23},
       year={2023},
-      eprint={2303.14046},
-      archivePrefix={arXiv},
-      primaryClass={cond-mat.mtrl-sci}
+      publisher={AIP Publishing}
     }

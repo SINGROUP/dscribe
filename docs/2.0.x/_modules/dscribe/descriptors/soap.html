@@ -653,16 +653,20 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">==</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Analytical derivatives not currently available for polynomial &quot;</span>
-                    <span class="s2">&quot;radial basis set.&quot;</span>
+                    <span class="s2">&quot;Analytical derivatives currently not available for polynomial &quot;</span>
+                    <span class="s2">&quot;radial basis functions.&quot;</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">!=</span> <span class="s2">&quot;off&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Analytical derivatives not currently available for averaged output.&quot;</span>
+                    <span class="s2">&quot;Analytical derivatives currently not available for averaged output.&quot;</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Analytical derivatives are currently not available for periodic systems.&quot;</span>
+                    <span class="s2">&quot;Analytical derivatives currently not available for periodic systems.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weighting</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Analytical derivatives currently not available when weighting is used.&quot;</span>
                 <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;analytical&quot;</span><span class="p">:</span>
