@@ -316,7 +316,7 @@ class ACSF(DescriptorLocal):
 
     @property
     def r_cut(self):
-        return self.acsf_wrapper.rcut
+        return self.acsf_wrapper.r_cut
 
     @r_cut.setter
     def r_cut(self, value):
@@ -327,7 +327,7 @@ class ACSF(DescriptorLocal):
         """
         if value <= 0:
             raise ValueError("Cutoff radius should be positive.")
-        self.acsf_wrapper.rcut = value
+        self.acsf_wrapper.r_cut = value
 
     @property
     def g2_params(self):
