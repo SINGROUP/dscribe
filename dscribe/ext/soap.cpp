@@ -20,9 +20,9 @@ limitations under the License.
 using namespace std;
 
 SOAPGTO::SOAPGTO(
-    double rcut,
-    int nmax,
-    int lmax,
+    double r_cut,
+    int n_max,
+    int l_max,
     double eta,
     py::dict weighting,
     bool crossover,
@@ -33,10 +33,10 @@ SOAPGTO::SOAPGTO(
     py::array_t<int> species,
     bool periodic
 )
-    : Descriptor(periodic, average, rcut+cutoff_padding)
-    , rcut(rcut)
-    , nmax(nmax)
-    , lmax(lmax)
+    : Descriptor(periodic, average, r_cut+cutoff_padding)
+    , r_cut(r_cut)
+    , n_max(n_max)
+    , l_max(l_max)
     , eta(eta)
     , weighting(weighting)
     , crossover(crossover)
@@ -108,10 +108,10 @@ void SOAPGTO::create(
         this->betas,
         atomic_numbers,
         this->species,
-        this->rcut,
+        this->r_cut,
         this->cutoff_padding,
-        this->nmax,
-        this->lmax,
+        this->n_max,
+        this->l_max,
         this->eta,
         this->weighting,
         this->crossover,
@@ -128,8 +128,8 @@ int SOAPGTO::get_number_of_features() const
 {
     int n_species = this->species.shape(0);
     return this->crossover
-        ? (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1) 
-        : n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
+        ? (n_species*this->n_max)*(n_species*this->n_max+1)/2*(this->l_max+1) 
+        : n_species*(this->l_max+1)*((this->n_max+1)*this->n_max)/2;
 }
 
 void SOAPGTO::derivatives_analytical(
@@ -174,10 +174,10 @@ void SOAPGTO::derivatives_analytical(
         this->betas,
         atomic_numbers,
         this->species,
-        this->rcut,
+        this->r_cut,
         this->cutoff_padding,
-        this->nmax,
-        this->lmax,
+        this->n_max,
+        this->l_max,
         this->eta,
         this->weighting,
         this->crossover,
@@ -191,9 +191,9 @@ void SOAPGTO::derivatives_analytical(
 }
 
 SOAPPolynomial::SOAPPolynomial(
-    double rcut,
-    int nmax,
-    int lmax,
+    double r_cut,
+    int n_max,
+    int l_max,
     double eta,
     py::dict weighting,
     bool crossover,
@@ -204,10 +204,10 @@ SOAPPolynomial::SOAPPolynomial(
     py::array_t<int> species,
     bool periodic
 )
-    : Descriptor(periodic, average, rcut+cutoff_padding)
-    , rcut(rcut)
-    , nmax(nmax)
-    , lmax(lmax)
+    : Descriptor(periodic, average, r_cut+cutoff_padding)
+    , r_cut(r_cut)
+    , n_max(n_max)
+    , l_max(l_max)
     , eta(eta)
     , weighting(weighting)
     , crossover(crossover)
@@ -264,10 +264,10 @@ void SOAPPolynomial::create(
         centers,
         atomic_numbers,
         this->species,
-        this->rcut,
+        this->r_cut,
         this->cutoff_padding,
-        this->nmax,
-        this->lmax,
+        this->n_max,
+        this->l_max,
         this->eta,
         this->weighting,
         this->rx,
@@ -282,6 +282,6 @@ int SOAPPolynomial::get_number_of_features() const
 {
     int n_species = this->species.shape(0);
     return this->crossover
-        ? (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1) 
-        : n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
+        ? (n_species*this->n_max)*(n_species*this->n_max+1)/2*(this->l_max+1) 
+        : n_species*(this->l_max+1)*((this->n_max+1)*this->n_max)/2;
 }

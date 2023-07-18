@@ -92,22 +92,18 @@
              
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
-<p>The newest versions of the package are compatible with Python &gt;= 3.7 (tested on
-3.7, 3.8, 3.9 and 3.10). DScribe versions &lt;= 0.2.7 also support Python 2.7.
-We currently only support Unix-based systems, including Linux and macOS. For
-Windows-machines we suggest using the <a class="reference external" href="https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux">Windows Subsystem for Linux (WSL)</a>. The exact list of
-dependencies are given in setup.py and all of them will be automatically
-installed during setup.</p>
-<p>The package contains C++ extensions that are automatically compiled during
-install. On Linux-based systems the compilation tools are typically installed
-by default, on MacOS you may need to install additional command line tools if
-facing issues during setup (see common issues below).</p>
+<p>The newest versions of the package are compatible with Python &gt;= 3.8 (tested on
+3.8, 3.9, 3.9, 3.10 and 3.11). DScribe versions &lt;= 0.2.7 also support Python 2.7.</p>
 <section id="pip">
 <h2>pip<a class="headerlink" href="#pip" title="Permalink to this heading"></a></h2>
 <p>The latest stable release is available through pip:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>dscribe
 </pre></div>
 </div>
+<p>Since version 2.0.1, <a class="reference external" href="https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#wheels">wheel distributions</a>
+are available for several platforms using <a class="reference external" href="https://github.com/pypa/cibuildwheel">cibuildwheel</a>. For more exotic platforms a
+source distribution is available, but this will require a compilation step
+during installation.</p>
 </section>
 <section id="conda">
 <h2>conda<a class="headerlink" href="#conda" title="Permalink to this heading"></a></h2>
@@ -127,6 +123,10 @@ git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w
 pip<span class="w"> </span>install<span class="w"> </span>.
 </pre></div>
 </div>
+<p>When installing from source, the contained C++ extensions are automatically
+compiled during install. On Linux-based systems the compilation tools are
+typically installed by default, on MacOS you may need to install additional
+command line tools if facing issues during setup (see common issues below).</p>
 </section>
 <section id="common-issues">
 <h2>Common issues<a class="headerlink" href="#common-issues" title="Permalink to this heading"></a></h2>

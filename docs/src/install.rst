@@ -1,17 +1,7 @@
 Installation
 ============
-The newest versions of the package are compatible with Python >= 3.7 (tested on
-3.7, 3.8, 3.9 and 3.10). DScribe versions <= 0.2.7 also support Python 2.7.
-We currently only support Unix-based systems, including Linux and macOS. For
-Windows-machines we suggest using the `Windows Subsystem for Linux (WSL)
-<https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux>`_. The exact list of
-dependencies are given in setup.py and all of them will be automatically
-installed during setup.
-
-The package contains C++ extensions that are automatically compiled during
-install. On Linux-based systems the compilation tools are typically installed
-by default, on MacOS you may need to install additional command line tools if
-facing issues during setup (see common issues below).
+The newest versions of the package are compatible with Python >= 3.8 (tested on
+3.8, 3.9, 3.9, 3.10 and 3.11). DScribe versions <= 0.2.7 also support Python 2.7.
 
 pip
 ---
@@ -20,6 +10,13 @@ The latest stable release is available through pip:
 .. code-block:: sh
 
     pip install dscribe
+
+Since version 2.0.1, `wheel distributions
+<https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#wheels>`_
+are available for several platforms using `cibuildwheel
+<https://github.com/pypa/cibuildwheel>`_. For more exotic platforms a
+source distribution is available, but this will require a compilation step
+during installation.
 
 conda
 -----
@@ -42,6 +39,11 @@ from github and install with pip from local file:
     cd dscribe
     git submodule update --init
     pip install .
+
+When installing from source, the contained C++ extensions are automatically
+compiled during install. On Linux-based systems the compilation tools are
+typically installed by default, on MacOS you may need to install additional
+command line tools if facing issues during setup (see common issues below).
 
 Common issues
 -------------

@@ -13,10 +13,10 @@ similarity analysis, etc.
 For more details and tutorials, visit our documentation at:
 [https://singroup.github.io/dscribe/](https://singroup.github.io/dscribe/)
 
-You can find even more details in our open-access articles:
+You can find even more details in the following articles:
 
 - [DScribe: Library of descriptors for machine learning in materials science](<https://doi.org/10.1016/j.cpc.2019.106949>)
-- [Updates to the DScribe Library: New Descriptors and Derivatives](https://doi.org/10.48550/arXiv.2303.14046)
+- [Updates to the DScribe library: New descriptors and derivatives](https://doi.org/10.1063/5.0151031)
 
 
 # Quick Example
@@ -31,7 +31,7 @@ samples = [molecule("H2O"), molecule("NO2"), molecule("CO2")]
 
 # Setup descriptors
 cm_desc = CoulombMatrix(n_atoms_max=3, permutation="sorted_l2")
-soap_desc = SOAP(species=["C", "H", "O", "N"], rcut=5, nmax=8, lmax=6, crossover=True)
+soap_desc = SOAP(species=["C", "H", "O", "N"], r_cut=5, n_max=8, l_max=6, crossover=True)
 
 # Create descriptors as numpy arrays or sparse arrays
 water = samples[0]

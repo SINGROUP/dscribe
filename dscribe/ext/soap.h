@@ -33,9 +33,9 @@ class SOAPGTO: public Descriptor {
          *
          */
         SOAPGTO(
-            double rcut,
-            int nmax,
-            int lmax,
+            double r_cut,
+            int n_max,
+            int l_max,
             double eta,
             py::dict weighting,
             bool crossover,
@@ -99,9 +99,9 @@ class SOAPGTO: public Descriptor {
         ) const;
 
     private:
-        const double rcut;
-        const int nmax;
-        const int lmax;
+        const double r_cut;
+        const int n_max;
+        const int l_max;
         const double eta;
         const py::dict weighting;
         const bool crossover;
@@ -120,9 +120,9 @@ class SOAPPolynomial: public Descriptor {
          *
          */
         SOAPPolynomial(
-            double rcut,
-            int nmax,
-            int lmax,
+            double r_cut,
+            int n_max,
+            int l_max,
             double eta,
             py::dict weighting,
             bool crossover,
@@ -166,9 +166,9 @@ class SOAPPolynomial: public Descriptor {
         int get_number_of_features() const;
 
     private:
-        const double rcut;
-        const int nmax;
-        const int lmax;
+        const double r_cut;
+        const int n_max;
+        const int l_max;
         const double eta;
         const py::dict weighting;
         const bool crossover;

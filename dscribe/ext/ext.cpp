@@ -82,7 +82,7 @@ PYBIND11_MODULE(ext, m) {
         .def_readwrite("n_g3", &ACSF::nG3)
         .def_readwrite("n_g4", &ACSF::nG4)
         .def_readwrite("n_g5", &ACSF::nG5)
-        .def_property("rcut", &ACSF::getRCut, &ACSF::setRCut)
+        .def_property("r_cut", &ACSF::getRCut, &ACSF::setRCut)
         .def_property("g3_params", &ACSF::getG3Params, &ACSF::setG3Params)
         .def_property("g4_params", &ACSF::getG4Params, &ACSF::setG4Params)
         .def_property("g5_params", &ACSF::getG5Params, &ACSF::setG5Params)
