@@ -569,16 +569,20 @@ class SOAP(DescriptorLocal):
         try:
             if self._rbf == "polynomial":
                 raise ValueError(
-                    "Analytical derivatives not currently available for polynomial "
-                    "radial basis set."
+                    "Analytical derivatives currently not available for polynomial "
+                    "radial basis functions."
                 )
             if self.average != "off":
                 raise ValueError(
-                    "Analytical derivatives not currently available for averaged output."
+                    "Analytical derivatives currently not available for averaged output."
                 )
             if self.periodic:
                 raise ValueError(
-                    "Analytical derivatives are currently not available for periodic systems."
+                    "Analytical derivatives currently not available for periodic systems."
+                )
+            if self._weighting:
+                raise ValueError(
+                    "Analytical derivatives currently not available when weighting is used."
                 )
         except Exception as e:
             if method == "analytical":

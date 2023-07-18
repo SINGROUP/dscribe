@@ -404,72 +404,95 @@ def test_exceptions():
         )
         a.create(system)
 
+    def get_setup():
+        return {
+            "r_cut": 2,
+            "sigma": 1,
+            "n_max": 5,
+            "l_max": 5,
+            "species": ["H", "O"],
+        }
+
     # Invalid weighting
-    args = {
-        "r_cut": 2,
-        "sigma": 1,
-        "n_max": 5,
-        "l_max": 5,
-        "species": ["H", "O"],
-    }
     with pytest.raises(ValueError):
-        args["weighting"] = {"function": "poly", "c": -1, "r0": 1}
-        SOAP(**args)
+        setup = get_setup()
+        setup["weighting"] = {"function": "poly", "c": -1, "r0": 1}
+        SOAP(**setup)
     with pytest.raises(ValueError):
-        args["weighting"] = {"function": "poly", "c": 1, "r0": 0}
-        SOAP(**args)
+        setup = get_setup()
+        setup["weighting"] = {"function": "poly", "c": 1, "r0": 0}
+        SOAP(**setup)
     with pytest.raises(ValueError):
-        args["weighting"] = {"function": "poly", "c": 1, "r0": 1, "w0": -1}
-        SOAP(**args)
+        setup = get_setup()
+        setup["weighting"] = {"function": "poly", "c": 1, "r0": 1, "w0": -1}
+        SOAP(**setup)
     with pytest.raises(ValueError):
-        args["weighting"] = {"function": "pow", "c": -1, "d": 1, "r0": 1, "m": 1}
-        SOAP(**args)
+        setup = get_setup()
+        setup["weighting"] = {"function": "pow", "c": -1, "d": 1, "r0": 1, "m": 1}
+        SOAP(**setup)
     with pytest.raises(ValueError):
-        args["weighting"] = {"function": "pow", "c": 1, "d": 1, "r0": 0, "m": 1}
-        SOAP(**args)
+        setup = get_setup()
+        setup["weighting"] = {"function": "pow", "c": 1, "d": 1, "r0": 0, "m": 1}
+        SOAP(**setup)
     with pytest.raises(ValueError):
-        args["weighting"] = {"function": "pow", "c": 1, "d": 1, "r0": 1, "w0": -1}
-        SOAP(**args)
+        setup = get_setup()
+        setup["weighting"] = {"function": "pow", "c": 1, "d": 1, "r0": 1, "w0": -1}
+        SOAP(**setup)
     with pytest.raises(ValueError):
-        args["weighting"] = {"function": "exp", "c": -1, "d": 1, "r0": 1}
-        SOAP(**args)
+        setup = get_setup()
+        setup["weighting"] = {"function": "exp", "c": -1, "d": 1, "r0": 1}
+        SOAP(**setup)
     with pytest.raises(ValueError):
-        args["weighting"] = {"function": "exp", "c": 1, "d": 1, "r0": 0}
-        SOAP(**args)
+        setup = get_setup()
+        setup["weighting"] = {"function": "exp", "c": 1, "d": 1, "r0": 0}
+        SOAP(**setup)
     with pytest.raises(ValueError):
-        args["weighting"] = {"function": "exp", "c": 1, "d": 1, "r0": 1, "w0": -1}
-        SOAP(**args)
+        setup = get_setup()
+        setup["weighting"] = {"function": "exp", "c": 1, "d": 1, "r0": 1, "w0": -1}
+        SOAP(**setup)
     with pytest.raises(ValueError):
-        args["weighting"] = {"function": "invalid", "c": 1, "d": 1, "r0": 1}
-        SOAP(**args)
+        setup = get_setup()
+        setup["weighting"] = {"function": "invalid", "c": 1, "d": 1, "r0": 1}
+        SOAP(**setup)
 
     # Test that trying to get analytical derivatives with averaged output
     # raises an exception
     centers = [[0.0, 0.0, 0.0]]
-    with pytest.raises(ValueError):
-        args["average"] = "inner"
-        soap = SOAP(**args)
-        soap.derivatives(system, centers=centers, method="analytical")
-    with pytest.raises(ValueError):
-        args["average"] = "outer"
-        soap = SOAP(**args)
-        soap.derivatives(system, centers=centers, method="analytical")
+    for average in ["inner", "outer"]:
+        with pytest.raises(ValueError) as excinfo:
+            setup = get_setup()
+            setup["average"] = average
+            soap = SOAP(**setup)
+            soap.derivatives(system, centers=centers, method="analytical")
+        assert str(excinfo.value) == "Analytical derivatives currently not available for averaged output."
 
     # Test that trying to get analytical derivatives with polynomial basis
     # raises an exception.
-    with pytest.raises(ValueError):
-        args["average"] = "off"
-        args["rbf"] = "polynomial"
-        soap = SOAP(**args)
+    with pytest.raises(ValueError) as excinfo:
+        setup = get_setup()
+        setup["rbf"] = "polynomial"
+        soap = SOAP(**setup)
         soap.derivatives(system, centers=centers, method="analytical")
+    assert str(excinfo.value) == "Analytical derivatives currently not available for polynomial radial basis functions."
 
     # Test that trying to get analytical derivatives with periodicity on
     # raises an exception
-    with pytest.raises(ValueError):
-        args["periodic"] = True
-        args["rbf"] = "rbf"
-        soap = SOAP(**args)
+    with pytest.raises(ValueError) as excinfo:
+        setup = get_setup()
+        setup["periodic"] = True
+        setup["rbf"] = "gto"
+        soap = SOAP(**setup)
         soap.derivatives(system, centers=centers, method="analytical")
+    assert str(excinfo.value) == "Analytical derivatives currently not available for periodic systems."
+
+    # Test that trying to get analytical derivatives with weighting raises an
+    # exception
+    with pytest.raises(ValueError) as excinfo:
+        setup = get_setup()
+        setup["weighting"] = {'function':'poly', 'r0': 3, 'c':1, 'm':1}
+        soap = SOAP(**setup)
+        soap.derivatives(system, centers=centers, method="analytical")
+    assert str(excinfo.value) == "Analytical derivatives currently not available when weighting is used."
 
 
 w_poly = {"function": "poly", "c": 2, "m": 3, "r0": 4}
