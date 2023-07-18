@@ -49,7 +49,7 @@ Changelog
 
  - 1.1.0:
     - Added:
-        - Support for lmax <= 20 for the :code:`SOAP` GTO basis.
+        - Support for l_max <= 20 for the :code:`SOAP` GTO basis.
         - Support for weighting the gaussians contributing to the atomic
           density. For more details see :doc:`the updated SOAP tutorial
           <tutorials/descriptors/soap>` (and issues `#20
