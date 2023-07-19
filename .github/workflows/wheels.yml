@@ -3,7 +3,7 @@ name: wheels
 on: [workflow_dispatch]
 
 env:
-  CIBW_SKIP: cp36-*
+  CIBW_SKIP: cp36-* cp310-win32
 
 jobs:
   build_wheels:
