@@ -36,7 +36,7 @@ void CellList::init() {
     this->xmin = this->xmax = this->positions(0, 0);
     this->ymin = this->ymax = this->positions(0, 1);
     this->zmin = this->zmax = this->positions(0, 2);
-    for (ssize_t i = 0; i < this->positions.shape(0); i++) {
+    for (int i = 0; i < this->positions.shape(0); i++) {
         double x = this->positions(i, 0);
         double y = this->positions(i, 1);
         double z = this->positions(i, 2);
@@ -82,7 +82,7 @@ void CellList::init() {
     this->bins = vector<vector<vector<vector<int>>>>(this->nx, vector<vector<vector<int>>>(this->ny, vector<vector<int>>(this->nz, vector<int>())));
 
     // Fill the bins with atom indices
-    for (ssize_t idx = 0; idx < this->positions.shape(0); idx++) {
+    for (int idx = 0; idx < this->positions.shape(0); idx++) {
         double x = this->positions(idx, 0);
         double y = this->positions(idx, 1);
         double z = this->positions(idx, 2);
