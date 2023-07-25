@@ -291,7 +291,7 @@ and hence the computational cost. Options are:</p>
 <dt><code class="docutils literal notranslate"><span class="pre">`&quot;mode&quot;`</span></code>: Specifies the type of compression. This can be one of:</dt><dd><ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;off&quot;</span></code>: No compression; default.</p></li>
 <li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">&quot;agnostic&quot;</span></code>: The SOAP feature vector is generated in an element-agnostic way, so that</dt><dd><p>the size of the feature vector is now independent of the number of elements (see Darby et al
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;mu2&quot;</span></code>: The SOAP feature vector is generated in an element-agnostic way, so that</dt><dd><p>the size of the feature vector is now independent of the number of elements (see Darby et al
 below for details). It is still possible when using this option to construct a feature
 vector that distinguishes between elements by supplying element-specific weighting under
 “species_weighting”, see below.</p>
@@ -299,7 +299,7 @@ vector that distinguishes between elements by supplying element-specific weighti
 </dl>
 </li>
 <li><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">&quot;m1n1&quot;</span></code>: Implements the mu=1, nu=1 feature compression scheme from Darby et al.: <span class="math notranslate nohighlight">\(p_{inn'l}^{Z_1,Z_2} \sum_m (c_{nlm}^{i, Z_1})^{*} (\sum_z c_{n'lm}^{i, z})\)</span>.</dt><dd><p>In other words, each coefficient for each species is multiplied by a “species-agnostic” sum over the corresponding set of coefficients for all other species.
+<dt><code class="docutils literal notranslate"><span class="pre">&quot;mu1nu1&quot;</span></code>: Implements the mu=1, nu=1 feature compression scheme from Darby et al.: <span class="math notranslate nohighlight">\(p_{inn'l}^{Z_1,Z_2} \sum_m (c_{nlm}^{i, Z_1})^{*} (\sum_z c_{n'lm}^{i, z})\)</span>.</dt><dd><p>In other words, each coefficient for each species is multiplied by a “species-mu2” sum over the corresponding set of coefficients for all other species.
 If this option is selected, features are generated for each center, but the number of features (the size of each feature vector) scales linearly rather than
 quadratically with the number of elements in the system.</p>
 </dd>
@@ -319,7 +319,7 @@ the feature vector scales linearly with the number of elements in the system.</p
 <dt><code class="docutils literal notranslate"><span class="pre">`&quot;species_weighting&quot;`</span></code>: Either None or a dictionary mapping each species to a</dt><dd><p>species-specific weight. If None, there is no species-specific weighting. If a dictionary,
 must contain a matching key for each species in the <code class="docutils literal notranslate"><span class="pre">species</span></code> iterable.
 The main use of species weighting is to weight each element differently when using
-the “agnostic” option for <code class="docutils literal notranslate"><span class="pre">compression</span></code>.</p>
+the “mu2” option for <code class="docutils literal notranslate"><span class="pre">compression</span></code>.</p>
 </dd>
 </dl>
 </li>

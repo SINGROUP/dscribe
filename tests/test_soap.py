@@ -165,10 +165,10 @@ def get_power_spectrum(coeffs, crossover=True, average="off", compression="off")
     n_species = shape[1]
     n_max = shape[2]
     l_max = shape[3] - 1
-    # If using m1n1 compression (Darby et al. mu=1 nu=1 compression),
+    # If using mu1nu1 compression (Darby et al. mu=1 nu=1 compression),
     # the number of features scales linearly with # of elements,
     # and the calculation is slightly different.
-    if compression == "m1n1":
+    if compression == "mu1nu1":
         species_summed_coef = coeffs.sum(axis=1)
         for i in range(n_centers):
             i_spectrum = []
@@ -262,8 +262,8 @@ def load_polynomial_coefficients(args):
             int(5 * 2 * (5 + 1) / 2 * (5 + 1)),
             {"mode": "crossover"},
         ),
-        (["H", "O"], 5, 5, "off", int(5 * 5 * (5 + 1) * 2), {"mode": "m1n1"}),
-        (["H", "O"], 5, 5, "off", int(5 * (5 + 1) * (5 + 1) / 2), {"mode": "agnostic"}),
+        (["H", "O"], 5, 5, "off", int(5 * 5 * (5 + 1) * 2), {"mode": "mu1nu1"}),
+        (["H", "O"], 5, 5, "off", int(5 * (5 + 1) * (5 + 1) / 2), {"mode": "mu2"}),
     ],
 )
 def test_number_of_features(species, n_max, l_max, average, n_features, compression):
@@ -339,7 +339,7 @@ def test_basis(rbf):
 @pytest.mark.parametrize("average", ("off", "inner", "outer"))
 @pytest.mark.parametrize(
     "compression",
-    ({"mode": "off"}, {"mode": "m1n1"}, {"mode": "agnostic"}, {"mode": "crossover"}),
+    ({"mode": "off"}, {"mode": "mu1nu1"}, {"mode": "mu2"}, {"mode": "crossover"}),
 )
 def test_derivatives_numerical(pbc, attach, average, rbf, compression):
     descriptor_func = soap(
@@ -508,11 +508,11 @@ def test_exceptions():
         soap = SOAP(**args)
         soap.derivatives(system, centers=centers, method="analytical")
     with pytest.raises(ValueError):
-        args["compression"]["mode"] = "m1n1"
+        args["compression"]["mode"] = "mu1nu1"
         soap = SOAP(**args)
         soap.derivatives(system, centers=centers, method="analytical")
     with pytest.raises(ValueError):
-        args["compression"]["mode"] = "agnostic"
+        args["compression"]["mode"] = "mu2"
         soap = SOAP(**args)
         soap.derivatives(system, centers=centers, method="analytical")
 
@@ -615,19 +615,19 @@ def test_average_outer(rbf):
 
 
 @pytest.mark.parametrize("rbf", ["gto", "polynomial"])
-def test_m1n1_compression(rbf):
+def test_mu1nu1_compression(rbf):
     """Tests the mu=1, nu=1 Darby et al. feature compression scheme
-    ('m1n1' compression).
+    ('mu1nu1' compression).
     """
     system, centers, args = globals()[f"get_soap_{rbf}_l_max_setup"]()
     # Calculate the analytical power spectrum
-    args["compression"] = {"mode": "m1n1"}
+    args["compression"] = {"mode": "mu1nu1"}
     soap = SOAP(**args, rbf=rbf, average="off")
     analytical_inner = soap.create(system, centers=centers)
 
     # Calculate the numerical power spectrum
     coeffs = globals()[f"load_{rbf}_coefficients"](args)
-    numerical_inner = get_power_spectrum(coeffs, compression={"mode": "m1n1"})
+    numerical_inner = get_power_spectrum(coeffs, compression={"mode": "mu1nu1"})
 
     assert np.allclose(numerical_inner, analytical_inner, atol=1e-15, rtol=0.01)
 
@@ -748,7 +748,7 @@ def test_species_weighting(species_weighting, species, expected_weights):
         n_max=3,
         l_max=3,
         rbf="gto",
-        compression={"mode": "m1n1", "species_weighting": species_weighting},
+        compression={"mode": "mu1nu1", "species_weighting": species_weighting},
         average="off",
         species=species,
     )

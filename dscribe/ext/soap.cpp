@@ -130,9 +130,9 @@ void SOAPGTO::create(
 int SOAPGTO::get_number_of_features() const
 {
     int n_species = this->species.shape(0);
-    if ( this->compression == "m1n1" ){
+    if ( this->compression == "mu1nu1" ){
         return (n_species*this->nmax*this->nmax) * (this->lmax+1);
-    } else if ( this->compression == "agnostic" ){
+    } else if ( this->compression == "mu2" ){
         return (this->nmax * (this->nmax+1) * (this->lmax+1) / 2);
     } else if ( this->compression == "crossover" ){
         return n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
@@ -294,9 +294,9 @@ void SOAPPolynomial::create(
 int SOAPPolynomial::get_number_of_features() const
 {
     int n_species = this->species.shape(0);
-    if ( this->compression == "m1n1" ){
+    if ( this->compression == "mu1nu1" ){
         return (n_species*this->nmax*this->nmax) * (this->lmax+1);
-    } else if ( this->compression == "agnostic" ){
+    } else if ( this->compression == "mu2" ){
         return (this->nmax * (this->nmax+1) * (this->lmax+1) / 2);
     } else if ( this->compression == "crossover" ){
         return n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;

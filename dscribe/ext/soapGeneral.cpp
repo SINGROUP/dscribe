@@ -1886,9 +1886,9 @@ void soapGeneral(
     int Hs = HposArr.shape(0);
     int nFeatures = 0;
     bool crossover = true;
-    if ( compression == "m1n1" ){
+    if ( compression == "mu1nu1" ){
         nFeatures = Nt*(lMax+1)*(nMax*nMax);
-    } else if( compression == "agnostic" ){
+    } else if( compression == "mu2" ){
         Nt = 1;
         nFeatures = nMax*(nMax+1)*(lMax+1)/2;
     } else if ( compression == "crossover" ){
@@ -1933,7 +1933,7 @@ void soapGeneral(
         memset(CsAve, 0.0, nCoeffs*sizeof(double));
     }
     double* CsCompressed;
-    if (compression == "m1n1") {
+    if (compression == "mu1nu1") {
         if (average == "inner"){
             nCompressionCoeffs = 2*(lMax+1)*(lMax+1)*nMax;
             CsCompressed = (double*) malloc(nCompressionCoeffs*sizeof(double));
@@ -1961,10 +1961,10 @@ void soapGeneral(
         double iz = Hpos[3*i+2];
         CellListResult result = cellList.getNeighboursForPosition(ix, iy, iz);
 
-        // Sort the neighbours by type, unless using agnostic compression, in
+        // Sort the neighbours by type, unless using mu2 compression, in
         // which case we essentially assume all neighbors are same type (except
         // for weighting purposes).
-        if (compression != "agnostic"){
+        if (compression != "mu2"){
             map<int, vector<int>> atomicTypeMap;
             for (const int &idx : result.indices) {
                 int Z = atomicNumbers(idx);
@@ -2052,7 +2052,7 @@ void soapGeneral(
         for (int j = 0; j < nCoeffs; j++) {
             CsAve[j] = CsAve[j] / (double)Hs;
         }
-        if (compression == "m1n1"){
+        if (compression == "mu1nu1"){
             for (int j = 0; j < Nt; j++) {
                 for (int k = 0; k < nMax; k++){
                     for (int l = 0; l < 2 * (lMax + 1) * (lMax + 1); l++){
@@ -2078,7 +2078,7 @@ void soapGeneral(
         py::array_t<double> PsTempArrChecked({Hs, nFeatures}, PsTemp);
         auto PsTempArr = PsTempArrChecked.mutable_unchecked<2>();
 
-        if (compression == "m1n1"){
+        if (compression == "mu1nu1"){
             for (int i = 0; i < Hs; i++) {
                 for (int j = 0; j < Nt; j++) {
                     for (int k = 0; k < nMax; k++){
@@ -2110,7 +2110,7 @@ void soapGeneral(
         free(PsTemp);
     // Regular power spectrum without averaging
     } else {
-        if (compression == "m1n1"){
+        if (compression == "mu1nu1"){
             for (int i = 0; i < Hs; i++) {
                 for (int j = 0; j < Nt; j++) {
                     for (int k = 0; k < nMax; k++){

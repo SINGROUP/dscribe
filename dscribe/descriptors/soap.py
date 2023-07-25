@@ -146,13 +146,13 @@ class SOAP(DescriptorLocal):
 
                     * ```"mode"```: Specifies the type of compression. This can be one of:
                         * ``"off"``: No compression; default.
-                        * ``"agnostic"``: The SOAP feature vector is generated in an element-agnostic way, so that
+                        * ``"mu2"``: The SOAP feature vector is generated in an element-agnostic way, so that
                             the size of the feature vector is now independent of the number of elements (see Darby et al
                             below for details). It is still possible when using this option to construct a feature
                             vector that distinguishes between elements by supplying element-specific weighting under
                             "species_weighting", see below.
-                        * ``"m1n1"``: Implements the mu=1, nu=1 feature compression scheme from Darby et al.: :math:`p_{inn'l}^{Z_1,Z_2} \sum_m (c_{nlm}^{i, Z_1})^{*} (\sum_z c_{n'lm}^{i, z})`.
-                            In other words, each coefficient for each species is multiplied by a "species-agnostic" sum over the corresponding set of coefficients for all other species.
+                        * ``"mu1nu1"``: Implements the mu=1, nu=1 feature compression scheme from Darby et al.: :math:`p_{inn'l}^{Z_1,Z_2} \sum_m (c_{nlm}^{i, Z_1})^{*} (\sum_z c_{n'lm}^{i, z})`.
+                            In other words, each coefficient for each species is multiplied by a "species-mu2" sum over the corresponding set of coefficients for all other species.
                             If this option is selected, features are generated for each center, but the number of features (the size of each feature vector) scales linearly rather than
                             quadratically with the number of elements in the system.
                         * ``"crossover"``: The power spectrum does not contain cross-species information
@@ -162,7 +162,7 @@ class SOAP(DescriptorLocal):
                         species-specific weight. If None, there is no species-specific weighting. If a dictionary,
                         must contain a matching key for each species in the ``species`` iterable.
                         The main use of species weighting is to weight each element differently when using
-                        the "agnostic" option for ``compression``.
+                        the "mu2" option for ``compression``.
 
                     For reference see:
                         "Darby, J.P., Kermode, J.R. & Csányi, G.
@@ -230,7 +230,7 @@ class SOAP(DescriptorLocal):
                 "one of the following: {}".format(average, supported_average)
             )
 
-        supported_compression = set(("off", "agnostic", "m1n1", "crossover"))
+        supported_compression = set(("off", "mu2", "mu1nu1", "crossover"))
         if compression["mode"] not in supported_compression:
             raise ValueError(
                 "Invalid compression mode '{}' given. Please use "
@@ -620,7 +620,7 @@ class SOAP(DescriptorLocal):
                 )
             if self.compression not in ["off", "crossover"]:
                 raise ValueError(
-                    "Analytical derivatives not currently available for m1n1, agnostic compression."
+                    "Analytical derivatives not currently available for mu1nu1, mu2 compression."
                 )
             if self.periodic:
                 raise ValueError(
@@ -914,9 +914,9 @@ class SOAP(DescriptorLocal):
             int: Number of features for this descriptor.
         """
         n_elem = len(self._atomic_numbers)
-        if self.compression == "agnostic":
+        if self.compression == "mu2":
             return int((self._n_max) * (self._n_max + 1) * (self._l_max + 1) / 2)
-        elif self.compression == "m1n1":
+        elif self.compression == "mu1nu1":
             return int(self._n_max**2 * n_elem * (self._l_max + 1))
 
         elif self.compression == "crossover":
@@ -982,11 +982,11 @@ class SOAP(DescriptorLocal):
 
             start = int(m_symm * n_elem_feat_symm + m_unsymm * n_elem_feat_unsymm)
             end = int(start + n_elem_feat)
-        elif self.compression == "agnostic":
-            n_elem_feat_symm = self._n_max * (self._n_max + 1) / 2 * (self._l_max + 1)
+        elif self.compression == "mu2":
+            n_elem_feat_symm = self._n_max * (self._n_max + 1) * (self._l_max + 1) / 2
             start = 0
             end = int(0 + n_elem_feat_symm)
-        elif self.compression in ["m1n1", "crossover"]:
+        elif self.compression in ["mu1nu1", "crossover"]:
             n_elem_feat_symm = self._n_max**2 * (self._l_max + 1)
             if self.compression == "crossover":
                 n_elem_feat_symm = (

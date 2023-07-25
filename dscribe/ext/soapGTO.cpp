@@ -2477,9 +2477,9 @@ void soapGTO(
   auto positions_u = positions.unchecked<2>(); 
   int nFeatures = 0;
   bool crossover = true;
-  if ( compression == "m1n1" ){
+  if ( compression == "mu1nu1" ){
     nFeatures = nSpecies*(lMax+1)*(nMax*nMax);
-  } else if ( compression == "agnostic" ){
+  } else if ( compression == "mu2" ){
       nSpecies = 1;
       nFeatures = nMax * (nMax+1) * (lMax+1) / 2;
   } else if ( compression == "crossover" ){
@@ -2536,7 +2536,7 @@ void soapGTO(
   //species without summing over m if feature compression was requested.
   double* cnnd_compressed_raw;
   py::array_t<double> cnnd_compressed;
-  if (compression == "m1n1") {
+  if (compression == "mu1nu1") {
       if (average == "inner"){
         cnnd_compressed_raw = new double[nMax*(lMax+1)*(lMax+1)]();
         cnnd_compressed = py::array_t<double>({1, nMax, (lMax + 1) * (lMax + 1)}, cnnd_compressed_raw);
@@ -2577,9 +2577,9 @@ void soapGTO(
     double ix = centers_u(i, 0); double iy = centers_u(i, 1); double iz = centers_u(i, 2);
     CellListResult result = cell_list_atoms.getNeighboursForPosition(ix, iy, iz);
 
-    // Sort the neighbours by type, UNLESS using the agnostic compression scheme,
+    // Sort the neighbours by type, UNLESS using the mu2 compression scheme,
     // in which case we basically treat all neighbors as same type.
-    if (compression != "agnostic"){
+    if (compression != "mu2"){
         map<int, vector<int>> atomicTypeMap;
         for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
         // Loop through neighbours sorted by type
@@ -2607,7 +2607,7 @@ void soapGTO(
             getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18,r20, x20,y20,z20, totalAN, lMax, return_derivatives);
             getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, centerAtomI, j, ZIndexPair.second, attach, return_derivatives);
         }
-    // If using agnostic compression, treat all neighbors as being same element,
+    // If using mu2 compression, treat all neighbors as being same element,
     // except for user-specified element-specific weighting.
     } else {
         int n_neighbours = result.indices.size();
@@ -2671,7 +2671,7 @@ void soapGTO(
                 }
             }
         }
-        if (compression == "m1n1"){
+        if (compression == "mu1nu1"){
             auto cnnd_compressed_mu = cnnd_compressed.mutable_unchecked<3>();
             for (int j = 0; j < nSpecies; j++) {
                 for (int k = 0; k < nMax; k++) {
@@ -2696,7 +2696,7 @@ void soapGTO(
         py::array_t<double> ps_temp({nCenters, nFeatures}, ps_temp_raw);
         auto ps_temp_mu = ps_temp.mutable_unchecked<2>();
         
-        if (compression == "m1n1"){
+        if (compression == "mu1nu1"){
             auto cnnd_compressed_mu = cnnd_compressed.mutable_unchecked<3>();
             for (int i = 0; i < nCenters; i++) {
                 for (int j = 0; j < nSpecies; j++) {
@@ -2723,7 +2723,7 @@ void soapGTO(
         delete [] ps_temp_raw;
     // Regular power spectrum without averaging
     } else {
-        if (compression == "m1n1"){
+        if (compression == "mu1nu1"){
             auto cnnd_compressed_mu = cnnd_compressed.mutable_unchecked<3>();
             for (int i = 0; i < nCenters; i++) {
                 for (int j = 0; j < nSpecies; j++) {
@@ -2743,9 +2743,9 @@ void soapGTO(
   }
 
   // Calculate the derivatives. Note that this should not be attempted usnig the
-  // function call below if m1n1 compression has been selected, in which
+  // function call below if mu1nu1 compression has been selected, in which
   // case this will not return a correct result. Currently the Python wrapper
-  // does not in any case permit analytical derivative calculation if m1n1 compression
+  // does not in any case permit analytical derivative calculation if mu1nu1 compression
   // is used.
   if (return_derivatives) {
     getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
