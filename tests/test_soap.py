@@ -252,7 +252,7 @@ def load_polynomial_coefficients(args):
             5,
             "off",
             int((5 + 1) * (5 * 2) * (5 * 2 + 1) / 2),
-            {"mode":"off"},
+            {"mode": "off"},
         ),
         (
             ["H", "O"],
@@ -266,9 +266,7 @@ def load_polynomial_coefficients(args):
         (["H", "O"], 5, 5, "off", int(5 * (5 + 1) * (5 + 1) / 2), {"mode": "agnostic"}),
     ],
 )
-def test_number_of_features(
-    species, n_max, l_max, average, n_features, compression
-):
+def test_number_of_features(species, n_max, l_max, average, n_features, compression):
     desc = soap(
         species=species,
         r_cut=3,
@@ -340,8 +338,8 @@ def test_basis(rbf):
 @pytest.mark.parametrize("attach", (False, True))
 @pytest.mark.parametrize("average", ("off", "inner", "outer"))
 @pytest.mark.parametrize(
-    "compression", ({"mode": "off"}, {"mode": "m1n1"}, {"mode": "agnostic"},
-        {"mode":"crossover"})
+    "compression",
+    ({"mode": "off"}, {"mode": "m1n1"}, {"mode": "agnostic"}, {"mode": "crossover"}),
 )
 def test_derivatives_numerical(pbc, attach, average, rbf, compression):
     descriptor_func = soap(
@@ -454,7 +452,7 @@ def test_exceptions():
         "n_max": 5,
         "l_max": 5,
         "species": ["H", "O"],
-        "compression":{"mode":"off"}
+        "compression": {"mode": "off"},
     }
     with pytest.raises(ValueError):
         args["weighting"] = {"function": "poly", "c": -1, "r0": 1}
@@ -623,7 +621,7 @@ def test_m1n1_compression(rbf):
     """
     system, centers, args = globals()[f"get_soap_{rbf}_l_max_setup"]()
     # Calculate the analytical power spectrum
-    args["compression"] = {"mode":"m1n1"} 
+    args["compression"] = {"mode": "m1n1"}
     soap = SOAP(**args, rbf=rbf, average="off")
     analytical_inner = soap.create(system, centers=centers)
 

@@ -39,7 +39,7 @@ def get_soap_default_setup():
         "r_cut": 2.0,
         "sigma": 0.55,
         "species": ["H", "C"],
-        "compression":{"mode":"off"},
+        "compression": {"mode": "off"},
     }
     return [system, centers, soap_arguments]
 
@@ -77,7 +77,7 @@ def get_soap_gto_l_max_setup():
         "r_cut": 2.0,
         "sigma": 0.1,
         "species": ["H"],
-        "compression":{"mode":"crossover"}
+        "compression": {"mode": "crossover"},
     }
     return (system, centers, soap_arguments)
 
@@ -115,7 +115,7 @@ def get_soap_polynomial_l_max_setup():
         "r_cut": 2.0,
         "sigma": 0.1,
         "species": ["H"],
-        "compression": {"mode":"crossover"},
+        "compression": {"mode": "crossover"},
     }
     return (system, centers, soap_arguments)
 
