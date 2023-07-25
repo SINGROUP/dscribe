@@ -16,7 +16,7 @@ def test_difference():
         l_max=2,
         sigma=0.2,
         periodic=False,
-        crossover=True,
+        compression={"mode":"off"},
         sparse=False,
     )
 
@@ -54,7 +54,7 @@ def test_metrics():
         l_max=2,
         sigma=0.2,
         periodic=False,
-        crossover=True,
+        compression={"mode":"off"},
         sparse=False,
     )
     a = molecule("H2O")
@@ -86,7 +86,7 @@ def test_xy():
         l_max=2,
         sigma=0.2,
         periodic=False,
-        crossover=True,
+        compression={"mode":"off"},
         sparse=False,
     )
     a = molecule("H2O")
@@ -114,7 +114,7 @@ def test_sparse():
         l_max=2,
         sigma=0.2,
         periodic=False,
-        crossover=True,
+        compression={"mode":"off"},
         sparse=True,
     )
     a = molecule("H2O")
@@ -133,7 +133,7 @@ def test_difference():
         l_max=2,
         sigma=0.2,
         periodic=False,
-        crossover=True,
+        compression={"mode":"off"},
         sparse=False,
     )
 
@@ -173,7 +173,7 @@ def test_convergence_infinity():
         l_max=2,
         sigma=0.2,
         periodic=False,
-        crossover=True,
+        compression={"mode":"off"},
         sparse=False,
     )
     a = molecule("H2O")
@@ -203,7 +203,7 @@ def test_metrics():
         l_max=2,
         sigma=0.2,
         periodic=False,
-        crossover=True,
+        compression={"mode":"off"},
         sparse=False,
     )
     a = molecule("H2O")
@@ -235,7 +235,7 @@ def test_xy():
         l_max=2,
         sigma=0.2,
         periodic=False,
-        crossover=True,
+        compression={"mode":"off"},
         sparse=False,
     )
     a = molecule("H2O")
@@ -263,7 +263,7 @@ def test_sparse():
         l_max=2,
         sigma=0.2,
         periodic=False,
-        crossover=True,
+        compression={"mode":"off"},
         sparse=True,
     )
     a = molecule("H2O")

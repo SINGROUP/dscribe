@@ -2450,7 +2450,6 @@ void soapGTO(
     const int lMax,
     const double eta,
     py::dict weighting,
-    const bool crossover,
     string average,
     string compression,
     py::array_t<int> indices,
@@ -2477,18 +2476,17 @@ void soapGTO(
   auto center_indices_u = center_indices.unchecked<1>(); 
   auto positions_u = positions.unchecked<2>(); 
   int nFeatures = 0;
-  //Note that crossover is ignored if "m1n1_compression"
-  //is selected since this option uses a different definition
-  //of crossover.
+  bool crossover = true;
   if ( compression == "m1n1" ){
     nFeatures = nSpecies*(lMax+1)*(nMax*nMax);
   } else if ( compression == "agnostic" ){
       nSpecies = 1;
       nFeatures = nMax * (nMax+1) * (lMax+1) / 2;
-  } else if (crossover){
-    nFeatures = (nSpecies*nMax)*(nSpecies*nMax+1)/2*(lMax+1);
-  } else{
+  } else if ( compression == "crossover" ){
     nFeatures = nSpecies*(lMax+1)*((nMax+1)*nMax)/2;
+    crossover = false;
+  } else{
+    nFeatures = (nSpecies*nMax)*(nSpecies*nMax+1)/2*(lMax+1);
   }
   double* weights = (double*) malloc(sizeof(double)*totalAN);
   double* dx  = (double*)malloc(sizeof(double)*totalAN); double* dy  = (double*)malloc(sizeof(double)*totalAN); double* dz  = (double*)malloc(sizeof(double)*totalAN);

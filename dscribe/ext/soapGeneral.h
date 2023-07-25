@@ -58,7 +58,6 @@ void soapGeneral(
     py::dict weighting,
     py::array_t<double> rwArr,
     py::array_t<double> gssArr,
-    bool crossover,
     string average,
     string compression,
     CellList cellList

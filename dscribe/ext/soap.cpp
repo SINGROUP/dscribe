@@ -25,7 +25,6 @@ SOAPGTO::SOAPGTO(
     int lmax,
     double eta,
     py::dict weighting,
-    bool crossover,
     string average,
     double cutoff_padding,
     py::array_t<double> alphas,
@@ -41,7 +40,6 @@ SOAPGTO::SOAPGTO(
     , lmax(lmax)
     , eta(eta)
     , weighting(weighting)
-    , crossover(crossover)
     , cutoff_padding(cutoff_padding)
     , alphas(alphas)
     , betas(betas)
@@ -119,7 +117,6 @@ void SOAPGTO::create(
         this->lmax,
         this->eta,
         this->weighting,
-        this->crossover,
         this->average,
         this->compression,
         indices,
@@ -137,11 +134,10 @@ int SOAPGTO::get_number_of_features() const
         return (n_species*this->nmax*this->nmax) * (this->lmax+1);
     } else if ( this->compression == "agnostic" ){
         return (this->nmax * (this->nmax+1) * (this->lmax+1) / 2);
-    }
-    else{
-        return this->crossover
-            ? (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1) 
-            : n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
+    } else if ( this->compression == "crossover" ){
+        return n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
+    } else{
+        return (n_species*this->nmax)*(n_species*this->nmax+1)*(this->lmax+1)/2;
     }
 }
 
@@ -194,7 +190,6 @@ void SOAPGTO::derivatives_analytical(
         this->lmax,
         this->eta,
         this->weighting,
-        this->crossover,
         this->average,
         this->compression,
         indices,
@@ -211,7 +206,6 @@ SOAPPolynomial::SOAPPolynomial(
     int lmax,
     double eta,
     py::dict weighting,
-    bool crossover,
     string average,
     double cutoff_padding,
     py::array_t<double> rx,
@@ -227,7 +221,6 @@ SOAPPolynomial::SOAPPolynomial(
     , lmax(lmax)
     , eta(eta)
     , weighting(weighting)
-    , crossover(crossover)
     , cutoff_padding(cutoff_padding)
     , rx(rx)
     , gss(gss)
@@ -292,7 +285,6 @@ void SOAPPolynomial::create(
         this->weighting,
         this->rx,
         this->gss,
-        this->crossover,
         this->average,
         this->compression,
         cell_list
@@ -306,8 +298,9 @@ int SOAPPolynomial::get_number_of_features() const
         return (n_species*this->nmax*this->nmax) * (this->lmax+1);
     } else if ( this->compression == "agnostic" ){
         return (this->nmax * (this->nmax+1) * (this->lmax+1) / 2);
+    } else if ( this->compression == "crossover" ){
+        return n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
+    } else{
+        return (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1);
     }
-    return this->crossover
-        ? (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1) 
-        : n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
 }

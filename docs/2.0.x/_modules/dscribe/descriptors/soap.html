@@ -296,8 +296,8 @@
         <span class="c1"># Setup the involved chemical species</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
 
-        <span class="c1">#If species weighting is supplied, ensure it is valid and set</span>
-        <span class="c1">#it up.</span>
+        <span class="c1"># If species weighting is supplied, ensure it is valid and set</span>
+        <span class="c1"># it up.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_weights</span> <span class="o">=</span> <span class="n">species_weighting</span>
 
         <span class="c1"># Test that general settings are valid</span>
@@ -716,8 +716,8 @@
                 <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">!=</span> <span class="s2">&quot;off&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;Analytical derivatives not currently available for compressed &quot;</span>
-                        <span class="s2">&quot;output.&quot;</span>
+                    <span class="s2">&quot;Analytical derivatives not currently available for compressed &quot;</span>
+                    <span class="s2">&quot;output.&quot;</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -976,27 +976,35 @@
                 <span class="p">)</span>
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The species_weighting dictionary, &quot;</span>
-                            <span class="s2">&quot;if supplied, must contain the same keys as &quot;</span>
-                            <span class="s2">&quot;the list of accepted species.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;The species_weighting dictionary, &quot;</span>
+                    <span class="s2">&quot;if supplied, must contain the same keys as &quot;</span>
+                    <span class="s2">&quot;the list of accepted species.&quot;</span>
+                <span class="p">)</span>
             <span class="n">species_weights</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">specie</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">specie</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The species_weighting dictionary, &quot;</span>
-                            <span class="s2">&quot;if supplied, must contain the same keys as &quot;</span>
-                            <span class="s2">&quot;the list of accepted species.&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;The species_weighting dictionary, &quot;</span>
+                        <span class="s2">&quot;if supplied, must contain the same keys as &quot;</span>
+                        <span class="s2">&quot;the list of accepted species.&quot;</span>
+                    <span class="p">)</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">specie</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
                     <span class="k">if</span> <span class="n">specie</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Species weighting </span><span class="si">{}</span><span class="s2"> contained a zero or negative &quot;</span>
-                                <span class="s2">&quot;atomic number.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
-                    <span class="n">species_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="n">specie</span><span class="p">)</span> <span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s2">&quot;Species weighting </span><span class="si">{}</span><span class="s2"> contained a zero or negative &quot;</span>
+                            <span class="s2">&quot;atomic number.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="n">species_weights</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">value</span><span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="n">specie</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">species_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="n">ase</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">specie</span><span class="p">))</span> <span class="p">)</span>
+                    <span class="n">species_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="n">ase</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">specie</span><span class="p">))</span>
+                    <span class="p">)</span>
 
-            <span class="n">species_weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">species_weights</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+            <span class="n">species_weights</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">species_weights</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_species_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">species_weights</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-
-
 
 <div class="viewcode-block" id="SOAP.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>

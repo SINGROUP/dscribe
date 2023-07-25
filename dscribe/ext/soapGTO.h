@@ -54,7 +54,6 @@ void soapGTO(
     const int lMax,
     const double eta,
     py::dict weighting,
-    const bool crossover,
     string average,
     string compression,
     py::array_t<int> indices,

@@ -12,7 +12,7 @@ b = molecule("H2O2")
 
 # First we will have to create the features for atomic environments. Lets
 # use SOAP.
-desc = SOAP(species=[1, 6, 7, 8], r_cut=5.0, n_max=2, l_max=2, sigma=0.2, periodic=False, crossover=True, sparse=False)
+desc = SOAP(species=[1, 6, 7, 8], r_cut=5.0, n_max=2, l_max=2, sigma=0.2, periodic=False, compression={"mode":"off"}, sparse=False)
 a_features = desc.create(a)
 b_features = desc.create(b)
 

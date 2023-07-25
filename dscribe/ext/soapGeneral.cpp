@@ -1877,7 +1877,6 @@ void soapGeneral(
     py::dict weighting,
     py::array_t<double> rwArr,
     py::array_t<double> gssArr,
-    bool crossover,
     string average,
     string compression,
     CellList cellList)
@@ -1886,18 +1885,17 @@ void soapGeneral(
     int Nt = orderedSpeciesArr.shape(0);
     int Hs = HposArr.shape(0);
     int nFeatures = 0;
-    //Note that crossover is ignored if "m1n1" compression
-    //is selected since this option uses a different definition
-    //of crossover.
+    bool crossover = true;
     if ( compression == "m1n1" ){
         nFeatures = Nt*(lMax+1)*(nMax*nMax);
     } else if( compression == "agnostic" ){
         Nt = 1;
         nFeatures = nMax*(nMax+1)*(lMax+1)/2;
-    } else if (crossover){
-        nFeatures = (Nt*nMax)*(Nt*nMax+1)*(lMax+1)/2;
-    } else{
+    } else if ( compression == "crossover" ){
+        crossover = false;
         nFeatures = Nt*(lMax+1)*((nMax+1)*nMax)/2;
+    } else{
+        nFeatures = (Nt*nMax)*(Nt*nMax+1)*(lMax+1)/2;
     }
     auto atomicNumbers = atomicNumbersArr.unchecked<1>();
     auto species = orderedSpeciesArr.unchecked<1>();
