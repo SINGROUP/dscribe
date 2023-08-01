@@ -20,9 +20,9 @@ limitations under the License.
 using namespace std;
 
 SOAPGTO::SOAPGTO(
-    double rcut,
-    int nmax,
-    int lmax,
+    double r_cut,
+    int n_max,
+    int l_max,
     double eta,
     py::dict weighting,
     string average,
@@ -34,10 +34,10 @@ SOAPGTO::SOAPGTO(
     bool periodic,
     string compression
 )
-    : Descriptor(periodic, average, rcut+cutoff_padding)
-    , rcut(rcut)
-    , nmax(nmax)
-    , lmax(lmax)
+    : Descriptor(periodic, average, r_cut+cutoff_padding)
+    , r_cut(r_cut)
+    , n_max(n_max)
+    , l_max(l_max)
     , eta(eta)
     , weighting(weighting)
     , cutoff_padding(cutoff_padding)
@@ -111,10 +111,10 @@ void SOAPGTO::create(
         atomic_numbers,
         this->species,
         this->species_weights,
-        this->rcut,
+        this->r_cut,
         this->cutoff_padding,
-        this->nmax,
-        this->lmax,
+        this->n_max,
+        this->l_max,
         this->eta,
         this->weighting,
         this->average,
@@ -131,13 +131,13 @@ int SOAPGTO::get_number_of_features() const
 {
     int n_species = this->species.shape(0);
     if ( this->compression == "mu1nu1" ){
-        return (n_species*this->nmax*this->nmax) * (this->lmax+1);
+        return (n_species*this->n_max*this->n_max) * (this->l_max+1);
     } else if ( this->compression == "mu2" ){
-        return (this->nmax * (this->nmax+1) * (this->lmax+1) / 2);
+        return (this->n_max * (this->n_max+1) * (this->l_max+1) / 2);
     } else if ( this->compression == "crossover" ){
-        return n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
+        return n_species*(this->l_max+1)*((this->n_max+1)*this->n_max)/2;
     } else{
-        return (n_species*this->nmax)*(n_species*this->nmax+1)*(this->lmax+1)/2;
+        return (n_species*this->n_max)*(n_species*this->n_max+1)*(this->l_max+1)/2;
     }
 }
 
@@ -184,10 +184,10 @@ void SOAPGTO::derivatives_analytical(
         atomic_numbers,
         this->species,
         this->species_weights,
-        this->rcut,
+        this->r_cut,
         this->cutoff_padding,
-        this->nmax,
-        this->lmax,
+        this->n_max,
+        this->l_max,
         this->eta,
         this->weighting,
         this->average,
@@ -201,9 +201,9 @@ void SOAPGTO::derivatives_analytical(
 }
 
 SOAPPolynomial::SOAPPolynomial(
-    double rcut,
-    int nmax,
-    int lmax,
+    double r_cut,
+    int n_max,
+    int l_max,
     double eta,
     py::dict weighting,
     string average,
@@ -215,10 +215,10 @@ SOAPPolynomial::SOAPPolynomial(
     bool periodic,
     string compression
 )
-    : Descriptor(periodic, average, rcut+cutoff_padding)
-    , rcut(rcut)
-    , nmax(nmax)
-    , lmax(lmax)
+    : Descriptor(periodic, average, r_cut+cutoff_padding)
+    , r_cut(r_cut)
+    , n_max(n_max)
+    , l_max(l_max)
     , eta(eta)
     , weighting(weighting)
     , cutoff_padding(cutoff_padding)
@@ -277,10 +277,10 @@ void SOAPPolynomial::create(
         atomic_numbers,
         this->species,
         this->species_weights,
-        this->rcut,
+        this->r_cut,
         this->cutoff_padding,
-        this->nmax,
-        this->lmax,
+        this->n_max,
+        this->l_max,
         this->eta,
         this->weighting,
         this->rx,
@@ -295,12 +295,12 @@ int SOAPPolynomial::get_number_of_features() const
 {
     int n_species = this->species.shape(0);
     if ( this->compression == "mu1nu1" ){
-        return (n_species*this->nmax*this->nmax) * (this->lmax+1);
+        return (n_species*this->n_max*this->n_max) * (this->l_max+1);
     } else if ( this->compression == "mu2" ){
-        return (this->nmax * (this->nmax+1) * (this->lmax+1) / 2);
+        return (this->n_max * (this->n_max+1) * (this->l_max+1) / 2);
     } else if ( this->compression == "crossover" ){
-        return n_species*(this->lmax+1)*((this->nmax+1)*this->nmax)/2;
+        return n_species*(this->l_max+1)*((this->n_max+1)*this->n_max)/2;
     } else{
-        return (n_species*this->nmax)*(n_species*this->nmax+1)/2*(this->lmax+1);
+        return (n_species*this->n_max)*(n_species*this->n_max+1)/2*(this->l_max+1);
     }
 }
