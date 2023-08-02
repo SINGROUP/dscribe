@@ -452,7 +452,7 @@ def test_exceptions():
             "n_max": 5,
             "l_max": 5,
             "species": ["H", "O"],
-            "compression":{"mode":"off"},
+            "compression": {"mode": "off"},
         }
 
     # Invalid weighting
@@ -558,6 +558,7 @@ def test_exceptions():
         str(excinfo.value)
         == "Analytical derivatives currently not available when weighting is used."
     )
+
 
 w_poly = {"function": "poly", "c": 2, "m": 3, "r0": 4}
 w_pow = {"function": "pow", "threshold": 1e-3, "c": 1, "d": 1, "m": 1, "r0": 1}
