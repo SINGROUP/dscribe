@@ -539,12 +539,12 @@ class SOAP(DescriptorLocal):
                 self._weighting,
                 self.average,
                 cutoff_padding,
-                alphas,
-                betas,
                 self._atomic_numbers,
                 self.species_weights,
                 self.periodic,
                 self.compression,
+                alphas,
+                betas,
             )
 
             # Calculate analytically with extension
@@ -571,12 +571,12 @@ class SOAP(DescriptorLocal):
                 self._weighting,
                 self.average,
                 cutoff_padding,
-                rx,
-                gss,
                 self._atomic_numbers,
                 self.species_weights,
                 self.periodic,
                 self.compression,
+                rx,
+                gss,
             )
             soap_poly.create(
                 soap_mat,

@@ -90,19 +90,26 @@ class DescriptorLocal : public Descriptor {
         * @param atomic_numbers Atomic numbers as [n_atoms] numpy array.
         * @param cell Simulation cell as [3, 3] numpy array.
         * @param pbc Simulation cell periodicity as [3] numpy array.
+        * @param centers The positions at which the descriptor is evaluated at.
+        * @param center_indices Indices of the atoms to which the positions correspond to.
         * @param indices Indices of the atoms for which derivatives are calculated for.
+        * @param attach Determines whether centers which correspond to atomic
+        *   indices move together with the atoms during calculation.
         * @param return_descriptor Determines whether descriptors are calculated or not.
         */
         void derivatives_numerical(
-            py::array_t<double> out_d,
-            py::array_t<double> out,
+            py::array_t<double> derivatives, 
+            py::array_t<double> descriptor, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
             py::array_t<double> cell,
             py::array_t<bool> pbc,
+            py::array_t<double> centers,
+            py::array_t<int> center_indices,
             py::array_t<int> indices,
+            bool attach,
             bool return_descriptor
-        );
+        ) const;
 
     protected:
         DescriptorLocal(bool periodic, string average="", double cutoff=0);

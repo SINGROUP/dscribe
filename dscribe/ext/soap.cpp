@@ -32,7 +32,7 @@ SOAPGTO::SOAPGTO(
     bool periodic,
     string compression,
     py::array_t<double> alphas,
-    py::array_t<double> betas,
+    py::array_t<double> betas
 )
     : DescriptorLocal(periodic, average, r_cut+cutoff_padding)
     , r_cut(r_cut)

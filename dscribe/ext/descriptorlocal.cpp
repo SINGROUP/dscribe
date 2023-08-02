@@ -23,7 +23,7 @@ limitations under the License.
 using namespace std;
 
 DescriptorLocal::DescriptorLocal(bool periodic, string average, double cutoff)
-    : Descriptor(periodic, average, r_cut+cutoff_padding)
+    : Descriptor(periodic, average, cutoff)
 {
 }
 

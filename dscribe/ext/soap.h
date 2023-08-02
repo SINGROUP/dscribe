@@ -37,12 +37,12 @@ class SOAPGTO: public DescriptorLocal {
             py::dict weighting,
             string average,
             double cutoff_padding,
-            py::array_t<double> alphas,
-            py::array_t<double> betas,
             py::array_t<int> species,
             py::array_t<double> species_weights,
             bool periodic,
-            string compression
+            string compression,
+            py::array_t<double> alphas,
+            py::array_t<double> betas
         );
 
         void create(
@@ -99,12 +99,12 @@ class SOAPPolynomial: public DescriptorLocal {
             py::dict weighting,
             string average,
             double cutoff_padding,
-            py::array_t<double> rx,
-            py::array_t<double> gss,
             py::array_t<int> species,
             py::array_t<double> species_weights,
             bool periodic,
-            string compression
+            string compression,
+            py::array_t<double> rx,
+            py::array_t<double> gss
         );
 
         void create(
