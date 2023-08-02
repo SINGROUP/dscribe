@@ -687,12 +687,12 @@ class SOAP(DescriptorLocal):
                 self._weighting,
                 self.average,
                 cutoff_padding,
-                alphas,
-                betas,
                 self._atomic_numbers,
                 self.species_weights,
                 self.periodic,
                 self.compression,
+                alphas,
+                betas,
             )
             # Calculate numerically with extension
             soap_gto.derivatives_numerical(
@@ -721,12 +721,12 @@ class SOAP(DescriptorLocal):
                 self._weighting,
                 self.average,
                 cutoff_padding,
-                rx,
-                gss,
                 self._atomic_numbers,
                 self.species_weights,
                 self.periodic,
                 self.compression,
+                rx,
+                gss,
             )
             soap_poly.derivatives_numerical(
                 d,
@@ -791,12 +791,12 @@ class SOAP(DescriptorLocal):
             self._weighting,
             self.average,
             cutoff_padding,
-            alphas,
-            betas,
             self._atomic_numbers,
             self.species_weights,
             self.periodic,
             self.compression,
+            alphas,
+            betas,
         )
 
         # These arrays are only used internally by the C++ code.
