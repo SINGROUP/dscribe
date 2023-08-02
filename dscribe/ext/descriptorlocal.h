@@ -109,7 +109,7 @@ class DescriptorLocal : public Descriptor {
             py::array_t<int> indices,
             bool attach,
             bool return_descriptor
-        ) const;
+        );
 
     protected:
         DescriptorLocal(bool periodic, string average="", double cutoff=0);
