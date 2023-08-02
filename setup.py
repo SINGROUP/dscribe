@@ -55,17 +55,18 @@ extensions = [
         'dscribe.ext',
         [
             "dscribe/ext/ext.cpp",
+            "dscribe/ext/geometry.cpp",
             "dscribe/ext/celllist.cpp",
-            "dscribe/ext/descriptorglobal.cpp",
+            "dscribe/ext/weighting.cpp",
             "dscribe/ext/descriptor.cpp",
-            "dscribe/ext/cm.cpp",
+            "dscribe/ext/descriptorlocal.cpp",
+            "dscribe/ext/descriptorglobal.cpp",
+            "dscribe/ext/coulombmatrix.cpp",
             "dscribe/ext/soap.cpp",
             "dscribe/ext/soapGTO.cpp",
             "dscribe/ext/soapGeneral.cpp",
             "dscribe/ext/acsf.cpp",
             "dscribe/ext/mbtr.cpp",
-            "dscribe/ext/geometry.cpp",
-            "dscribe/ext/weighting.cpp",
         ],
         include_dirs=[
             # Path to Eigen headers
