@@ -16,16 +16,13 @@ limitations under the License.
 #include <set>
 #include <unordered_map>
 #include <cmath>
-#include <iostream>
 #include "descriptorglobal.h"
 #include "geometry.h"
 
 using namespace std;
 
 DescriptorGlobal::DescriptorGlobal(bool periodic, string average, double cutoff)
-    : periodic(periodic)
-    , average(average)
-    , cutoff(cutoff)
+    : Descriptor(periodic, average, cutoff)
 {
 }
 

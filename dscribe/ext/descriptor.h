@@ -29,47 +29,9 @@ using namespace std;
 class Descriptor {
     public:
         /**
-         * No precalculated CellList.
-         */
-        virtual void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> centers
-        ) const = 0; 
-
-        /**
-         * With precalculated CellList.
-         */
-        virtual void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> centers,
-            CellList cellList
-        ) const = 0; 
-
-        /**
          * Pure virtual function for getting the number of features.
          */
         virtual int get_number_of_features() const = 0; 
-
-        /**
-         * Derivatives for local descriptors.
-         */
-        void derivatives_numerical(
-            py::array_t<double> out_d,
-            py::array_t<double> out,
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> cell,
-            py::array_t<bool> pbc,
-            py::array_t<double> center_pos,
-            py::array_t<int> center_indices,
-            py::array_t<int> indices,
-            bool attach,
-            bool return_descriptor
-        ) const;
 
     protected:
         Descriptor(bool periodic, string average="", double cutoff=0);

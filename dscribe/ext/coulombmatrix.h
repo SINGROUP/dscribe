@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef CM_H
-#define CM_H
+#ifndef COULOMBMATRIX_H
+#define COULOMBMATRIX_H
 
 #include <string>
 #include <random>

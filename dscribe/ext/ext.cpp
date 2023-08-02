@@ -17,7 +17,7 @@ limitations under the License.
 #include <pybind11/numpy.h>  // Enables easy access to numpy arrays
 #include <pybind11/stl.h>    // Enables automatic type conversion from C++ containers to python
 #include "celllist.h"
-#include "cm.h"
+#include "coulombmatrix.h"
 #include "soap.h"
 #include "acsf.h"
 #include "mbtr.h"
