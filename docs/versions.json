@@ -11,6 +11,11 @@
             "url": "https://singroup.github.io/dscribe/latest"
         },
         {
+            "versionNumber": "2.1.x",
+            "description": "",
+            "url": "https://singroup.github.io/dscribe/2.1.x"
+        },
+        {
             "versionNumber": "2.0.x",
             "description": "",
             "url": "https://singroup.github.io/dscribe/2.0.x"
