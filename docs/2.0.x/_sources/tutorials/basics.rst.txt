@@ -20,7 +20,7 @@ various purposes, e.g.
 You can find more details in our open-access articles:
 
   * `DScribe: Library of descriptors for machine learning in materials science <https://doi.org/10.1016/j.cpc.2019.106949>`_
-  * `Updates to the DScribe Library: New Descriptors and Derivatives <https://doi.org/10.48550/arXiv.2303.14046>`_
+  * `Updates to the DScribe library: New descriptors and derivatives <https://doi.org/10.48550/arXiv.2303.14046>`_
 
 Terminology
 -----------

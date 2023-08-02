@@ -455,6 +455,7 @@ def test_exceptions():
             "compression":{"mode":"off"},
         }
 
+    # Invalid weighting
     with pytest.raises(ValueError):
         setup = get_setup()
         setup["weighting"] = {"function": "poly", "c": -1, "r0": 1}
@@ -494,20 +495,6 @@ def test_exceptions():
     with pytest.raises(ValueError):
         setup = get_setup()
         setup["weighting"] = {"function": "invalid", "c": 1, "d": 1, "r0": 1}
-        SOAP(**setup)
-
-    # Invalid species weighting
-    with pytest.raises(ValueError):
-        setup = get_setup()
-        setup["compression"]["species_weighting"] = {"H": 1, "O": 0.1, "X": 3.4}
-        SOAP(**setup)
-    with pytest.raises(ValueError):
-        setup = get_setup()
-        setup["compression"]["species_weighting"] = {"H": 1}
-        SOAP(**setup)
-    with pytest.raises(ValueError):
-        setup = get_setup()
-        setup["compression"]["species_weighting"] = {1: 0, 8: 2}
         SOAP(**setup)
 
     # Test that trying to get analytical derivatives with averaged output
@@ -558,6 +545,18 @@ def test_exceptions():
     assert (
         str(excinfo.value)
         == "Analytical derivatives currently not available for periodic systems."
+    )
+
+    # Test that trying to get analytical derivatives with weighting raises an
+    # exception
+    with pytest.raises(ValueError) as excinfo:
+        setup = get_setup()
+        setup["weighting"] = {"function": "poly", "r0": 3, "c": 1, "m": 1}
+        soap = SOAP(**setup)
+        soap.derivatives(system, centers=centers, method="analytical")
+    assert (
+        str(excinfo.value)
+        == "Analytical derivatives currently not available when weighting is used."
     )
 
 w_poly = {"function": "poly", "c": 2, "m": 3, "r0": 4}

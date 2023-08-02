@@ -57,10 +57,10 @@ Check the tutorials for more information.
 
 Go Deeper
 =========
-You can find more details in our open-access articles:
+You can find more details in the following articles:
 
   * `DScribe: Library of descriptors for machine learning in materials science <https://doi.org/10.1016/j.cpc.2019.106949>`_
-  * `Updates to the DScribe Library: New Descriptors and Derivatives <https://doi.org/10.48550/arXiv.2303.14046>`_
+  * `Updates to the DScribe Library: New Descriptors and Derivatives <https://doi.org/10.1063/5.0151031>`_
 
 Documentation for the source code :doc:`can be found here <doc/modules>`. The
 full source code with examples and tests can be explored at `github

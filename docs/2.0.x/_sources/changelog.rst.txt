@@ -1,5 +1,11 @@
 Changelog
 =========
+ - 2.0.1:
+    - Added:
+        - Wheel distributions for Linux, MacOS and Windows.
+    - Fixed:
+        - Issue with exception not being raised when analytical derivatives were requested for SOAP with weighting turned on. See issue `#89 <https://github.com/SINGROUP/dscribe/issues/113>`_.
+
  - 2.0.0:
     - Added:
         - Added numerical derivatives for :code:`SineMatrix`, :code:`EwaldSumMatrix`, :code:`ACSF`, :code:`MBTR`, :code:`LMBTR` and :code:`ValleOganov`.
@@ -49,7 +55,7 @@ Changelog
 
  - 1.1.0:
     - Added:
-        - Support for lmax <= 20 for the :code:`SOAP` GTO basis.
+        - Support for l_max <= 20 for the :code:`SOAP` GTO basis.
         - Support for weighting the gaussians contributing to the atomic
           density. For more details see :doc:`the updated SOAP tutorial
           <tutorials/descriptors/soap>` (and issues `#20

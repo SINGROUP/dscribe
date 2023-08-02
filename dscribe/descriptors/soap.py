@@ -626,6 +626,10 @@ class SOAP(DescriptorLocal):
                 raise ValueError(
                     "Analytical derivatives currently not available for periodic systems."
                 )
+            if self._weighting:
+                raise ValueError(
+                    "Analytical derivatives currently not available when weighting is used."
+                )
         except Exception as e:
             if method == "analytical":
                 raise e
