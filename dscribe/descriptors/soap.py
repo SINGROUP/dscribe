@@ -23,7 +23,7 @@ import ase.geometry.cell
 import ase.data
 
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
-import dscribe.ext
+import dscribe.ext as dscribe_ext
 
 
 class SOAP(DescriptorLocal):
@@ -491,7 +491,7 @@ class SOAP(DescriptorLocal):
             betas = self._betas.flatten()
 
             # Calculate with extension
-            soap_gto = dscribe.ext.SOAPGTO(
+            soap_gto = dscribe_ext.SOAPGTO(
                 self._r_cut,
                 self._n_max,
                 self._l_max,
@@ -522,7 +522,7 @@ class SOAP(DescriptorLocal):
             gss = gss.flatten()
 
             # Calculate with extension
-            soap_poly = dscribe.ext.SOAPPolynomial(
+            soap_poly = dscribe_ext.SOAPPolynomial(
                 self._r_cut,
                 self._n_max,
                 self._l_max,
@@ -633,7 +633,7 @@ class SOAP(DescriptorLocal):
         if self._rbf == "gto":
             alphas = self._alphas.flatten()
             betas = self._betas.flatten()
-            soap_gto = dscribe.ext.SOAPGTO(
+            soap_gto = dscribe_ext.SOAPGTO(
                 self._r_cut,
                 self._n_max,
                 self._l_max,
@@ -667,7 +667,7 @@ class SOAP(DescriptorLocal):
             gss = gss.flatten()
 
             # Calculate numerically with extension
-            soap_poly = dscribe.ext.SOAPPolynomial(
+            soap_poly = dscribe_ext.SOAPPolynomial(
                 self._r_cut,
                 self._n_max,
                 self._l_max,
