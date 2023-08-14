@@ -55,7 +55,7 @@ void SOAPGTO::create(
     py::array_t<int> atomic_numbers,
     py::array_t<double> centers,
     CellList cell_list
-) const
+)
 {
     // Empty mock arrays since we are not calculating the derivatives
     py::array_t<double> xd({1, 1, 1, 1, 1});
@@ -204,7 +204,7 @@ void SOAPPolynomial::create(
     py::array_t<int> atomic_numbers,
     py::array_t<double> centers,
     CellList cell_list
-) const
+)
 {
     soapGeneral(
         out,

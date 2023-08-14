@@ -30,14 +30,15 @@ using namespace std;
 class DescriptorGlobal : public Descriptor {
     public:
         /**
-        * Calculates the feature vector.
-        *
-        * @param out Numpy output array for the descriptor.
-        * @param positions Atomic positions as [n_atoms, 3] numpy array.
-        * @param atomic_numbers Atomic numbers as [n_atoms] numpy array.
-        * @param cell Simulation cell as [3, 3] numpy array.
-        * @param pbc Simulation cell periodicity as [3] numpy array.
-        */
+         * @brief Version of 'create' that automatically extends the system
+         * based on PBC and calculates celllist.
+         * 
+         * @param out 
+         * @param positions 
+         * @param atomic_numbers 
+         * @param cell 
+         * @param pbc 
+         */
         void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
@@ -47,15 +48,32 @@ class DescriptorGlobal : public Descriptor {
         );
 
         /**
-         * Called internally. The system should already be extended
-         * periodically and CellList should be available.
+         * @brief Version of 'create' that automatically calculates celllist.
+         * 
+         * @param out 
+         * @param positions 
+         * @param atomic_numbers 
          */
-        virtual void create_raw(
-            py::detail::unchecked_mutable_reference<double, 1> &out_mu, 
-            py::detail::unchecked_reference<double, 2> &positions_u,
-            py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
-            CellList &cell_list
-        ) = 0; 
+        void create(
+            py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers
+        );
+
+        /**
+         * @brief Pure virtual function for calculating the feature vectors.
+         * 
+         * @param out 
+         * @param positions 
+         * @param atomic_numbers 
+         * @param cell_list 
+         */
+        virtual void create(
+            py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            CellList cell_list
+        ) = 0;
 
         /**
         * Calculates the numerical derivates with central finite difference.
