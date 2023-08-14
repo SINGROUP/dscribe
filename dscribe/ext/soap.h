@@ -51,7 +51,7 @@ class SOAPGTO: public DescriptorLocal {
             py::array_t<int> atomic_numbers,
             py::array_t<double> centers,
             CellList cell_list
-        ) const;
+        );
 
         int get_number_of_features() const;
 
@@ -113,7 +113,7 @@ class SOAPPolynomial: public DescriptorLocal {
             py::array_t<int> atomic_numbers,
             py::array_t<double> centers,
             CellList cell_list
-        ) const;
+        );
 
         int get_number_of_features() const;
 

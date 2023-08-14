@@ -47,7 +47,7 @@ class DescriptorLocal : public Descriptor {
             py::array_t<double> cell,
             py::array_t<bool> pbc,
             py::array_t<double> centers
-        ) const;
+        );
 
         /**
          * @brief Version of 'create' that automatically calculates celllist.
@@ -62,7 +62,7 @@ class DescriptorLocal : public Descriptor {
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
             py::array_t<double> centers
-        ) const;
+        );
 
         /**
          * @brief Pure virtual function for calculating the feature vectors.
@@ -79,7 +79,7 @@ class DescriptorLocal : public Descriptor {
             py::array_t<int> atomic_numbers,
             py::array_t<double> centers,
             CellList cell_list
-        ) const = 0;
+        ) = 0;
 
         /**
         * Calculates the numerical derivates with central finite difference.
@@ -109,7 +109,7 @@ class DescriptorLocal : public Descriptor {
             py::array_t<int> indices,
             bool attach,
             bool return_descriptor
-        ) const;
+        );
 
     protected:
         DescriptorLocal(bool periodic, string average="", double cutoff=0);
