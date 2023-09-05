@@ -1,5 +1,11 @@
 Changelog
 =========
+ - 2.1.0:
+    - Added:
+        - New :code:`compression` option for :code:`SOAP` courtesy of `jlparkI <https://github.com/jlparkI>`_.
+    - Removed:
+        - The :code:`crossover` parameter from :code:`SOAP`, now available under the :code:`compression` parameter.
+
  - 2.0.1:
     - Added:
         - Wheel distributions for Linux, MacOS and Windows.

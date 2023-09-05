@@ -779,7 +779,7 @@ def test_species_weighting(species_weighting, species, expected_weights):
         average="off",
         species=species,
     )
-    species_weights = soaper.species_weights
+    species_weights = soaper._species_weights
     assert np.allclose(species_weights, expected_weights)
 
 

@@ -97,6 +97,8 @@
 <span class="sd">See the License for the specific language governing permissions and</span>
 <span class="sd">limitations under the License.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">gamma</span>
@@ -284,12 +286,6 @@
         <span class="c1"># Setup the involved chemical species</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
 
-        <span class="c1"># If species weighting is supplied, ensure it is valid and set</span>
-        <span class="c1"># it up.</span>
-        <span class="k">if</span> <span class="s2">&quot;species_weighting&quot;</span> <span class="ow">in</span> <span class="n">compression</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">species_weights</span> <span class="o">=</span> <span class="n">compression</span><span class="p">[</span><span class="s2">&quot;species_weighting&quot;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">species_weights</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Test that general settings are valid</span>
         <span class="k">if</span> <span class="n">sigma</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -316,14 +312,6 @@
                 <span class="s2">&quot;one of the following: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">average</span><span class="p">,</span> <span class="n">supported_average</span><span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="n">supported_compression</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;off&quot;</span><span class="p">,</span> <span class="s2">&quot;mu2&quot;</span><span class="p">,</span> <span class="s2">&quot;mu1nu1&quot;</span><span class="p">,</span> <span class="s2">&quot;crossover&quot;</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_compression</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Invalid compression mode &#39;</span><span class="si">{}</span><span class="s2">&#39; given. Please use &quot;</span>
-                <span class="s2">&quot;one of the following: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">],</span> <span class="n">supported_compression</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">weighting</span> <span class="ow">or</span> <span class="n">r_cut</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either weighting or r_cut need to be defined&quot;</span><span class="p">)</span>
@@ -400,7 +388,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">=</span> <span class="n">l_max</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rbf</span> <span class="o">=</span> <span class="n">rbf</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">=</span> <span class="n">average</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">=</span> <span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">=</span> <span class="n">compression</span></div>
 
 <div class="viewcode-block" id="SOAP.prepare_centers"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.prepare_centers">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Validates and prepares the centers for the C++ extension.&quot;&quot;&quot;</span>
@@ -626,9 +614,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">average</span><span class="p">,</span>
                 <span class="n">cutoff_padding</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">species_weights</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_species_weights</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">],</span>
                 <span class="n">alphas</span><span class="p">,</span>
                 <span class="n">betas</span><span class="p">,</span>
             <span class="p">)</span>
@@ -658,9 +646,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">average</span><span class="p">,</span>
                 <span class="n">cutoff_padding</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">species_weights</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_species_weights</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">],</span>
                 <span class="n">rx</span><span class="p">,</span>
                 <span class="n">gss</span><span class="p">,</span>
             <span class="p">)</span>
@@ -704,7 +692,7 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;Analytical derivatives currently not available for averaged output.&quot;</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;off&quot;</span><span class="p">,</span> <span class="s2">&quot;crossover&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;off&quot;</span><span class="p">,</span> <span class="s2">&quot;crossover&quot;</span><span class="p">]:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;Analytical derivatives not currently available for mu1nu1, mu2 compression.&quot;</span>
                 <span class="p">)</span>
@@ -774,9 +762,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">average</span><span class="p">,</span>
                 <span class="n">cutoff_padding</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">species_weights</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_species_weights</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">],</span>
                 <span class="n">alphas</span><span class="p">,</span>
                 <span class="n">betas</span><span class="p">,</span>
             <span class="p">)</span>
@@ -808,9 +796,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">average</span><span class="p">,</span>
                 <span class="n">cutoff_padding</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">species_weights</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_species_weights</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">],</span>
                 <span class="n">rx</span><span class="p">,</span>
                 <span class="n">gss</span><span class="p">,</span>
             <span class="p">)</span>
@@ -878,9 +866,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">average</span><span class="p">,</span>
             <span class="n">cutoff_padding</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">species_weights</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_species_weights</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">],</span>
             <span class="n">alphas</span><span class="p">,</span>
             <span class="n">betas</span><span class="p">,</span>
         <span class="p">)</span>
@@ -943,12 +931,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">species_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species_weights</span>
+    <span class="k">def</span> <span class="nf">compression</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compression</span>
 
-    <span class="nd">@species_weights</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">species_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of species weighting and set it up.</span>
+    <span class="nd">@compression</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">compression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of compression species weighting and set it up.</span>
 <span class="sd">        Note that species must already be set up in order to set species</span>
 <span class="sd">        weighting.</span>
 
@@ -956,16 +944,29 @@
 <span class="sd">            value(iterable): Chemical species either as a list of atomic</span>
 <span class="sd">                numbers or list of chemical symbols.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Check mode</span>
+        <span class="n">supported_modes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;off&quot;</span><span class="p">,</span> <span class="s2">&quot;mu2&quot;</span><span class="p">,</span> <span class="s2">&quot;mu1nu1&quot;</span><span class="p">,</span> <span class="s2">&quot;crossover&quot;</span><span class="p">))</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;off&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_modes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid compression mode &#39;</span><span class="si">{}</span><span class="s2">&#39; given. Please use &quot;</span>
+                <span class="s2">&quot;one of the following: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">mode</span><span class="p">,</span> <span class="n">supported_modes</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Check species weighting</span>
+        <span class="n">species_weighting</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;species_weighting&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">species_weighting</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_species_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species_weighting</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;Invalid species weighting &#39;</span><span class="si">{}</span><span class="s2">&#39; given. Species weighting must &quot;</span>
                     <span class="s2">&quot;be either None or a dict.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                 <span class="p">)</span>
 
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">species_weighting</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_elements</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;The species_weighting dictionary, &quot;</span>
                     <span class="s2">&quot;if supplied, must contain the same keys as &quot;</span>
@@ -973,7 +974,7 @@
                 <span class="p">)</span>
             <span class="n">species_weights</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">specie</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">specie</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">specie</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">species_weighting</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">&quot;The species_weighting dictionary, &quot;</span>
                         <span class="s2">&quot;if supplied, must contain the same keys as &quot;</span>
@@ -983,18 +984,20 @@
                     <span class="k">if</span> <span class="n">specie</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                             <span class="s2">&quot;Species weighting </span><span class="si">{}</span><span class="s2"> contained a zero or negative &quot;</span>
-                            <span class="s2">&quot;atomic number.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                            <span class="s2">&quot;atomic number.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">species_weighting</span><span class="p">)</span>
                         <span class="p">)</span>
-                    <span class="n">species_weights</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">value</span><span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="n">specie</span><span class="p">))</span>
+                    <span class="n">species_weights</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">species_weighting</span><span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="n">specie</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">species_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="n">ase</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">specie</span><span class="p">))</span>
+                        <span class="p">(</span><span class="n">species_weighting</span><span class="p">[</span><span class="n">specie</span><span class="p">],</span> <span class="n">ase</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">atomic_numbers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">specie</span><span class="p">))</span>
                     <span class="p">)</span>
 
             <span class="n">species_weights</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">species_weights</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_species_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">species_weights</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compression</span> <span class="o">=</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="SOAP.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.soap.SOAP.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
@@ -1004,12 +1007,12 @@
 <span class="sd">            int: Number of features for this descriptor.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n_elem</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">==</span> <span class="s2">&quot;mu2&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;mu2&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">==</span> <span class="s2">&quot;mu1nu1&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;mu1nu1&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
 
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">==</span> <span class="s2">&quot;crossover&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;crossover&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_elem</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">n_elem_radial</span> <span class="o">=</span> <span class="n">n_elem</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="n">n_elem_radial</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_elem_radial</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span></div>
@@ -1060,7 +1063,7 @@
             <span class="n">numbers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">numbers</span><span class="p">))</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">j</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">==</span> <span class="s2">&quot;off&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;off&quot;</span><span class="p">:</span>
             <span class="n">n_elem_feat_symm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">n_elem_feat_unsymm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">n_elem_feat</span> <span class="o">=</span> <span class="n">n_elem_feat_symm</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span> <span class="k">else</span> <span class="n">n_elem_feat_unsymm</span>
@@ -1072,13 +1075,13 @@
 
             <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m_symm</span> <span class="o">*</span> <span class="n">n_elem_feat_symm</span> <span class="o">+</span> <span class="n">m_unsymm</span> <span class="o">*</span> <span class="n">n_elem_feat_unsymm</span><span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">n_elem_feat</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">==</span> <span class="s2">&quot;mu2&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;mu2&quot;</span><span class="p">:</span>
             <span class="n">n_elem_feat_symm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
             <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">0</span> <span class="o">+</span> <span class="n">n_elem_feat_symm</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mu1nu1&quot;</span><span class="p">,</span> <span class="s2">&quot;crossover&quot;</span><span class="p">]:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mu1nu1&quot;</span><span class="p">,</span> <span class="s2">&quot;crossover&quot;</span><span class="p">]:</span>
             <span class="n">n_elem_feat_symm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span> <span class="o">==</span> <span class="s2">&quot;crossover&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compression</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;crossover&quot;</span><span class="p">:</span>
                 <span class="n">n_elem_feat_symm</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_l_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
                 <span class="p">)</span>

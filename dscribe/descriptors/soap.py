@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from warnings import warn
+
 import numpy as np
 
 from scipy.special import gamma
@@ -200,12 +202,6 @@ class SOAP(DescriptorLocal):
         # Setup the involved chemical species
         self.species = species
 
-        # If species weighting is supplied, ensure it is valid and set
-        # it up.
-        if "species_weighting" in compression:
-            self.species_weights = compression["species_weighting"]
-        else:
-            self.species_weights = None
 
         # Test that general settings are valid
         if sigma <= 0:
@@ -232,14 +228,6 @@ class SOAP(DescriptorLocal):
                 "one of the following: {}".format(average, supported_average)
             )
 
-        supported_compression = set(("off", "mu2", "mu1nu1", "crossover"))
-        if compression["mode"] not in supported_compression:
-            raise ValueError(
-                "Invalid compression mode '{}' given. Please use "
-                "one of the following: {}".format(
-                    compression["mode"], supported_compression
-                )
-            )
 
         if not (weighting or r_cut):
             raise ValueError("Either weighting or r_cut need to be defined")
@@ -316,7 +304,7 @@ class SOAP(DescriptorLocal):
         self._l_max = l_max
         self._rbf = rbf
         self.average = average
-        self.compression = compression["mode"]
+        self.compression = compression
 
     def prepare_centers(self, system, centers=None):
         """Validates and prepares the centers for the C++ extension."""
@@ -542,9 +530,9 @@ class SOAP(DescriptorLocal):
                 self.average,
                 cutoff_padding,
                 self._atomic_numbers,
-                self.species_weights,
+                self._species_weights,
                 self.periodic,
-                self.compression,
+                self.compression["mode"],
                 alphas,
                 betas,
             )
@@ -574,9 +562,9 @@ class SOAP(DescriptorLocal):
                 self.average,
                 cutoff_padding,
                 self._atomic_numbers,
-                self.species_weights,
+                self._species_weights,
                 self.periodic,
-                self.compression,
+                self.compression["mode"],
                 rx,
                 gss,
             )
@@ -620,7 +608,7 @@ class SOAP(DescriptorLocal):
                 raise ValueError(
                     "Analytical derivatives currently not available for averaged output."
                 )
-            if self.compression not in ["off", "crossover"]:
+            if self.compression["mode"] not in ["off", "crossover"]:
                 raise ValueError(
                     "Analytical derivatives not currently available for mu1nu1, mu2 compression."
                 )
@@ -690,9 +678,9 @@ class SOAP(DescriptorLocal):
                 self.average,
                 cutoff_padding,
                 self._atomic_numbers,
-                self.species_weights,
+                self._species_weights,
                 self.periodic,
-                self.compression,
+                self.compression["mode"],
                 alphas,
                 betas,
             )
@@ -724,9 +712,9 @@ class SOAP(DescriptorLocal):
                 self.average,
                 cutoff_padding,
                 self._atomic_numbers,
-                self.species_weights,
+                self._species_weights,
                 self.periodic,
-                self.compression,
+                self.compression["mode"],
                 rx,
                 gss,
             )
@@ -794,9 +782,9 @@ class SOAP(DescriptorLocal):
             self.average,
             cutoff_padding,
             self._atomic_numbers,
-            self.species_weights,
+            self._species_weights,
             self.periodic,
-            self.compression,
+            self.compression["mode"],
             alphas,
             betas,
         )
@@ -859,12 +847,12 @@ class SOAP(DescriptorLocal):
         self.n_elements = len(self._atomic_numbers)
 
     @property
-    def species_weights(self):
-        return self._species_weights
+    def compression(self):
+        return self._compression
 
-    @species_weights.setter
-    def species_weights(self, value):
-        """Used to check the validity of species weighting and set it up.
+    @compression.setter
+    def compression(self, value):
+        """Used to check the validity of compression species weighting and set it up.
         Note that species must already be set up in order to set species
         weighting.
 
@@ -872,16 +860,29 @@ class SOAP(DescriptorLocal):
             value(iterable): Chemical species either as a list of atomic
                 numbers or list of chemical symbols.
         """
-        if value is None:
+        # Check mode
+        supported_modes = set(("off", "mu2", "mu1nu1", "crossover"))
+        mode = value.get("mode", "off")
+        if mode not in supported_modes:
+            raise ValueError(
+                "Invalid compression mode '{}' given. Please use "
+                "one of the following: {}".format(
+                    mode, supported_modes
+                )
+            )
+
+        # Check species weighting
+        species_weighting = value.get("species_weighting")
+        if species_weighting is None:
             self._species_weights = np.ones((self.n_elements))
         else:
-            if not isinstance(value, dict):
+            if not isinstance(species_weighting, dict):
                 raise ValueError(
                     "Invalid species weighting '{}' given. Species weighting must "
                     "be either None or a dict.".format(value)
                 )
 
-            if len(value) != self.n_elements:
+            if len(species_weighting) != self.n_elements:
                 raise ValueError(
                     "The species_weighting dictionary, "
                     "if supplied, must contain the same keys as "
@@ -889,7 +890,7 @@ class SOAP(DescriptorLocal):
                 )
             species_weights = []
             for specie in list(self.species):
-                if specie not in value:
+                if specie not in species_weighting:
                     raise ValueError(
                         "The species_weighting dictionary, "
                         "if supplied, must contain the same keys as "
@@ -899,18 +900,20 @@ class SOAP(DescriptorLocal):
                     if specie <= 0:
                         raise ValueError(
                             "Species weighting {} contained a zero or negative "
-                            "atomic number.".format(value)
+                            "atomic number.".format(species_weighting)
                         )
-                    species_weights.append((value[specie], specie))
+                    species_weights.append((species_weighting[specie], specie))
                 else:
                     species_weights.append(
-                        (value[specie], ase.data.atomic_numbers.get(specie))
+                        (species_weighting[specie], ase.data.atomic_numbers.get(specie))
                     )
 
             species_weights = [
                 s[0] for s in sorted(species_weights, key=lambda x: x[1])
             ]
             self._species_weights = np.array(species_weights).astype(np.float64)
+
+        self._compression = value
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -920,12 +923,12 @@ class SOAP(DescriptorLocal):
             int: Number of features for this descriptor.
         """
         n_elem = len(self._atomic_numbers)
-        if self.compression == "mu2":
+        if self.compression["mode"] == "mu2":
             return int((self._n_max) * (self._n_max + 1) * (self._l_max + 1) / 2)
-        elif self.compression == "mu1nu1":
+        elif self.compression["mode"] == "mu1nu1":
             return int(self._n_max**2 * n_elem * (self._l_max + 1))
 
-        elif self.compression == "crossover":
+        elif self.compression["mode"] == "crossover":
             return int(n_elem * self._n_max * (self._n_max + 1) / 2 * (self._l_max + 1))
         n_elem_radial = n_elem * self._n_max
         return int((n_elem_radial) * (n_elem_radial + 1) / 2 * (self._l_max + 1))
@@ -976,7 +979,7 @@ class SOAP(DescriptorLocal):
             numbers = list(reversed(numbers))
         i = numbers[0]
         j = numbers[1]
-        if self.compression == "off":
+        if self.compression["mode"] == "off":
             n_elem_feat_symm = self._n_max * (self._n_max + 1) / 2 * (self._l_max + 1)
             n_elem_feat_unsymm = self._n_max * self._n_max * (self._l_max + 1)
             n_elem_feat = n_elem_feat_symm if i == j else n_elem_feat_unsymm
@@ -988,13 +991,13 @@ class SOAP(DescriptorLocal):
 
             start = int(m_symm * n_elem_feat_symm + m_unsymm * n_elem_feat_unsymm)
             end = int(start + n_elem_feat)
-        elif self.compression == "mu2":
+        elif self.compression["mode"] == "mu2":
             n_elem_feat_symm = self._n_max * (self._n_max + 1) * (self._l_max + 1) / 2
             start = 0
             end = int(0 + n_elem_feat_symm)
-        elif self.compression in ["mu1nu1", "crossover"]:
+        elif self.compression["mode"] in ["mu1nu1", "crossover"]:
             n_elem_feat_symm = self._n_max**2 * (self._l_max + 1)
-            if self.compression == "crossover":
+            if self.compression["mode"] == "crossover":
                 n_elem_feat_symm = (
                     self._n_max * (self._n_max + 1) * (self._l_max + 1) / 2
                 )
