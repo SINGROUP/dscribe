@@ -96,11 +96,10 @@ class ACSF(DescriptorLocal):
         Args:
             system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or
                 many atomic structures.
-            centers (list): Centers where to calculate ACSF. Can be
-                provided as cartesian positions or atomic indices. If no
-                centers are defined, the output will be created for all
-                atoms in the system. When calculating output for multiple
-                systems, provide the centers as a list for each system.
+            centers (list): Indices of the atoms to use as ACSF centers. If no
+                centers are defined, the output will be created for all atoms in
+                the system. When calculating output for multiple systems,
+                provide the centers as a list for each system.
             n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
                 the calculation across samples. Defaults to serial calculation
                 with n_jobs=1. If a negative number is given, the used cpus

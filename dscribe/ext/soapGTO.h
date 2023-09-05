@@ -29,6 +29,11 @@ void getAlphaBeta(double* aOa, double* bOa, double* alphas, double* betas, int N
 void getCfactors(double* preCoef, int Asize, double* x,double* x2, double* x4, double* x6, double* x8, double* x10,double* x12,double* x14,double* x16,double* x18, double* y,double* y2, double* y4, double* y6, double* y8, double* y10,double* y12,double* y14,double* y16,double* y18, double* z, double* z2, double* z4, double* z6, double* z8, double* z10,double* z12,double* z14,double* z16,double* z18, double* r2, double* r4, double* r6, double* r8,double* r10,double* r12,double* r14,double* r16,double* r18, int totalAN, int lMax);
 void getC(double* CDevX,double* CDevY, double* CDevZ, double* C, double* preCoef, double* x, double* y, double* z,double* r2, double* bOa, double* aOa, double* exes,  int totalAN, int Asize, int Ns, int Ntypes, int lMax, int posI, int typeJ,vector<int>&indices);
 void getP(double* soapMat, double* Cnnd, int Ns, int Ts, int Hs, int lMax);
+void getPWithCompression(
+  py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu,
+  py::detail::unchecked_reference<double, 4> &Cnnd_u,
+  py::detail::unchecked_reference<double, 3> &Cnnd_ave_mu, int Ns,
+  int Ts, int nCenters, int lMax );
 void soapGTO(
     py::array_t<double> derivatives,
     py::array_t<double> descriptor,
@@ -42,14 +47,15 @@ void soapGTO(
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
     py::array_t<int> orderedSpeciesArr,
+    py::array_t<double> speciesWeightsArr,
     const double rCut,
     const double cutoffPadding,
     const int Ns,
     const int lMax,
     const double eta,
     py::dict weighting,
-    const bool crossover,
     string average,
+    string compression,
     py::array_t<int> indices,
     const bool attach,
     const bool return_descriptor,

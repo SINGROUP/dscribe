@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog &mdash; DScribe 2.1.x documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script defer="defer" src="_static/js/versions.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="About" href="about.html" />
+    <link rel="prev" title="Citing DScribe" href="citing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                2.1.x
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing DScribe</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DScribe</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Changelog</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/changelog.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this heading"></a></h1>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>2.1.0:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Added:</dt><dd><ul>
+<li><p>New <code class="code docutils literal notranslate"><span class="pre">compression</span></code> option for <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code> courtesy of <a class="reference external" href="https://github.com/jlparkI">jlparkI</a>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Removed:</dt><dd><ul>
+<li><p>The <code class="code docutils literal notranslate"><span class="pre">crossover</span></code> parameter from <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code>, now available under the <code class="code docutils literal notranslate"><span class="pre">compression</span></code> parameter.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>2.0.1:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Added:</dt><dd><ul>
+<li><p>Wheel distributions for Linux, MacOS and Windows.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Fixed:</dt><dd><ul>
+<li><p>Issue with exception not being raised when analytical derivatives were requested for SOAP with weighting turned on. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/113">#89</a>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>2.0.0:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Added:</dt><dd><ul>
+<li><p>Added numerical derivatives for <code class="code docutils literal notranslate"><span class="pre">SineMatrix</span></code>, <code class="code docutils literal notranslate"><span class="pre">EwaldSumMatrix</span></code>, <code class="code docutils literal notranslate"><span class="pre">ACSF</span></code>, <code class="code docutils literal notranslate"><span class="pre">MBTR</span></code>, <code class="code docutils literal notranslate"><span class="pre">LMBTR</span></code> and <code class="code docutils literal notranslate"><span class="pre">ValleOganov</span></code>.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">attach=True</span></code> is now supported when getting analytical <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code> derivatives.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">periodic=True</span></code> is now supported when getting numerical <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code> derivatives.</p></li>
+<li><p>Added analytical derivatives for <code class="code docutils literal notranslate"><span class="pre">MBTR</span></code> when using the <code class="code docutils literal notranslate"><span class="pre">smooth_cutoff</span></code> weighting and/or <code class="code docutils literal notranslate"><span class="pre">valle_oganov</span></code> normalization.</p></li>
+<li><p>Added new tutorial on using descriptors for <a class="reference internal" href="tutorials/visualization/coloring_by_environment.html"><span class="doc">visualization</span></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Fixed:</dt><dd><ul>
+<li><p>Fixed issue in all atoms not being taken into account when using the <code class="code docutils literal notranslate"><span class="pre">smooth_cutoff</span></code> weighting of <code class="code docutils literal notranslate"><span class="pre">MBTR</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Changed:</dt><dd><ul>
+<li><p>Renamed the <code class="code docutils literal notranslate"><span class="pre">positions</span></code> argument of local descriptors to <code class="code docutils literal notranslate"><span class="pre">centers</span></code>.</p></li>
+<li><p>The <code class="code docutils literal notranslate"><span class="pre">MBTR</span></code>, <code class="code docutils literal notranslate"><span class="pre">LMBTR</span></code> and <code class="code docutils literal notranslate"><span class="pre">ValleOganov</span></code> interfaces has been simplified so that only one term can be calculated at once.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Removed:</dt><dd><ul>
+<li><p>“unflattened” outputs from <code class="code docutils literal notranslate"><span class="pre">MBTR</span></code>, <code class="code docutils literal notranslate"><span class="pre">LMBTR</span></code>, <code class="code docutils literal notranslate"><span class="pre">CoulombMatrix</span></code>, <code class="code docutils literal notranslate"><span class="pre">EwaldSumMatrix</span></code> and <code class="code docutils literal notranslate"><span class="pre">SineMatrix</span></code>.</p></li>
+<li><p>The <code class="code docutils literal notranslate"><span class="pre">rcut</span></code>, <code class="code docutils literal notranslate"><span class="pre">nmax</span></code>, and <code class="code docutils literal notranslate"><span class="pre">lmax</span></code> options for <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code>, use <code class="code docutils literal notranslate"><span class="pre">r_cut</span></code>, <code class="code docutils literal notranslate"><span class="pre">n_max</span></code> and <code class="code docutils literal notranslate"><span class="pre">l_max</span></code> instead.</p></li>
+<li><p>The <code class="code docutils literal notranslate"><span class="pre">rcut</span></code> and <code class="code docutils literal notranslate"><span class="pre">gcut</span></code> options for <code class="code docutils literal notranslate"><span class="pre">EwaldSumMatrix</span></code>, use <code class="code docutils literal notranslate"><span class="pre">r_cut</span></code> and <code class="code docutils literal notranslate"><span class="pre">g_max</span></code> instead.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>1.2.3:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Added:</dt><dd><ul>
+<li><p>Analytical derivatives for <code class="code docutils literal notranslate"><span class="pre">MBTR</span></code>, thanks to <a class="reference external" href="https://github.com/jarnlaak">jarnlaak</a>.
+Note that not all normalization options and geometry functions are
+supported.</p></li>
+<li><p><a class="reference internal" href="tutorials/visualization/coloring_by_environment.html"><span class="doc">Tutorial</span></a> on
+how to create visualizations by employing a mapping from descriptor
+feature space into colors.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>1.2.2:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Fixed:</dt><dd><ul>
+<li><p>An issue with <code class="code docutils literal notranslate"><span class="pre">CoulombMatrix</span></code> ordering using <code class="code docutils literal notranslate"><span class="pre">sorted_l2</span></code>
+that was introduced in version 1.2.0. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/89">#89</a>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Deprecated:</dt><dd><ul>
+<li><p>The <code class="code docutils literal notranslate"><span class="pre">rcut</span></code>, <code class="code docutils literal notranslate"><span class="pre">nmax</span></code>, and <code class="code docutils literal notranslate"><span class="pre">lmax</span></code> options for <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code>, use <code class="code docutils literal notranslate"><span class="pre">r_cut</span></code>, <code class="code docutils literal notranslate"><span class="pre">n_max</span></code> and <code class="code docutils literal notranslate"><span class="pre">l_max</span></code> instead.</p></li>
+<li><p>The <code class="code docutils literal notranslate"><span class="pre">rcut</span></code> and <code class="code docutils literal notranslate"><span class="pre">gcut</span></code> options for <code class="code docutils literal notranslate"><span class="pre">EwaldSumMatrix</span></code>, use <code class="code docutils literal notranslate"><span class="pre">r_cut</span></code> and <code class="code docutils literal notranslate"><span class="pre">g_max</span></code> instead.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>1.2.0:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Added:</dt><dd><ul>
+<li><p><a class="reference internal" href="tutorials/descriptors/valleoganov.html"><span class="doc">Valle-Oganov descriptor</span></a></p></li>
+<li><p>Numerical derivatives for <code class="code docutils literal notranslate"><span class="pre">CoulombMatrix</span></code></p></li>
+<li><p>Tensorflow implementation of <a class="reference internal" href="tutorials/machine_learning/forces_and_energies.html"><span class="doc">the force-field training
+tutorial</span></a>, courtesy
+of <a class="reference external" href="https://github.com/xScoschx">xScoschx</a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Fixed:</dt><dd><ul>
+<li><p>Memory leak with the <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code> descriptor. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/69">#69</a>.</p></li>
+<li><p>Increased the numerical precision used for ACSF. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/70">#70</a>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>1.1.0:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Added:</dt><dd><ul>
+<li><p>Support for l_max &lt;= 20 for the <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code> GTO basis.</p></li>
+<li><p>Support for weighting the gaussians contributing to the atomic
+density. For more details see <a class="reference internal" href="tutorials/descriptors/soap.html"><span class="doc">the updated SOAP tutorial</span></a> (and issues <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/20">#20</a>, <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/58">#58</a>).</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">attach</span></code>-argument for the <code class="code docutils literal notranslate"><span class="pre">derivatives</span></code>-function (see issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/63">#63</a>).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>1.0.0:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Added:</dt><dd><ul>
+<li><p>Possibility to calculate the derivatives of the <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code> descriptor
+with respect to atom positions. For now, only non-periodic structures
+are supported. Supports numerical derivatives for any SOAP
+configuration, and analytical derivatives when using the GTO radial
+basis.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Changed:</dt><dd><ul>
+<li><p>The <code class="code docutils literal notranslate"><span class="pre">periodic</span></code> attribute now instructs the code to take into account
+the periodicity of the system as defined by the <code class="code docutils literal notranslate"><span class="pre">pbc</span></code>-attribute
+the <code class="code docutils literal notranslate"><span class="pre">ase.Atoms</span></code>. So in addition to setting
+<code class="code docutils literal notranslate"><span class="pre">periodic=True</span></code> in the descriptor, also make your system
+periodic in the wanted directions through the <code class="code docutils literal notranslate"><span class="pre">pbc</span></code> attribute.</p></li>
+<li><p>The sparse output now uses the sparse matrices from the
+<a class="reference external" href="https://sparse.pydata.org/en/stable/">sparse library</a>-library.
+This change is motivated by the need for n-dimensional sparse arrays
+in various places. See more at the <a class="reference internal" href="tutorials/sparse.html"><span class="doc">documentation page for
+sparse output.</span></a></p></li>
+<li><p>The output shapes have been made more consistent across different
+descriptors: global descriptors now produce 1D flattened output and
+local descriptors produce 2D flattened output for a single system.
+Whenever multiple systems are given, an additional dimension is added
+that runs across the different systems: for systems with the same
+number of atoms the output becomes a five-dimensional array,
+otherwise the output becomes a list of four-dimensional arrays.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>0.4.0:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Added:</dt><dd><ul>
+<li><p>Support for different averaging modes in <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code>. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/44">#44</a>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Fixed:</dt><dd><ul>
+<li><p>An issue with the layout of the <code class="code docutils literal notranslate"><span class="pre">SOAP</span></code> descriptor. The output
+size was incorrectly missing elements. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/48">#48</a>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Changed:</dt><dd><ul>
+<li><p>Migrated completely from Cython to pybind11.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>0.3.5:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Added:</dt><dd><ul>
+<li><p>Support for Python 3.8. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/40">#40</a>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>0.3.2:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Changed:</dt><dd><ul>
+<li><p>Improved performance for SOAP in combination with very large systems. See issue <a class="reference external" href="https://github.com/SINGROUP/dscribe/issues/31">#31</a>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>0.2.8:</dt><dd><ul>
+<li><dl class="simple">
+<dt>Removed:</dt><dd><ul>
+<li><p>Support for Python 2.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="citing.html" class="btn btn-neutral float-left" title="Citing DScribe" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="about.html" class="btn btn-neutral float-right" title="About" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Versions</span>
+      v: 2.1.x
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl id="version-table">
+        <dt>Versions</dt>
+      </dl>
+    </div>
+  </div>
+<script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef CM_H
-#define CM_H
+#ifndef COULOMBMATRIX_H
+#define COULOMBMATRIX_H
 
 #include <string>
 #include <random>
@@ -44,11 +44,11 @@ class CoulombMatrix: public DescriptorGlobal {
         /**
          * For creating feature vectors.
          */
-        void create_raw(
-            py::detail::unchecked_mutable_reference<double, 1> &out_mu, 
-            py::detail::unchecked_reference<double, 2> &positions_u, 
-            py::detail::unchecked_reference<int, 1> &atomic_numbers_u,
-            CellList &cell_list
+        void create(
+            py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            CellList cell_list
         );
 
         /**

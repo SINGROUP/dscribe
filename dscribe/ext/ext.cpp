@@ -16,8 +16,10 @@ limitations under the License.
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>  // Enables easy access to numpy arrays
 #include <pybind11/stl.h>    // Enables automatic type conversion from C++ containers to python
+#include "descriptorlocal.h"
+#include "descriptorglobal.h"
 #include "celllist.h"
-#include "cm.h"
+#include "coulombmatrix.h"
 #include "soap.h"
 #include "acsf.h"
 #include "mbtr.h"
@@ -35,7 +37,7 @@ PYBIND11_MODULE(ext, m) {
     // CoulombMatrix
     py::class_<CoulombMatrix>(m, "CoulombMatrix")
         .def(py::init<unsigned int, string, double, int>())
-        .def("create", &CoulombMatrix::create)
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool> >()(&DescriptorGlobal::create))
         .def("derivatives_numerical", &CoulombMatrix::derivatives_numerical)
         .def(py::pickle(
             [](const CoulombMatrix &p) {
@@ -56,17 +58,17 @@ PYBIND11_MODULE(ext, m) {
 
     // SOAP
     py::class_<SOAPGTO>(m, "SOAPGTO")
-        .def(py::init<double, int, int, double, py::dict, bool, string, double, py::array_t<double>, py::array_t<double>, py::array_t<int>, bool>())
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPGTO::create, py::const_))
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create, py::const_))
+        .def(py::init<double, int, int, double, py::dict, string, double, py::array_t<int>, py::array_t<double>, bool, string, py::array_t<double>, py::array_t<double> >())
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&DescriptorLocal::create))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&DescriptorLocal::create))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create))
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical)
         .def("derivatives_analytical", &SOAPGTO::derivatives_analytical);
     py::class_<SOAPPolynomial>(m, "SOAPPolynomial")
-        .def(py::init<double, int, int, double, py::dict, bool, string, double, py::array_t<double>, py::array_t<double>, py::array_t<int>, bool >())
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&SOAPPolynomial::create, py::const_))
-        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPPolynomial::create, py::const_))
+        .def(py::init<double, int, int, double, py::dict, string, double, py::array_t<int>, py::array_t<double>, bool, string, py::array_t<double>, py::array_t<double> >())
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&DescriptorLocal::create))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&DescriptorLocal::create))
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPPolynomial::create))
         .def("derivatives_numerical", &SOAPPolynomial::derivatives_numerical);
 
     // ACSF

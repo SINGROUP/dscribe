@@ -2290,6 +2290,66 @@ void getPD(
     }
   }
 }
+
+
+//================================================================================================
+/**
+ * Used to calculate the partial power spectrum with the mu=1, nu=1 compression
+ * scheme from Darby et al. It is possible to implement the other compression
+ * schemes from Darby et al. by modifying the one shown here, although the mu=1
+ * nu=1 performed by far the best in their experiments and is most likely
+ * to be the one of interest for most purposes. This compression scheme
+ * scales linearly with the number of elements and is thus much more practical
+ * for many-element systems.
+ */
+void getPDWithCompression(
+  py::detail::unchecked_mutable_reference<double, 2> &descriptor_mu,
+  py::detail::unchecked_reference<double, 4> &Cnnd_u,
+  py::detail::unchecked_reference<double, 3> &Cnnd_ave_mu,
+  int Ns,
+  int Ts,
+  int nCenters,
+  int lMax
+) {
+
+    // The power spectrum is multiplied by an l-dependent prefactor that comes
+    // from the normalization of the Wigner D matrices. This prefactor is
+    // mentioned in the arrata of the original SOAP paper: On representing
+    // chemical environments, Phys. Rev. B 87, 184115 (2013). Here the square
+    // root of the prefactor in the dot-product kernel is used, so that after a
+    // possible dot-product the full prefactor is recovered.
+    for(int i = 0; i < nCenters; i++){
+      int shiftAll = 0;
+      for(int j = 0; j < Ts; j++){
+        for(int m=0; m <= lMax; m++){
+        double prel;
+        if(m > 1){prel = PI*sqrt(8.0/(2.0*m+1.0))*PI3;}
+        else{prel = PI*sqrt(8.0/(2.0*m+1.0));}
+          for(int k = 0; k < Ns; k++){
+            for(int kd = 0; kd < Ns; kd++){
+              double buffDouble = 0;
+              for(int buffShift = m*m; buffShift < (m+1)*(m+1); buffShift++){
+                //Notice that we multiply the coefficient i,j,k,bS against
+                //the sum of coefficients (over all species in the environment)
+                //i,kd,bS. This is the mu=1,nu=1 compression scheme from Darby
+                //et al.
+                buffDouble += Cnnd_u(i,j,k,buffShift) * Cnnd_ave_mu(i,kd,buffShift);
+  	          }
+              descriptor_mu(i, shiftAll) = prel*buffDouble;
+              shiftAll++;
+            }
+          }
+       }
+    }
+  }
+}
+
+
+
+
+
+
+
 //===========================================================================================
 /**
  * Used to calculate the partial power spectrum derivatives.
@@ -2383,14 +2443,15 @@ void soapGTO(
     py::array_t<double> betasArr,
     py::array_t<int> atomicNumbersArr,
     py::array_t<int> orderedSpeciesArr,
+    py::array_t<double> speciesWeightsArr,
     const double rCut,
     const double cutoffPadding,
     const int nMax,
     const int lMax,
     const double eta,
     py::dict weighting,
-    const bool crossover,
     string average,
+    string compression,
     py::array_t<int> indices,
     const bool attach,
     const bool return_descriptor,
@@ -2402,6 +2463,8 @@ void soapGTO(
   auto derivatives_mu = derivatives.mutable_unchecked<4>();
   auto atomicNumbers = atomicNumbersArr.unchecked<1>();
   auto species = orderedSpeciesArr.unchecked<1>();
+  auto speciesWeights = speciesWeightsArr.unchecked<1>();
+
   int nSpecies = orderedSpeciesArr.shape(0);
   auto indices_u = indices.unchecked<1>();
   double *alphas = (double*)alphasArr.request().ptr;
@@ -2412,9 +2475,19 @@ void soapGTO(
   auto centers_u = centers.unchecked<2>(); 
   auto center_indices_u = center_indices.unchecked<1>(); 
   auto positions_u = positions.unchecked<2>(); 
-  const int nFeatures = crossover
-        ? (nSpecies*nMax)*(nSpecies*nMax+1)/2*(lMax+1) 
-        : nSpecies*(lMax+1)*((nMax+1)*nMax)/2;
+  int nFeatures = 0;
+  bool crossover = true;
+  if ( compression == "mu1nu1" ){
+    nFeatures = nSpecies*(lMax+1)*(nMax*nMax);
+  } else if ( compression == "mu2" ){
+      nSpecies = 1;
+      nFeatures = nMax * (nMax+1) * (lMax+1) / 2;
+  } else if ( compression == "crossover" ){
+    nFeatures = nSpecies*(lMax+1)*((nMax+1)*nMax)/2;
+    crossover = false;
+  } else{
+    nFeatures = (nSpecies*nMax)*(nSpecies*nMax+1)/2*(lMax+1);
+  }
   double* weights = (double*) malloc(sizeof(double)*totalAN);
   double* dx  = (double*)malloc(sizeof(double)*totalAN); double* dy  = (double*)malloc(sizeof(double)*totalAN); double* dz  = (double*)malloc(sizeof(double)*totalAN);
   double* x2  = (double*)malloc(sizeof(double)*totalAN); double* x4  = (double*)malloc(sizeof(double)*totalAN); double* x6  = (double*)malloc(sizeof(double)*totalAN);
@@ -2449,7 +2522,7 @@ void soapGTO(
   double* aOa = (double*) malloc((lMax+1)*nMax*sizeof(double));
   
   // Initialize temporary numpy array for storing the coefficients and the
-  // averaged coefficients if inner averaging was requested.
+  // averaged coefficients if inner averaging was requested
   const int n_coeffs = nSpecies*nMax*(lMax + 1) * (lMax + 1);
   double* cnnd_raw = new double[nCenters*n_coeffs]();
   py::array_t<double> cnnd({nCenters, nSpecies, nMax, (lMax + 1) * (lMax + 1)}, cnnd_raw);
@@ -2458,6 +2531,19 @@ void soapGTO(
   if (average == "inner") {
       cnnd_ave_raw = new double[n_coeffs]();
       cnnd_ave = py::array_t<double>({1, nSpecies, nMax, (lMax + 1) * (lMax + 1)}, cnnd_ave_raw);
+  }
+  //Also initialize temporary numpy array for storing the sum of the coefficients over all
+  //species without summing over m if feature compression was requested.
+  double* cnnd_compressed_raw;
+  py::array_t<double> cnnd_compressed;
+  if (compression == "mu1nu1") {
+      if (average == "inner"){
+        cnnd_compressed_raw = new double[nMax*(lMax+1)*(lMax+1)]();
+        cnnd_compressed = py::array_t<double>({1, nMax, (lMax + 1) * (lMax + 1)}, cnnd_compressed_raw);
+      } else{
+        cnnd_compressed_raw = new double[nCenters*nMax*(lMax+1)*(lMax+1)]();
+        cnnd_compressed = py::array_t<double>({nCenters, nMax, (lMax + 1) * (lMax + 1)}, cnnd_compressed_raw);
+      }
   }
 
   auto cnnd_u = cnnd.unchecked<4>();
@@ -2491,23 +2577,58 @@ void soapGTO(
     double ix = centers_u(i, 0); double iy = centers_u(i, 1); double iz = centers_u(i, 2);
     CellListResult result = cell_list_atoms.getNeighboursForPosition(ix, iy, iz);
 
-    // Sort the neighbours by type
-    map<int, vector<int>> atomicTypeMap;
-    for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
+    // Sort the neighbours by type, UNLESS using the mu2 compression scheme,
+    // in which case we basically treat all neighbors as same type.
+    if (compression != "mu2"){
+        map<int, vector<int>> atomicTypeMap;
+        for (const int &idx : result.indices) {int Z = atomicNumbers(idx); atomicTypeMap[Z].push_back(idx);};
+        // Loop through neighbours sorted by type
+        for (const auto &ZIndexPair : atomicTypeMap) {
 
-    // Loop through neighbours sorted by type
-    for (const auto &ZIndexPair : atomicTypeMap) {
+            // j is the internal index for this atomic number
+            int j = ZIndexMap[ZIndexPair.first];
+            int n_neighbours = ZIndexPair.second.size();
+         
+            // Save the neighbour distances into the arrays dx, dy and dz
+            getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
+            getRsZsD(dx, x2, x4, x6, x8, x10, x12, x14, x16, x18, dy, y2, y4, y6, y8, y10, y12, y14, y16, y18, dz, r2, r4, r6, r8, r10, r12, r14, r16, r18,  z2, z4, z6, z8, z10, z12, z14, z16, z18, r20, x20, y20, z20, n_neighbours, lMax);
+            getWeights(n_neighbours, r1, r2, true, weighting, weights);
+      
+            //Multiply all of the weights by the element-specific weights (default to 1).
+            //This enables straightforward implementation of element-specific weighting
+            //if so specified by user.
+            for(std::size_t k = 0; k < ZIndexPair.second.size(); ++k){
+                int Z = atomicNumbers(ZIndexPair.second[k]);
+                int speciesIdx = ZIndexMap[Z];
+                double weight = speciesWeights(speciesIdx);
+                weights[k] *= weight;
+            }
 
-      // j is the internal index for this atomic number
-      int j = ZIndexMap[ZIndexPair.first];
-      int n_neighbours = ZIndexPair.second.size();
+            getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18,r20, x20,y20,z20, totalAN, lMax, return_derivatives);
+            getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, centerAtomI, j, ZIndexPair.second, attach, return_derivatives);
+        }
+    // If using mu2 compression, treat all neighbors as being same element,
+    // except for user-specified element-specific weighting.
+    } else {
+        int n_neighbours = result.indices.size();
+         
+        // Save the neighbour distances into the arrays dx, dy and dz
+        getDeltaD(dx, dy, dz, positions, ix, iy, iz, result.indices);
+        getRsZsD(dx, x2, x4, x6, x8, x10, x12, x14, x16, x18, dy, y2, y4, y6, y8, y10, y12, y14, y16, y18, dz, r2, r4, r6, r8, r10, r12, r14, r16, r18,  z2, z4, z6, z8, z10, z12, z14, z16, z18, r20, x20, y20, z20, n_neighbours, lMax);
+        getWeights(n_neighbours, r1, r2, true, weighting, weights);
+      
+        //Multiply all of the weights by the element-specific weights (default to 1).
+        //This enables straightforward implementation of element-specific weighting
+        //if so specified by user.
+        for(std::size_t k = 0; k < result.indices.size(); ++k){
+            int Z = atomicNumbers(result.indices[k]);
+            int speciesIdx = ZIndexMap[Z];
+            double weight = speciesWeights(speciesIdx);
+            weights[k] *= weight;
+        }
 
-      // Save the neighbour distances into the arrays dx, dy and dz
-      getDeltaD(dx, dy, dz, positions, ix, iy, iz, ZIndexPair.second);
-      getRsZsD(dx, x2, x4, x6, x8, x10, x12, x14, x16, x18, dy, y2, y4, y6, y8, y10, y12, y14, y16, y18, dz, r2, r4, r6, r8, r10, r12, r14, r16, r18,  z2, z4, z6, z8, z10, z12, z14, z16, z18, r20, x20, y20, z20, n_neighbours, lMax);
-      getWeights(n_neighbours, r1, r2, true, weighting, weights);
-      getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18,r20, x20,y20,z20, totalAN, lMax, return_derivatives);
-      getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, centerAtomI, j, ZIndexPair.second, attach, return_derivatives);
+        getCfactorsD(preCoef, prCofDX, prCofDY, prCofDZ, n_neighbours, dx,x2, x4, x6, x8,x10,x12,x14,x16,x18, dy,y2, y4, y6, y8,y10,y12,y14,y16,y18, dz, z2, z4, z6, z8,z10,z12,z14,z16,z18, r2, r4, r6, r8,r10,r12,r14,r16,r18,r20, x20,y20,z20, totalAN, lMax, return_derivatives);
+        getCD(cdevX_mu, cdevY_mu, cdevZ_mu, prCofDX, prCofDY, prCofDZ, cnnd_mu, preCoef, dx, dy, dz, r2, weights, bOa, aOa, exes, totalAN, n_neighbours, nMax, nSpecies, lMax, i, centerAtomI, 0, result.indices, attach, return_derivatives);
     }
   }
   free(dx); free(x2); free(x4); free(x6); free(x8); free(x10); free(x12); free(x14); free(x16); free(x18);
@@ -2550,8 +2671,22 @@ void soapGTO(
                 }
             }
         }
-        getPD(descriptor_mu, cnnd_ave_u, nMax, nSpecies, 1, lMax, crossover);
-        delete [] cnnd_ave_raw;
+        if (compression == "mu1nu1"){
+            auto cnnd_compressed_mu = cnnd_compressed.mutable_unchecked<3>();
+            for (int j = 0; j < nSpecies; j++) {
+                for (int k = 0; k < nMax; k++) {
+                    for (int l = 0; l < (lMax + 1) * (lMax + 1); l++) {
+                            cnnd_compressed_mu(0, k, l) += cnnd_ave_mu(0, j, k, l);
+                    }
+                }
+            }
+            getPDWithCompression(descriptor_mu, cnnd_ave_mu, cnnd_compressed_mu, nMax, nSpecies, 1, lMax);
+            delete [] cnnd_compressed_raw;
+            delete [] cnnd_ave_raw;
+        } else{
+            getPD(descriptor_mu, cnnd_ave_u, nMax, nSpecies, 1, lMax, crossover);
+            delete [] cnnd_ave_raw;
+        }
     // If outer averaging is requested, average the power spectrum across the
     // centers.
     } else if (average == "outer") {
@@ -2560,7 +2695,23 @@ void soapGTO(
         double* ps_temp_raw = new double[nCenters*nFeatures]();
         py::array_t<double> ps_temp({nCenters, nFeatures}, ps_temp_raw);
         auto ps_temp_mu = ps_temp.mutable_unchecked<2>();
-        getPD(ps_temp_mu, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
+        
+        if (compression == "mu1nu1"){
+            auto cnnd_compressed_mu = cnnd_compressed.mutable_unchecked<3>();
+            for (int i = 0; i < nCenters; i++) {
+                for (int j = 0; j < nSpecies; j++) {
+                    for (int k = 0; k < nMax; k++) {
+                        for (int l = 0; l < (lMax + 1) * (lMax + 1); l++) {
+                            cnnd_compressed_mu(i, k, l) += cnnd_u(i, j, k, l);
+                        }
+                    }
+                }
+            }
+            getPDWithCompression(ps_temp_mu, cnnd_u, cnnd_compressed_mu, nMax, nSpecies, nCenters, lMax);
+            delete [] cnnd_compressed_raw;
+        } else{
+            getPD(ps_temp_mu, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
+        }
         for (int i = 0; i < nCenters; i++) {
             for (int j = 0; j < nFeatures; j++) {
                 descriptor_mu(0, j) += ps_temp_mu(i, j);
@@ -2572,11 +2723,30 @@ void soapGTO(
         delete [] ps_temp_raw;
     // Regular power spectrum without averaging
     } else {
-        getPD(descriptor_mu, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
+        if (compression == "mu1nu1"){
+            auto cnnd_compressed_mu = cnnd_compressed.mutable_unchecked<3>();
+            for (int i = 0; i < nCenters; i++) {
+                for (int j = 0; j < nSpecies; j++) {
+                    for (int k = 0; k < nMax; k++) {
+                        for (int l = 0; l < (lMax + 1) * (lMax + 1); l++) {
+                            cnnd_compressed_mu(i, k, l) += cnnd_u(i, j, k, l);
+                        }
+                    }
+                }
+            }
+            getPDWithCompression(descriptor_mu, cnnd_u, cnnd_compressed_mu, nMax, nSpecies, nCenters, lMax);
+            delete [] cnnd_compressed_raw;
+        } else{
+            getPD(descriptor_mu, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
+        }
     }
   }
 
-  // Calculate the derivatives
+  // Calculate the derivatives. Note that this should not be attempted usnig the
+  // function call below if mu1nu1 compression has been selected, in which
+  // case this will not return a correct result. Currently the Python wrapper
+  // does not in any case permit analytical derivative calculation if mu1nu1 compression
+  // is used.
   if (return_derivatives) {
     getPDev(derivatives_mu, positions_u, indices_u, cell_list_centers, cdevX_u, cdevY_u, cdevZ_u, cnnd_u, nMax, nSpecies, nCenters, lMax, crossover);
   }

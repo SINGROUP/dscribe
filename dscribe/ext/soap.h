@@ -18,7 +18,7 @@ limitations under the License.
 
 #include <pybind11/numpy.h>
 #include <string>
-#include "descriptor.h"
+#include "descriptorlocal.h"
 #include "celllist.h"
 
 namespace py = pybind11;
@@ -27,43 +27,23 @@ using namespace std;
 /**
  * SOAP descriptor with GTO radial basis.
  */
-class SOAPGTO: public Descriptor {
+class SOAPGTO: public DescriptorLocal {
     public:
-        /**
-         *
-         */
         SOAPGTO(
             double r_cut,
             int n_max,
             int l_max,
             double eta,
             py::dict weighting,
-            bool crossover,
             string average,
             double cutoff_padding,
-            py::array_t<double> alphas,
-            py::array_t<double> betas,
             py::array_t<int> species,
-            bool periodic
+            py::array_t<double> species_weights,
+            bool periodic,
+            string compression,
+            py::array_t<double> alphas,
+            py::array_t<double> betas
         );
-        /**
-         * For creating SOAP output.
-         */
-        void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> cell,
-            py::array_t<bool> pbc,
-            py::array_t<double> centers
-        ) const;
-
-        void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> centers
-        ) const;
 
         void create(
             py::array_t<double> out, 
@@ -71,16 +51,10 @@ class SOAPGTO: public Descriptor {
             py::array_t<int> atomic_numbers,
             py::array_t<double> centers,
             CellList cell_list
-        ) const;
+        );
 
-        /**
-         * Get the number of features.
-         */
         int get_number_of_features() const;
 
-        /**
-         * Analytical derivatives.
-         */
         void derivatives_analytical(
             py::array_t<double> derivatives,
             py::array_t<double> descriptor,
@@ -104,53 +78,34 @@ class SOAPGTO: public Descriptor {
         const int l_max;
         const double eta;
         const py::dict weighting;
-        const bool crossover;
         const double cutoff_padding;
+        const py::array_t<int> species;
+        const py::array_t<double> species_weights;
+        const string compression;
         const py::array_t<double> alphas;
         const py::array_t<double> betas;
-        const py::array_t<int> species;
 };
 
 /**
  * SOAP descriptor with polynomial radial basis.
  */
-class SOAPPolynomial: public Descriptor {
+class SOAPPolynomial: public DescriptorLocal {
     public:
-        /**
-         *
-         */
         SOAPPolynomial(
             double r_cut,
             int n_max,
             int l_max,
             double eta,
             py::dict weighting,
-            bool crossover,
             string average,
             double cutoff_padding,
-            py::array_t<double> rx,
-            py::array_t<double> gss,
             py::array_t<int> species,
-            bool periodic
+            py::array_t<double> species_weights,
+            bool periodic,
+            string compression,
+            py::array_t<double> rx,
+            py::array_t<double> gss
         );
-        /**
-         * For creating SOAP output.
-         */
-        void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> cell,
-            py::array_t<bool> pbc,
-            py::array_t<double> centers
-        ) const;
-
-        void create(
-            py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> centers
-        ) const;
 
         void create(
             py::array_t<double> out, 
@@ -158,11 +113,8 @@ class SOAPPolynomial: public Descriptor {
             py::array_t<int> atomic_numbers,
             py::array_t<double> centers,
             CellList cell_list
-        ) const;
+        );
 
-        /**
-         * Get the number of features.
-         */
         int get_number_of_features() const;
 
     private:
@@ -171,11 +123,12 @@ class SOAPPolynomial: public Descriptor {
         const int l_max;
         const double eta;
         const py::dict weighting;
-        const bool crossover;
         const double cutoff_padding;
+        const py::array_t<int> species;
+        const py::array_t<double> species_weights;
+        const string compression;
         const py::array_t<double> rx;
         const py::array_t<double> gss;
-        const py::array_t<int> species;
 };
 
 #endif

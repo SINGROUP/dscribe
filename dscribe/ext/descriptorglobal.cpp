@@ -16,16 +16,13 @@ limitations under the License.
 #include <set>
 #include <unordered_map>
 #include <cmath>
-#include <iostream>
 #include "descriptorglobal.h"
 #include "geometry.h"
 
 using namespace std;
 
 DescriptorGlobal::DescriptorGlobal(bool periodic, string average, double cutoff)
-    : periodic(periodic)
-    , average(average)
-    , cutoff(cutoff)
+    : Descriptor(periodic, average, cutoff)
 {
 }
 
@@ -45,13 +42,18 @@ void DescriptorGlobal::create(
         positions = system_extended.positions;
         atomic_numbers = system_extended.atomic_numbers;
     }
+    this->create(out, positions, atomic_numbers);
+}
 
+void DescriptorGlobal::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers
+)
+{
     // Calculate neighbours with a cell list
     CellList cell_list(positions, this->cutoff);
-    auto out_mu = out.mutable_unchecked<1>();
-    auto positions_u = positions.unchecked<2>();
-    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
-    this->create_raw(out_mu, positions_u, atomic_numbers_u, cell_list);
+    this->create(out, positions, atomic_numbers, cell_list);
 }
 
 void DescriptorGlobal::derivatives_numerical(
@@ -69,7 +71,6 @@ void DescriptorGlobal::derivatives_numerical(
     int n_atoms = atomic_numbers.size();
     int n_features = this->get_number_of_features();
     auto derivatives_mu = derivatives.mutable_unchecked<3>();
-    auto descriptor_mu = descriptor.mutable_unchecked<1>();
     auto indices_u = indices.unchecked<1>();
     auto pbc_u = pbc.unchecked<1>();
 
@@ -82,15 +83,13 @@ void DescriptorGlobal::derivatives_numerical(
         atomic_numbers = system_extension.atomic_numbers;
     }
     auto positions_mu = positions.mutable_unchecked<2>();
-    auto positions_u = positions.unchecked<2>();
-    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
 
     // Pre-calculate cell list for atoms
     CellList cell_list_atoms(positions, this->cutoff);
 
     // Calculate the desciptor value if requested
     if (return_descriptor) {
-        this->create_raw(descriptor_mu, positions_u, atomic_numbers_u, cell_list_atoms);
+        this->create(descriptor, positions, atomic_numbers, cell_list_atoms);
     }
 
     // Central finite difference with error O(h^2)
@@ -137,7 +136,7 @@ void DescriptorGlobal::derivatives_numerical(
                 auto d_mu = d.mutable_unchecked<1>();
 
                 // Calculate descriptor value
-                this->create_raw(d_mu, positions_u, atomic_numbers_u, cell_list_atoms);
+                this->create(d, positions, atomic_numbers, cell_list_atoms);
 
                 // Add value to final derivative array
                 double coeff = coefficients[i_stencil];

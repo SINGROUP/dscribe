@@ -25,58 +25,28 @@ SOAPGTO::SOAPGTO(
     int l_max,
     double eta,
     py::dict weighting,
-    bool crossover,
     string average,
     double cutoff_padding,
-    py::array_t<double> alphas,
-    py::array_t<double> betas,
     py::array_t<int> species,
-    bool periodic
+    py::array_t<double> species_weights,
+    bool periodic,
+    string compression,
+    py::array_t<double> alphas,
+    py::array_t<double> betas
 )
-    : Descriptor(periodic, average, r_cut+cutoff_padding)
+    : DescriptorLocal(periodic, average, r_cut+cutoff_padding)
     , r_cut(r_cut)
     , n_max(n_max)
     , l_max(l_max)
     , eta(eta)
     , weighting(weighting)
-    , crossover(crossover)
     , cutoff_padding(cutoff_padding)
+    , species(species)
+    , species_weights(species_weights)
+    , compression(compression)
     , alphas(alphas)
     , betas(betas)
-    , species(species)
 {
-}
-
-void SOAPGTO::create(
-    py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> cell,
-    py::array_t<bool> pbc,
-    py::array_t<double> centers
-) const
-{
-    // Extend system if periodicity is requested.
-    auto pbc_u = pbc.unchecked<1>();
-    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
-    if (is_periodic) {
-        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
-        positions = system_extended.positions;
-        atomic_numbers = system_extended.atomic_numbers;
-    }
-    this->create(out, positions, atomic_numbers, centers);
-}
-
-void SOAPGTO::create(
-    py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> centers
-) const
-{
-    // Calculate neighbours with a cell list
-    CellList cell_list(positions, this->cutoff);
-    this->create(out, positions, atomic_numbers, centers, cell_list);
 }
 
 void SOAPGTO::create(
@@ -85,7 +55,7 @@ void SOAPGTO::create(
     py::array_t<int> atomic_numbers,
     py::array_t<double> centers,
     CellList cell_list
-) const
+)
 {
     // Empty mock arrays since we are not calculating the derivatives
     py::array_t<double> xd({1, 1, 1, 1, 1});
@@ -108,14 +78,15 @@ void SOAPGTO::create(
         this->betas,
         atomic_numbers,
         this->species,
+        this->species_weights,
         this->r_cut,
         this->cutoff_padding,
         this->n_max,
         this->l_max,
         this->eta,
         this->weighting,
-        this->crossover,
         this->average,
+        this->compression,
         indices,
         false,
         true,
@@ -127,9 +98,15 @@ void SOAPGTO::create(
 int SOAPGTO::get_number_of_features() const
 {
     int n_species = this->species.shape(0);
-    return this->crossover
-        ? (n_species*this->n_max)*(n_species*this->n_max+1)/2*(this->l_max+1) 
-        : n_species*(this->l_max+1)*((this->n_max+1)*this->n_max)/2;
+    if ( this->compression == "mu1nu1" ){
+        return (n_species*this->n_max*this->n_max) * (this->l_max+1);
+    } else if ( this->compression == "mu2" ){
+        return (this->n_max * (this->n_max+1) * (this->l_max+1) / 2);
+    } else if ( this->compression == "crossover" ){
+        return n_species*(this->l_max+1)*((this->n_max+1)*this->n_max)/2;
+    } else{
+        return (n_species*this->n_max)*(n_species*this->n_max+1)*(this->l_max+1)/2;
+    }
 }
 
 void SOAPGTO::derivatives_analytical(
@@ -174,14 +151,15 @@ void SOAPGTO::derivatives_analytical(
         this->betas,
         atomic_numbers,
         this->species,
+        this->species_weights,
         this->r_cut,
         this->cutoff_padding,
         this->n_max,
         this->l_max,
         this->eta,
         this->weighting,
-        this->crossover,
         this->average,
+        this->compression,
         indices,
         attach,
         return_descriptor,
@@ -196,58 +174,28 @@ SOAPPolynomial::SOAPPolynomial(
     int l_max,
     double eta,
     py::dict weighting,
-    bool crossover,
     string average,
     double cutoff_padding,
-    py::array_t<double> rx,
-    py::array_t<double> gss,
     py::array_t<int> species,
-    bool periodic
+    py::array_t<double> species_weights,
+    bool periodic,
+    string compression,
+    py::array_t<double> rx,
+    py::array_t<double> gss
 )
-    : Descriptor(periodic, average, r_cut+cutoff_padding)
+    : DescriptorLocal(periodic, average, r_cut+cutoff_padding)
     , r_cut(r_cut)
     , n_max(n_max)
     , l_max(l_max)
     , eta(eta)
     , weighting(weighting)
-    , crossover(crossover)
     , cutoff_padding(cutoff_padding)
+    , species(species)
+    , species_weights(species_weights)
+    , compression(compression)
     , rx(rx)
     , gss(gss)
-    , species(species)
 {
-}
-
-void SOAPPolynomial::create(
-    py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> cell,
-    py::array_t<bool> pbc,
-    py::array_t<double> centers
-) const
-{
-    // Extend system if periodicity is requested.
-    auto pbc_u = pbc.unchecked<1>();
-    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
-    if (is_periodic) {
-        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
-        positions = system_extended.positions;
-        atomic_numbers = system_extended.atomic_numbers;
-    }
-    this->create(out, positions, atomic_numbers, centers);
-}
-
-void SOAPPolynomial::create(
-    py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> centers
-) const
-{
-    // Calculate neighbours with a cell list
-    CellList cell_list(positions, this->cutoff);
-    this->create(out, positions, atomic_numbers, centers, cell_list);
 }
 
 void SOAPPolynomial::create(
@@ -256,7 +204,7 @@ void SOAPPolynomial::create(
     py::array_t<int> atomic_numbers,
     py::array_t<double> centers,
     CellList cell_list
-) const
+)
 {
     soapGeneral(
         out,
@@ -264,6 +212,7 @@ void SOAPPolynomial::create(
         centers,
         atomic_numbers,
         this->species,
+        this->species_weights,
         this->r_cut,
         this->cutoff_padding,
         this->n_max,
@@ -272,8 +221,8 @@ void SOAPPolynomial::create(
         this->weighting,
         this->rx,
         this->gss,
-        this->crossover,
         this->average,
+        this->compression,
         cell_list
     );
 }
@@ -281,7 +230,13 @@ void SOAPPolynomial::create(
 int SOAPPolynomial::get_number_of_features() const
 {
     int n_species = this->species.shape(0);
-    return this->crossover
-        ? (n_species*this->n_max)*(n_species*this->n_max+1)/2*(this->l_max+1) 
-        : n_species*(this->l_max+1)*((this->n_max+1)*this->n_max)/2;
+    if ( this->compression == "mu1nu1" ){
+        return (n_species*this->n_max*this->n_max) * (this->l_max+1);
+    } else if ( this->compression == "mu2" ){
+        return (this->n_max * (this->n_max+1) * (this->l_max+1) / 2);
+    } else if ( this->compression == "crossover" ){
+        return n_species*(this->l_max+1)*((this->n_max+1)*this->n_max)/2;
+    } else{
+        return (n_species*this->n_max)*(n_species*this->n_max+1)/2*(this->l_max+1);
+    }
 }
