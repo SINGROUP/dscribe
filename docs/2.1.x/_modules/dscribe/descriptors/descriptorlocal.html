@@ -276,7 +276,10 @@
             <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">n_centers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">n_centers</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">!=</span> <span class="s2">&quot;off&quot;</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">average</span> <span class="o">==</span> <span class="s2">&quot;off&quot;</span><span class="p">:</span>
+                    <span class="n">n_centers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">n_centers</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="n">n_indices</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">job</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_indices</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_features</span><span class="p">),</span> <span class="p">(</span><span class="n">n_centers</span><span class="p">,</span> <span class="n">n_features</span><span class="p">)</span>
 

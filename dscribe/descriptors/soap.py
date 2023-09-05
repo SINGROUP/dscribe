@@ -144,25 +144,27 @@ class SOAP(DescriptorLocal):
                 representation but can also dramatically reduce the size of the feature vector
                 and hence the computational cost. Options are:
 
-                    * ```"mode"```: Specifies the type of compression. This can be one of:
-                        * ``"off"``: No compression; default.
-                        * ``"mu2"``: The SOAP feature vector is generated in an element-agnostic way, so that
-                            the size of the feature vector is now independent of the number of elements (see Darby et al
-                            below for details). It is still possible when using this option to construct a feature
-                            vector that distinguishes between elements by supplying element-specific weighting under
-                            "species_weighting", see below.
-                        * ``"mu1nu1"``: Implements the mu=1, nu=1 feature compression scheme from Darby et al.: :math:`p_{inn'l}^{Z_1,Z_2} \sum_m (c_{nlm}^{i, Z_1})^{*} (\sum_z c_{n'lm}^{i, z})`.
-                            In other words, each coefficient for each species is multiplied by a "species-mu2" sum over the corresponding set of coefficients for all other species.
-                            If this option is selected, features are generated for each center, but the number of features (the size of each feature vector) scales linearly rather than
-                            quadratically with the number of elements in the system.
-                        * ``"crossover"``: The power spectrum does not contain cross-species information
-                            and is only run over each unique species Z. In this configuration, the size of
-                            the feature vector scales linearly with the number of elements in the system.
-                    * ```"species_weighting"```: Either None or a dictionary mapping each species to a
-                        species-specific weight. If None, there is no species-specific weighting. If a dictionary,
-                        must contain a matching key for each species in the ``species`` iterable.
-                        The main use of species weighting is to weight each element differently when using
-                        the "mu2" option for ``compression``.
+                    * ``"mode"``: Specifies the type of compression. This can be one of:
+
+                      * ``"off"``: No compression; default.
+                      * ``"mu2"``: The SOAP feature vector is generated in an element-agnostic way, so that
+                        the size of the feature vector is now independent of the number of elements (see Darby et al.
+                        below for details). It is still possible when using this option to construct a feature
+                        vector that distinguishes between elements by supplying element-specific weighting under
+                        "species_weighting", see below.
+                      * ``"mu1nu1"``: Implements the mu=1, nu=1 feature compression scheme from Darby et al.: :math:`p_{inn'l}^{Z_1,Z_2} \sum_m (c_{nlm}^{i, Z_1})^{*} (\sum_z c_{n'lm}^{i, z})`.
+                        In other words, each coefficient for each species is multiplied by a "species-mu2" sum over the corresponding set of coefficients for all other species.
+                        If this option is selected, features are generated for each center, but the number of features (the size of each feature vector) scales linearly rather than
+                        quadratically with the number of elements in the system.
+                      * ``"crossover"``: The power spectrum does not contain cross-species information
+                        and is only run over each unique species Z. In this configuration, the size of
+                        the feature vector scales linearly with the number of elements in the system.
+
+                    * ``"species_weighting"``: Either ``None`` or a dictionary mapping each species to a
+                      species-specific weight. If None, there is no species-specific weighting. If a dictionary,
+                      must contain a matching key for each species in the ``species`` iterable.
+                      The main use of species weighting is to weight each element differently when using
+                      the "mu2" option for ``compression``.
 
                     For reference see:
                         "Darby, J.P., Kermode, J.R. & Csányi, G.
