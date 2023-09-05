@@ -202,7 +202,6 @@ class SOAP(DescriptorLocal):
         # Setup the involved chemical species
         self.species = species
 
-
         # Test that general settings are valid
         if sigma <= 0:
             raise ValueError(
@@ -227,7 +226,6 @@ class SOAP(DescriptorLocal):
                 "Invalid average mode '{}' given. Please use "
                 "one of the following: {}".format(average, supported_average)
             )
-
 
         if not (weighting or r_cut):
             raise ValueError("Either weighting or r_cut need to be defined")
@@ -866,9 +864,7 @@ class SOAP(DescriptorLocal):
         if mode not in supported_modes:
             raise ValueError(
                 "Invalid compression mode '{}' given. Please use "
-                "one of the following: {}".format(
-                    mode, supported_modes
-                )
+                "one of the following: {}".format(mode, supported_modes)
             )
 
         # Check species weighting
