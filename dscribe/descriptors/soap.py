@@ -1073,6 +1073,7 @@ class SOAP(DescriptorLocal):
         # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
         # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
         # the basis orthonormal are given by B=S^{-1/2}
+        # See eq. 25 in "On representing chemical environments", Bartok et al., 2013
         S = np.zeros((n_max, n_max), dtype=np.float64)
         norm_factors = np.zeros(n_max, dtype=np.float64)
         for i in range(1, n_max + 1):
