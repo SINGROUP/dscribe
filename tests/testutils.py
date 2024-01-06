@@ -239,13 +239,16 @@ def coefficients_polynomial(system, centers, args):
     # radial coordinate are analytically calculable: Integrate[(rc - r)^(a
     # + 2) (rc - r)^(b + 2) r^2, {r, 0, rc}]. Then the weights B that make
     # the basis orthonormal are given by B=S^{-1/2}
-    S = np.zeros((n_max, n_max))
+    S = np.zeros((n_max, n_max), dtype=np.float64)
+    norm_factors = np.zeros(n_max, dtype=np.float64)
     for i in range(1, n_max + 1):
+        norm_factors[i - 1] = np.sqrt(r_cut ** (2 * i + 5) / (2 * i + 5))
         for j in range(1, n_max + 1):
-            S[i - 1, j - 1] = (2 * (r_cut) ** (7 + i + j)) / (
-                (5 + i + j) * (6 + i + j) * (7 + i + j)
-            )
-    betas = sqrtm(np.linalg.inv(S))
+            S[i - 1, j - 1] = np.sqrt((5 + 2 * j) * (5 + 2 * i)) / (5 + i + j)
+
+    # Get the beta factors that orthonormalize the set with Löwdin
+    # orthonormalization
+    betas = sqrtm(np.linalg.inv(S)) / norm_factors[None, :]
 
     def rbf_polynomial(r, n, l):
         poly = 0
