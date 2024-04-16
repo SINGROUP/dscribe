@@ -73,29 +73,28 @@ PYBIND11_MODULE(ext, m) {
 
     // ACSF
     py::class_<ACSF>(m, "ACSFWrapper")
-        .def(py::init<double , vector<vector<double> > , vector<double> , vector<vector<double> > , vector<vector<double> > , vector<int> >())
-        .def(py::init<>())
-        .def("create", &ACSF::create)
-        .def("set_g2_params", &ACSF::setG2Params)
-        .def("get_g2_params", &ACSF::getG2Params)
-        .def_readwrite("n_types", &ACSF::nTypes)
-        .def_readwrite("n_type_pairs", &ACSF::nTypePairs)
-        .def_readwrite("n_g2", &ACSF::nG2)
-        .def_readwrite("n_g3", &ACSF::nG3)
-        .def_readwrite("n_g4", &ACSF::nG4)
-        .def_readwrite("n_g5", &ACSF::nG5)
-        .def_property("r_cut", &ACSF::getRCut, &ACSF::setRCut)
-        .def_property("g3_params", &ACSF::getG3Params, &ACSF::setG3Params)
-        .def_property("g4_params", &ACSF::getG4Params, &ACSF::setG4Params)
-        .def_property("g5_params", &ACSF::getG5Params, &ACSF::setG5Params)
-        .def_property("atomic_numbers", &ACSF::getAtomicNumbers, &ACSF::setAtomicNumbers)
+        .def(py::init<double, vector<vector<double> > , vector<double> , vector<vector<double> > , vector<vector<double> > , vector<int> , bool>())
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<int> >()(&DescriptorLocal::create))
+        .def("set_g2_params", &ACSF::set_g2_params)
+        .def("get_g2_params", &ACSF::get_g2_params)
+        .def_readwrite("n_types", &ACSF::n_types)
+        .def_readwrite("n_type_pairs", &ACSF::n_type_pairs)
+        .def_readwrite("n_g2", &ACSF::n_g2)
+        .def_readwrite("n_g3", &ACSF::n_g3)
+        .def_readwrite("n_g4", &ACSF::n_g4)
+        .def_readwrite("n_g5", &ACSF::n_g5)
+        .def_property("r_cut", &ACSF::get_r_cut, &ACSF::set_r_cut)
+        .def_property("g3_params", &ACSF::get_g3_params, &ACSF::set_g3_params)
+        .def_property("g4_params", &ACSF::get_g4_params, &ACSF::set_g4_params)
+        .def_property("g5_params", &ACSF::get_g5_params, &ACSF::set_g5_params)
+        .def_property("atomic_numbers", &ACSF::get_atomic_numbers, &ACSF::set_atomic_numbers)
 
         .def(py::pickle(
             [](const ACSF &p) {
-                return py::make_tuple(p.rCut, p.g2Params, p.g3Params, p.g4Params, p.g5Params, p.atomicNumbers);
+                return py::make_tuple(p.r_cut, p.g2_params, p.g3_params, p.g4_params, p.g5_params, p.atomic_numbers, p.periodic);
             },
             [](py::tuple t) {
-                if (t.size() != 6)
+                if (t.size() != 7)
                     throw std::runtime_error("Invalid state!");
                 ACSF p(
                     t[0].cast<double>(),
@@ -103,7 +102,8 @@ PYBIND11_MODULE(ext, m) {
                     t[2].cast<vector<double>>(),
                     t[3].cast<vector<vector<double> >>(),
                     t[4].cast<vector<vector<double> >>(),
-                    t[5].cast<vector<int>>()
+                    t[5].cast<vector<int>>(),
+                    t[6].cast<bool>()
                 );
                 return p;
             }

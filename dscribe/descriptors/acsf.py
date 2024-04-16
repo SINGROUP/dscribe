@@ -19,6 +19,7 @@ import numpy as np
 import sparse as sp
 from scipy.sparse import coo_matrix
 from ase import Atoms
+import ase.geometry.cell
 
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
 from dscribe.ext import ACSFWrapper
@@ -78,15 +79,15 @@ class ACSF(DescriptorLocal):
         """
         super().__init__(periodic=periodic, sparse=sparse, dtype=dtype)
 
-        self.acsf_wrapper = ACSFWrapper()
+        self.acsf_wrapper = ACSFWrapper(r_cut, g2_params, g3_params, g4_params, g5_params, periodic)
 
         # Setup
-        self.species = species
-        self.g2_params = g2_params
-        self.g3_params = g3_params
-        self.g4_params = g4_params
-        self.g5_params = g5_params
-        self.r_cut = r_cut
+        # self.species = species
+        # self.g2_params = g2_params
+        # self.g3_params = g3_params
+        # self.g4_params = g4_params
+        # self.g5_params = g5_params
+        # self.r_cut = r_cut
 
     def create(
         self, system, centers=None, n_jobs=1, only_physical_cores=False, verbose=False
@@ -191,90 +192,21 @@ class ACSF(DescriptorLocal):
 
         # Create C-compatible list of atomic indices for which the ACSF is
         # calculated
-        calculate_all = False
         if centers is None:
-            calculate_all = True
-            indices = np.arange(len(system))
-        else:
-            indices = centers
-
-        # If periodicity is not requested, and the output is requested for all
-        # atoms, we skip all the intricate optimizations that will make things
-        # actually slower for this case.
-        if calculate_all and not self.periodic:
-            n_atoms = len(system)
-            all_pos = system.get_positions()
-            dmat = dscribe.utils.geometry.get_adjacency_matrix(
-                self.r_cut, all_pos, all_pos
-            )
-        # Otherwise the amount of pairwise distances that are calculated is
-        # kept at minimum. Only distances for the given indices (and possibly
-        # the secondary neighbours if G4 is specified) are calculated.
-        else:
-            # Create the extended system if periodicity is requested. For ACSF only
-            # the distance from central atom needs to be considered in extending
-            # the system.
-            if self.periodic:
-                system = dscribe.utils.geometry.get_extended_system(
-                    system, self.r_cut, return_cell_indices=False
-                )
-
-            # First calculate distances from specified centers to all other
-            # atoms. This is already enough for everything else except G4.
-            n_atoms = len(system)
-            all_pos = system.get_positions()
-            central_pos = all_pos[indices]
-            dmat_primary = dscribe.utils.geometry.get_adjacency_matrix(
-                self.r_cut, central_pos, all_pos
-            )
-
-            # Create symmetric full matrix
-            col = dmat_primary.col
-            row = [
-                indices[x] for x in dmat_primary.row
-            ]  # Fix row numbering to refer to original system
-            data = dmat_primary.data
-            dmat = coo_matrix((data, (row, col)), shape=(n_atoms, n_atoms))
-            dmat_lil = dmat.tolil()
-            dmat_lil[col, row] = dmat_lil[row, col]
-
-            # If G4 terms are requested, calculate also secondary neighbour distances
-            if len(self.g4_params) != 0:
-                neighbour_indices = np.unique(col)
-                neigh_pos = all_pos[neighbour_indices]
-                dmat_secondary = dscribe.utils.geometry.get_adjacency_matrix(
-                    self.r_cut, neigh_pos, neigh_pos
-                )
-                col = [
-                    neighbour_indices[x] for x in dmat_secondary.col
-                ]  # Fix col numbering to refer to original system
-                row = [
-                    neighbour_indices[x] for x in dmat_secondary.row
-                ]  # Fix row numbering to refer to original system
-                dmat_lil[row, col] = np.array(dmat_secondary.data)
-
-            dmat = dmat_lil.tocoo()
-
-        # Get adjancency list and full dense adjancency matrix
-        neighbours = dscribe.utils.geometry.get_adjacency_list(dmat)
-        dmat_dense = np.full(
-            (n_atoms, n_atoms), sys.float_info.max
-        )  # The non-neighbor values are treated as "infinitely far".
-        dmat_dense[dmat.col, dmat.row] = dmat.data
+            centers = np.arange(len(system))
 
         # Calculate ACSF with C++
-        output = np.array(
-            self.acsf_wrapper.create(
-                system.get_positions(),
-                system.get_atomic_numbers(),
-                dmat_dense,
-                neighbours,
-                indices,
-            ),
-            dtype=np.float64,
-        )
+        out = self.init_descriptor_array(len(centers))
+        self.acsf_wrapper.create(
+            out,
+            system.get_positions(),
+            system.get_atomic_numbers(),
+            ase.geometry.cell.complete_cell(system.get_cell()),
+            np.asarray(system.get_pbc(), dtype=bool),
+            centers,
+        ),
 
-        return output
+        return out
 
     def get_number_of_features(self):
         """Used to inquire the final number of features that this descriptor
@@ -283,11 +215,7 @@ class ACSF(DescriptorLocal):
         Returns:
             int: Number of features for this descriptor.
         """
-        wrapper = self.acsf_wrapper
-        descsize = (1 + wrapper.n_g2 + wrapper.n_g3) * wrapper.n_types
-        descsize += (wrapper.n_g4 + wrapper.n_g5) * wrapper.n_type_pairs
-
-        return int(descsize)
+        return self.acsf_wrapper.get_number_of_features()
 
     def validate_derivatives_method(self, method, attach):
         if not attach:

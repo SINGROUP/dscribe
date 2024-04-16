@@ -53,6 +53,16 @@ void SOAPGTO::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
+    py::array_t<int> centers,
+    CellList cell_list
+)
+{
+}
+
+void SOAPGTO::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
     py::array_t<double> centers,
     CellList cell_list
 )
@@ -198,6 +208,15 @@ SOAPPolynomial::SOAPPolynomial(
 {
 }
 
+void SOAPPolynomial::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<int> centers,
+    CellList cell_list
+)
+{
+}
 void SOAPPolynomial::create(
     py::array_t<double> out, 
     py::array_t<double> positions,

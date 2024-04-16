@@ -13,138 +13,167 @@
 
 using namespace std;
 
-ACSF::ACSF(double rCut, vector<vector<double> > g2Params, vector<double> g3Params, vector<vector<double> > g4Params, vector<vector<double> > g5Params, vector<int> atomicNumbers)
+ACSF::ACSF(double r_cut, vector<vector<double> > g2_params, vector<double> g3_params, vector<vector<double> > g4_params, vector<vector<double> > g5_params, vector<int> atomic_numbers, bool periodic)
+    : DescriptorLocal(periodic, "off", r_cut)
 {
-    setRCut(rCut);
-    setG2Params(g2Params);
-    setG3Params(g3Params);
-    setG4Params(g4Params);
-    setG5Params(g5Params);
-    setAtomicNumbers(atomicNumbers);
+    set_r_cut(r_cut);
+    set_g2_params(g2_params);
+    set_g3_params(g3_params);
+    set_g4_params(g4_params);
+    set_g5_params(g5_params);
+    set_atomic_numbers(atomic_numbers);
 }
 
-void ACSF::setRCut(double rCut)
+void ACSF::set_r_cut(double r_cut)
 {
-    this->rCut = rCut;
+    this->r_cut = r_cut;
 }
-double ACSF::getRCut()
+double ACSF::get_r_cut()
 {
-return this->rCut;
-}
-
-void ACSF::setG2Params(vector<vector<double> > g2Params)
-{
-    this->g2Params = g2Params;
-    nG2 = g2Params.size();
+return this->r_cut;
 }
 
-vector<vector<double> > ACSF::getG2Params()
+void ACSF::set_g2_params(vector<vector<double> > g2_params)
 {
-return this->g2Params;
+    this->g2_params = g2_params;
+    n_g2 = g2_params.size();
 }
 
-
-void ACSF::setG3Params(vector<double> g3Params)
+vector<vector<double> > ACSF::get_g2_params()
 {
-    this->g3Params = g3Params;
-    nG3 = g3Params.size();
-}
-vector<double> ACSF::getG3Params()
-{
-return this->g3Params;
+    return this->g2_params;
 }
 
 
-void ACSF::setG4Params(vector<vector<double> > g4Params)
+void ACSF::set_g3_params(vector<double> g3_params)
 {
-    this->g4Params = g4Params;
-    nG4 = g4Params.size();
+    this->g3_params = g3_params;
+    n_g3 = g3_params.size();
 }
-vector<vector<double> > ACSF::getG4Params()
+vector<double> ACSF::get_g3_params()
 {
-return this->g4Params;
-}
-
-
-void ACSF::setG5Params(vector<vector<double> > g5Params)
-{
-    this->g5Params = g5Params;
-    nG5 = g5Params.size();
-}
-vector<vector<double> > ACSF::getG5Params()
-{
-return this->g5Params;
+    return this->g3_params;
 }
 
 
-void ACSF::setAtomicNumbers(vector<int> atomicNumbers)
+void ACSF::set_g4_params(vector<vector<double> > g4_params)
 {
-    this->atomicNumbers = atomicNumbers;
-    nTypes = atomicNumbers.size();
-    nTypePairs = nTypes*(nTypes+1)/2;
-    unordered_map<int, int> atomicNumberToIndexMap;
+    this->g4_params = g4_params;
+    n_g4 = g4_params.size();
+}
+vector<vector<double> > ACSF::get_g4_params()
+{
+    return this->g4_params;
+}
+
+
+void ACSF::set_g5_params(vector<vector<double> > g5_params)
+{
+    this->g5_params = g5_params;
+    n_g5 = g5_params.size();
+}
+vector<vector<double> > ACSF::get_g5_params()
+{
+    return this->g5_params;
+}
+
+
+void ACSF::set_atomic_numbers(vector<int> atomic_numbers)
+{
+    this->atomic_numbers = atomic_numbers;
+    n_types = atomic_numbers.size();
+    n_type_pairs = n_types * (n_types + 1) / 2;
+    unordered_map<int, int> atomic_number_to_index_map;
     int i = 0;
-    for (int Z : atomicNumbers) {
-        atomicNumberToIndexMap[Z] = i;
+    for (int Z : atomic_numbers) {
+        atomic_number_to_index_map[Z] = i;
         ++i;
     }
-    this->atomicNumberToIndexMap = atomicNumberToIndexMap;
+    this->atomic_number_to_index_map = atomic_number_to_index_map;
 }
-vector<int> ACSF::getAtomicNumbers()
+vector<int> ACSF::get_atomic_numbers()
 {
-return this->atomicNumbers;
+return this->atomic_numbers;
 }
 
-
-vector<vector<double> > ACSF::create(vector<vector<double> > &positions, vector<int> &atomicNumbers, const vector<vector<double> > &distances, const vector<vector<int> > &neighbours, vector<int> &indices)
+inline int ACSF::get_number_of_features() const
 {
+    return (1 + this->n_g2 + this->n_g3) * this->n_types + (this->n_g4 + this->n_g5) * this->n_type_pairs;
+}
 
-    // Allocate memory
-    int nIndices = indices.size();
-    vector<vector<double> > output(nIndices, vector<double>((1+nG2+nG3)*nTypes+(nG4+nG5)*nTypePairs, 0));
+void ACSF::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> centers,
+    CellList cell_list
+)
+{
+}
 
-    // Calculate the symmetry function values for every specified atom
-    int index = 0;
-    for (int &i : indices) {
+void ACSF::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<int> centers,
+    CellList cell_list
+)
+{
+    auto out_mu = out.mutable_unchecked<2>();
+    auto centers_u = centers.unchecked<1>(); 
+    auto positions_u = positions.unchecked<2>(); 
+    auto atomic_numbers_u = atomic_numbers.unchecked<1>(); 
 
-        // Compute pairwise terms only for neighbors within cutoff
-        const vector<int> &i_neighbours = neighbours[i];
-        vector<double> &row = output[index];
-        for (const int &j : i_neighbours) {
+    // Loop through centers
+    const int n_centers = centers.shape(0);
+    for (int index_i = 0; index_i < n_centers; ++index_i) {
+        int i = centers_u[index_i];
+
+        // Loop through neighbours
+        CellListResult neighbours_i = cell_list.getNeighboursForIndex(i);
+        int n_neighbours = neighbours_i.indices.size();
+        for (int j_neighbour = 0; j_neighbour > n_neighbours; ++j_neighbour) {
+            int j = neighbours_i.indices[j_neighbour];
             if (i == j) {
                 continue;
             }
 
             // Precompute some values
-            double r_ij = distances[i][j];
-            double fc_ij = computeCutoff(r_ij);
-            int index_j = atomicNumberToIndexMap[atomicNumbers[j]];
-            int offset = index_j * (1+nG2+nG3);  // Skip G1, G2, G3 types that are not the ones of atom bi
+            double r_ij = neighbours_i.distances[j_neighbour];
+            double fc_ij = compute_cutoff(r_ij);
+            int index_j = atomic_number_to_index_map[atomic_numbers_u[j]];
+            int offset = index_j * (1+n_g2+n_g3);  // Skip G1, G2, G3 types that are not the ones of atom bi
 
             // Compute G1
-            computeG1(row, offset, fc_ij);
+            compute_g1(out_mu, index_i, offset, fc_ij);
 
             // Compute G2
-            computeG2(row, offset, r_ij, fc_ij);
+            compute_g2(out_mu, index_i, offset, r_ij, fc_ij);
 
             // Compute G3
-            computeG3(row, offset, r_ij, fc_ij);
+            compute_g3(out_mu, index_i, offset, r_ij, fc_ij);
 
-            // Compute angle terms only when both neighbors are within cutoff
-            if (g4Params.size() != 0 || g5Params.size() != 0) {
-                for (const int &k : i_neighbours) {
+            // If g4 or g5 requested, loop through second neighbours
+            if (g4_params.size() != 0 || g5_params.size() != 0) {
+                for (int k_neighbour = 0; k_neighbour > n_neighbours; ++k_neighbour) {
+                    int k = neighbours_i.indices[k_neighbour];
                     if (k == i || k >= j) {
                         continue;
                     }
 
+                    // Calculate j-k distance: it is not contained in the cell lists.
+                    double dx = positions_u(j, 0) - positions_u(k, 0);
+                    double dy = positions_u(j, 1) - positions_u(k, 1);
+                    double dz = positions_u(j, 2) - positions_u(k, 2);
+                    double r_jk_square = dx*dx + dy*dy + dz*dz;
+                    double r_jk = sqrt(r_jk_square);
+
                     // Precompute some values that are used by both G4 and G5
-                    double r_ik = distances[i][k];
-                    double r_jk = distances[j][k];
-                    double fc_ik = computeCutoff(r_ik);
-                    double r_ij_square = r_ij*r_ij;
-                    double r_ik_square = r_ik*r_ik;
-                    double r_jk_square = r_jk*r_jk;
-                    int index_k = atomicNumberToIndexMap[atomicNumbers[k]];
+                    double r_ik = neighbours_i.distances[k_neighbour];
+                    double fc_ik = compute_cutoff(r_ik);
+                    double r_ij_square = neighbours_i.distancesSquared[j_neighbour];
+                    double r_ik_square = neighbours_i.distancesSquared[k_neighbour];
+                    int index_k = atomic_number_to_index_map[atomic_numbers_u[k]];
                     double costheta = 0.5/(r_ij*r_ik) * (r_ij_square+r_ik_square-r_jk_square);
 
                     // Determine the location for this triplet of species
@@ -154,90 +183,82 @@ vector<vector<double> > ACSF::create(vector<vector<double> > &positions, vector<
                     } else  {
                         its = (index_k*(index_k+1))/2 + index_j;
                     }
-                    offset = nTypes * (1+nG2+nG3);         // Skip this atoms G1 G2 and G3
-                    offset += its * (nG4+nG5);              // skip G4 and G5 types that are not the ones of atom bi
+                    offset = n_types * (1+n_g2+n_g3);         // Skip this atoms G1 G2 and G3
+                    offset += its * (n_g4+n_g5);              // skip G4 and G5 types that are not the ones of atom bi
 
                     // Compute G4
-                    computeG4(row, offset, costheta, r_jk, r_ij_square, r_ik_square, r_jk_square, fc_ij, fc_ik);
+                    compute_g4(out_mu, index_i, offset, costheta, r_jk, r_ij_square, r_ik_square, r_jk_square, fc_ij, fc_ik);
 
                     // Compute G5
-                    computeG5(row, offset, costheta, r_ij_square, r_ik_square, fc_ij, fc_ik);
+                    compute_g5(out_mu, index_i, offset, costheta, r_ij_square, r_ik_square, fc_ij, fc_ik);
                 }
             }
         }
-        ++index;
     }
-    return output;
 }
-
 
 /*! \brief Computes the value of the cutoff fuction at a specific distance.
  * */
-inline double ACSF::computeCutoff(double r_ij) {
-	return 0.5*(cos(r_ij*PI/rCut)+1);
+inline double ACSF::compute_cutoff(double r_ij) {
+	return 0.5 * (cos(r_ij * PI / r_cut) + 1);
 }
 
-inline void ACSF::computeG1(vector<double> &output, int &offset, double &fc_ij) {
-    output[offset] += fc_ij;
+inline void ACSF::compute_g1(py::detail::unchecked_mutable_reference<double, 2> &out_mu, int &index, int &offset, double &fc_ij) {
+    out_mu(index, offset) += fc_ij;
     offset += 1;
 }
 
-inline void ACSF::computeG2(vector<double> &output, int &offset, double &r_ij, double &fc_ij) {
-
-	// Compute G2 - gaussian types
+inline void ACSF::compute_g2(py::detail::unchecked_mutable_reference<double, 2> &out_mu, int &index, int &offset, double &r_ij, double &fc_ij) {
     double eta;
     double Rs;
-	for (auto params : g2Params) {
+	for (auto params : g2_params) {
         eta = params[0];
         Rs = params[1];
-        output[offset] += exp(-eta * (r_ij - Rs)*(r_ij - Rs)) * fc_ij;
+        out_mu(index, offset) += exp(-eta * (r_ij - Rs)*(r_ij - Rs)) * fc_ij;
         offset++;
 	}
 }
 
-inline void ACSF::computeG3(vector<double> &output, int &offset, double &r_ij, double &fc_ij) {
-	// Compute G3 - cosine type
-	for (auto param : g3Params) {
-        output[offset] += cos(r_ij*param)*fc_ij;
+inline void ACSF::compute_g3(py::detail::unchecked_mutable_reference<double, 2> &out_mu, int &index, int &offset, double &r_ij, double &fc_ij) {
+	for (auto param : g3_params) {
+        out_mu(index, offset) += cos(r_ij*param)*fc_ij;
         offset++;
     }
 }
 
-inline void ACSF::computeG4(vector<double> &output, int &offset, double &costheta, double &r_jk, double &r_ij_square, double &r_ik_square, double &r_jk_square, double &fc_ij, double &fc_ik) {
-	// Compute G4
-    if (r_jk > rCut) {
-        offset += g4Params.size();
+inline void ACSF::compute_g4(py::detail::unchecked_mutable_reference<double, 2> &out_mu, int &index, int &offset, double &costheta, double &r_jk, double &r_ij_square, double &r_ik_square, double &r_jk_square, double &fc_ij, double &fc_ik) {
+    if (r_jk > r_cut) {
+        offset += g4_params.size();
         return;
     }
-    double cutoff_jk = computeCutoff(r_jk);
+    double cutoff_jk = compute_cutoff(r_jk);
 	double fc4 = fc_ij*fc_ik*cutoff_jk;
 	double eta;
 	double zeta;
 	double lambda;
 	double gauss;
-	for (auto params : g4Params) {
+	for (auto params : g4_params) {
 		eta = params[0];
 		zeta = params[1];
 		lambda = params[2];
 		gauss = exp(-eta*(r_ij_square+r_ik_square+r_jk_square)) * fc4;
-		output[offset] += 2*pow(0.5*(1 + lambda*costheta), zeta) * gauss;
+		out_mu(index, offset) += 2*pow(0.5*(1 + lambda*costheta), zeta) * gauss;
 		offset++;
 	}
 }
 
-inline void ACSF::computeG5(vector<double> &output, int &offset, double &costheta, double &r_ij_square, double &r_ik_square, double &fc_ij, double &fc_ik) {
-	// Compute G5
+inline void ACSF::compute_g5(py::detail::unchecked_mutable_reference<double, 2> &out_mu, int &index, int &offset, double &costheta, double &r_ij_square, double &r_ik_square, double &fc_ij, double &fc_ik) {
 	double eta;
 	double zeta;
 	double lambda;
 	double gauss;
 	double fc5 = fc_ij*fc_ik;
-	for (auto params : g5Params) {
+	for (auto params : g5_params) {
 		eta = params[0];
 		zeta = params[1];
 		lambda = params[2];
 		gauss = exp(-eta*(r_ij_square+r_ik_square)) * fc5;
-		output[offset] += 2*pow(0.5*(1 + lambda*costheta), zeta) * gauss;
+		out_mu(index, offset) += 2*pow(0.5*(1 + lambda*costheta), zeta) * gauss;
 		offset++;
 	}
 }

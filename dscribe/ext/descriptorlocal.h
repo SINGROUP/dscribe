@@ -29,16 +29,10 @@ using namespace std;
  */
 class DescriptorLocal : public Descriptor {
     public:
+        DescriptorLocal(bool periodic, string average="", double cutoff=0);
         /**
          * @brief Version of 'create' that automatically extends the system
          * based on PBC and calculates celllist.
-         * 
-         * @param out 
-         * @param positions 
-         * @param atomic_numbers 
-         * @param cell 
-         * @param pbc 
-         * @param centers 
          */
         void create(
             py::array_t<double> out, 
@@ -48,14 +42,17 @@ class DescriptorLocal : public Descriptor {
             py::array_t<bool> pbc,
             py::array_t<double> centers
         );
+        void create(
+            py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<bool> pbc,
+            py::array_t<int> centers
+        );
 
         /**
          * @brief Version of 'create' that automatically calculates celllist.
-         * 
-         * @param out 
-         * @param positions 
-         * @param atomic_numbers 
-         * @param centers 
          */
         void create(
             py::array_t<double> out, 
@@ -63,21 +60,28 @@ class DescriptorLocal : public Descriptor {
             py::array_t<int> atomic_numbers,
             py::array_t<double> centers
         );
+        void create(
+            py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<int> centers
+        );
 
         /**
          * @brief Pure virtual function for calculating the feature vectors.
-         * 
-         * @param out 
-         * @param positions 
-         * @param atomic_numbers 
-         * @param centers 
-         * @param cell_list 
          */
         virtual void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
             py::array_t<double> centers,
+            CellList cell_list
+        ) = 0;
+        virtual void create(
+            py::array_t<double> out, 
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<int> centers,
             CellList cell_list
         ) = 0;
 
@@ -111,8 +115,6 @@ class DescriptorLocal : public Descriptor {
             bool return_descriptor
         );
 
-    protected:
-        DescriptorLocal(bool periodic, string average="", double cutoff=0);
 };
 
 #endif
