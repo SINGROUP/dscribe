@@ -31,8 +31,8 @@ class DescriptorLocal : public Descriptor {
     public:
         DescriptorLocal(bool periodic, string average="", double cutoff=0);
         /**
-         * @brief Version of 'create' that automatically extends the system
-         * based on PBC and calculates celllist.
+         * Versions of 'create' that automatically extends the system based on
+         * PBC and calculate celllist.
          */
         void create(
             py::array_t<double> out, 
@@ -52,7 +52,8 @@ class DescriptorLocal : public Descriptor {
         );
 
         /**
-         * @brief Version of 'create' that automatically calculates celllist.
+         * Versions of 'create' that automatically calculate
+         * celllist.
          */
         void create(
             py::array_t<double> out, 
@@ -68,7 +69,7 @@ class DescriptorLocal : public Descriptor {
         );
 
         /**
-         * @brief Pure virtual function for calculating the feature vectors.
+         * Pure virtual function for calculating the feature vectors.
          */
         virtual void create(
             py::array_t<double> out, 

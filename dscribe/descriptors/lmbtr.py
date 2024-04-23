@@ -391,16 +391,16 @@ class LMBTR(DescriptorLocal):
             centers, for k terms, as an array. These are ordered as given in
             centers.
         """
-        # Check that the system does not have elements that are not in the list
-        # of atomic numbers
-        atomic_number_set = set(system.get_atomic_numbers())
-        self.check_atomic_numbers(atomic_number_set)
+        # Validate and normalize system
+        self.validate_positions(system.get_positions())
+        atomic_numbers = self.validate_atomic_numbers(system.get_atomic_numbers())
+        pbc = self.validate_pbc(system.get_pbc())
+        self.validate_cell(system.get_cell(), pbc)
         self._interaction_limit = len(system)
         system_positions = system.get_positions()
-        system_atomic_numbers = system.get_atomic_numbers()
 
         # Ensure that the atomic number 0 is not present in the system
-        if 0 in atomic_number_set:
+        if 0 in set(atomic_numbers):
             raise ValueError(
                 "Please do not use the atomic number 0 in local MBTR as it "
                 "is reserved to mark the atoms use as analysis centers."
@@ -437,7 +437,7 @@ class LMBTR(DescriptorLocal):
                     indices_k2.append(i)
                     indices_k3.append(i)
                     new_pos_k2.append(system_positions[i])
-                    new_atomic_numbers_k2.append(system_atomic_numbers[i])
+                    new_atomic_numbers_k2.append(atomic_numbers[i])
                 elif isinstance(i, (list, tuple, np.ndarray)):
                     if len(i) != 3:
                         raise ValueError(
@@ -862,7 +862,7 @@ class LMBTR(DescriptorLocal):
             numbers.append(specie)
 
         # Check that species exists and that X is included
-        self.check_atomic_numbers(numbers)
+        self.validate_atomic_numbers(numbers)
         if 0 not in numbers:
             raise ValueError(
                 "The central species X (atomic number 0) has to be one of the elements."

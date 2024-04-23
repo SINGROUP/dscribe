@@ -13,17 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import sys
-
 import numpy as np
-import sparse as sp
-from scipy.sparse import coo_matrix
 from ase import Atoms
-import ase.geometry.cell
 
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
 from dscribe.ext import ACSFWrapper
-import dscribe.utils.geometry
 
 
 class ACSF(DescriptorLocal):
@@ -79,17 +73,16 @@ class ACSF(DescriptorLocal):
         """
         super().__init__(periodic=periodic, sparse=sparse, dtype=dtype)
 
+        self._set_species(species)
         self.acsf_wrapper = ACSFWrapper(
-            r_cut, g2_params, g3_params, g4_params, g5_params, periodic
+            self.validate_r_cut(r_cut),
+            self.validate_g2_params(g2_params),
+            self.validate_g3_params(g3_params),
+            self.validate_g4_params(g4_params),
+            self.validate_g5_params(g5_params),
+            self._atomic_numbers,
+            periodic,
         )
-
-        # Setup
-        # self.species = species
-        # self.g2_params = g2_params
-        # self.g3_params = g3_params
-        # self.g4_params = g4_params
-        # self.g5_params = g5_params
-        # self.r_cut = r_cut
 
     def create(
         self, system, centers=None, n_jobs=1, only_physical_cores=False, verbose=False
@@ -189,8 +182,11 @@ class ACSF(DescriptorLocal):
             first dimension is given by the number of centers and the second
             dimension is determined by the get_number_of_features()-function.
         """
-        # Check if there are types that have not been declared
-        self.check_atomic_numbers(system.get_atomic_numbers())
+        # Validate and normalize system
+        positions = self.validate_positions(system.get_positions())
+        atomic_numbers = self.validate_atomic_numbers(system.get_atomic_numbers())
+        pbc = self.validate_pbc(system.get_pbc())
+        cell = self.validate_cell(system.get_cell(), pbc)
 
         # Create C-compatible list of atomic indices for which the ACSF is
         # calculated
@@ -201,12 +197,12 @@ class ACSF(DescriptorLocal):
         out = self.init_descriptor_array(len(centers))
         self.acsf_wrapper.create(
             out,
-            system.get_positions(),
-            system.get_atomic_numbers(),
-            ase.geometry.cell.complete_cell(system.get_cell()),
-            np.asarray(system.get_pbc(), dtype=bool),
+            positions,
+            atomic_numbers,
+            cell,
+            pbc,
             centers,
-        ),
+        )
 
         return out
 
@@ -243,12 +239,7 @@ class ACSF(DescriptorLocal):
         self._set_species(value)
         self.acsf_wrapper.atomic_numbers = self._atomic_numbers.tolist()
 
-    @property
-    def r_cut(self):
-        return self.acsf_wrapper.r_cut
-
-    @r_cut.setter
-    def r_cut(self, value):
+    def validate_r_cut(self, value):
         """Used to check the validity of given radial cutoff.
 
         Args:
@@ -256,14 +247,17 @@ class ACSF(DescriptorLocal):
         """
         if value <= 0:
             raise ValueError("Cutoff radius should be positive.")
-        self.acsf_wrapper.r_cut = value
+        return value
 
     @property
-    def g2_params(self):
-        return self.acsf_wrapper.get_g2_params()
+    def r_cut(self):
+        return self.acsf_wrapper.r_cut
 
-    @g2_params.setter
-    def g2_params(self, value):
+    @r_cut.setter
+    def r_cut(self, value):
+        self.acsf_wrapper.r_cut = self.validate_r_cut(value)
+
+    def validate_g2_params(self, value):
         """Used to check the validity of given G2 parameters.
 
         Args:
@@ -288,14 +282,17 @@ class ACSF(DescriptorLocal):
             if np.any(value[:, 0] <= 0) is True:
                 raise ValueError("G2 eta parameters should be positive numbers.")
 
-        self.acsf_wrapper.set_g2_params(value.tolist())
+        return value.tolist()
 
     @property
-    def g3_params(self):
-        return self.acsf_wrapper.g3_params
+    def g2_params(self):
+        return self.acsf_wrapper.g2_params
 
-    @g3_params.setter
-    def g3_params(self, value):
+    @g2_params.setter
+    def g2_params(self, value):
+        self.acsf_wrapper.g2_params = self.validate_g2_params(value)
+
+    def validate_g3_params(self, value):
         """Used to check the validity of given G3 parameters and to
         initialize the C-memory layout for them.
 
@@ -311,14 +308,23 @@ class ACSF(DescriptorLocal):
             if value.ndim != 1:
                 raise ValueError("g3_params should be a vector.")
 
-        self.acsf_wrapper.g3_params = value.tolist()
+        return value.tolist()
 
     @property
-    def g4_params(self):
-        return self.acsf_wrapper.g4_params
+    def g3_params(self):
+        return self.acsf_wrapper.g3_params
 
-    @g4_params.setter
-    def g4_params(self, value):
+    @g3_params.setter
+    def g3_params(self, value):
+        """Used to check the validity of given G3 parameters and to
+        initialize the C-memory layout for them.
+
+        Args:
+            value(array): List of G3 parameters.
+        """
+        self.acsf_wrapper.g3_params = self.validate_g3_params(value)
+
+    def validate_g4_params(self, value):
         """Used to check the validity of given G4 parameters and to
         initialize the C-memory layout for them.
 
@@ -344,14 +350,17 @@ class ACSF(DescriptorLocal):
             if np.any(value[:, 2] <= 0) is True:
                 raise ValueError("3-body G4 eta parameters should be positive numbers.")
 
-        self.acsf_wrapper.g4_params = value.tolist()
+        return value.tolist()
 
     @property
-    def g5_params(self):
-        return self.acsf_wrapper.g5_params
+    def g4_params(self):
+        return self.acsf_wrapper.g4_params
 
-    @g5_params.setter
-    def g5_params(self, value):
+    @g4_params.setter
+    def g4_params(self, value):
+        self.acsf_wrapper.g4_params = self.validate_g4_params(value)
+
+    def validate_g5_params(self, value):
         """Used to check the validity of given G5 parameters and to
         initialize the C-memory layout for them.
 
@@ -377,4 +386,12 @@ class ACSF(DescriptorLocal):
             if np.any(value[:, 2] <= 0) is True:
                 raise ValueError("3-body G5 eta parameters should be positive numbers.")
 
-        self.acsf_wrapper.g5_params = value.tolist()
+        return value.tolist()
+
+    @property
+    def g5_params(self):
+        return self.acsf_wrapper.g5_params
+
+    @g5_params.setter
+    def g5_params(self, value):
+        self.acsf_wrapper.g5_params = self.validate_g5_params(value)

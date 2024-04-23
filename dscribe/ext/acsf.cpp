@@ -93,7 +93,7 @@ void ACSF::set_atomic_numbers(vector<int> atomic_numbers)
 }
 vector<int> ACSF::get_atomic_numbers()
 {
-return this->atomic_numbers;
+    return this->atomic_numbers;
 }
 
 inline int ACSF::get_number_of_features() const
@@ -132,11 +132,8 @@ void ACSF::create(
         // Loop through neighbours
         CellListResult neighbours_i = cell_list.getNeighboursForIndex(i);
         int n_neighbours = neighbours_i.indices.size();
-        for (int j_neighbour = 0; j_neighbour > n_neighbours; ++j_neighbour) {
+        for (int j_neighbour = 0; j_neighbour < n_neighbours; ++j_neighbour) {
             int j = neighbours_i.indices[j_neighbour];
-            if (i == j) {
-                continue;
-            }
 
             // Precompute some values
             double r_ij = neighbours_i.distances[j_neighbour];
@@ -155,9 +152,9 @@ void ACSF::create(
 
             // If g4 or g5 requested, loop through second neighbours
             if (g4_params.size() != 0 || g5_params.size() != 0) {
-                for (int k_neighbour = 0; k_neighbour > n_neighbours; ++k_neighbour) {
+                for (int k_neighbour = 0; k_neighbour < n_neighbours; ++k_neighbour) {
                     int k = neighbours_i.indices[k_neighbour];
-                    if (k == i || k >= j) {
+                    if (k >= j) {
                         continue;
                     }
 
@@ -184,7 +181,7 @@ void ACSF::create(
                         its = (index_k*(index_k+1))/2 + index_j;
                     }
                     offset = n_types * (1+n_g2+n_g3);         // Skip this atoms G1 G2 and G3
-                    offset += its * (n_g4+n_g5);              // skip G4 and G5 types that are not the ones of atom bi
+                    offset += its * (n_g4+n_g5);              // Skip G4 and G5 types that are not the ones of atom bi
 
                     // Compute G4
                     compute_g4(out_mu, index_i, offset, costheta, r_jk, r_ij_square, r_ik_square, r_jk_square, fc_ij, fc_ik);

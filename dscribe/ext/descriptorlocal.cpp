@@ -51,7 +51,39 @@ void DescriptorLocal::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
+    py::array_t<bool> pbc,
+    py::array_t<int> centers
+)
+{
+    // Extend system if periodicity is requested.
+    auto pbc_u = pbc.unchecked<1>();
+    bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
+    if (is_periodic) {
+        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        positions = system_extended.positions;
+        atomic_numbers = system_extended.atomic_numbers;
+    }
+    this->create(out, positions, atomic_numbers, centers);
+}
+
+void DescriptorLocal::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
     py::array_t<double> centers
+)
+{
+    // Calculate neighbours with a cell list
+    CellList cell_list(positions, this->cutoff);
+    this->create(out, positions, atomic_numbers, centers, cell_list);
+}
+
+void DescriptorLocal::create(
+    py::array_t<double> out, 
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<int> centers
 )
 {
     // Calculate neighbours with a cell list

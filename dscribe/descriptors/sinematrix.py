@@ -112,7 +112,7 @@ class SineMatrix(DescriptorMatrix):
         B = system.get_cell()
         try:
             B_inv = system.get_cell_inverse()
-        except:
+        except Exception:
             raise ValueError(
                 "The given system has a non-invertible cell matrix: {}.".format(B)
             )

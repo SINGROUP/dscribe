@@ -73,10 +73,9 @@ PYBIND11_MODULE(ext, m) {
 
     // ACSF
     py::class_<ACSF>(m, "ACSFWrapper")
-        .def(py::init<double, vector<vector<double> > , vector<double> , vector<vector<double> > , vector<vector<double> > , vector<int> , bool>())
+        .def(py::init<double, vector<vector<double> > , vector<double> , vector<vector<double> > , vector<vector<double> >, vector<int> , bool>())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<int> >()(&DescriptorLocal::create))
-        .def("set_g2_params", &ACSF::set_g2_params)
-        .def("get_g2_params", &ACSF::get_g2_params)
+        .def("get_number_of_features", &ACSF::get_number_of_features)
         .def_readwrite("n_types", &ACSF::n_types)
         .def_readwrite("n_type_pairs", &ACSF::n_type_pairs)
         .def_readwrite("n_g2", &ACSF::n_g2)
@@ -84,6 +83,7 @@ PYBIND11_MODULE(ext, m) {
         .def_readwrite("n_g4", &ACSF::n_g4)
         .def_readwrite("n_g5", &ACSF::n_g5)
         .def_property("r_cut", &ACSF::get_r_cut, &ACSF::set_r_cut)
+        .def_property("g2_params", &ACSF::get_g2_params, &ACSF::set_g2_params)
         .def_property("g3_params", &ACSF::get_g3_params, &ACSF::set_g3_params)
         .def_property("g4_params", &ACSF::get_g4_params, &ACSF::set_g4_params)
         .def_property("g5_params", &ACSF::get_g5_params, &ACSF::set_g5_params)

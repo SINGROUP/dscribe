@@ -401,9 +401,11 @@ class MBTR(DescriptorGlobal):
         self.system = system
         self._interaction_limit = len(system)
 
-        # Check that the system does not have elements that are not in the list
-        # of atomic numbers
-        self.check_atomic_numbers(system.get_atomic_numbers())
+        # Validate and normalize system
+        self.validate_positions(system.get_positions())
+        self.validate_atomic_numbers(system.get_atomic_numbers())
+        pbc = self.validate_pbc(system.get_pbc())
+        self.validate_cell(system.get_cell(), pbc)
 
         mbtr, _ = getattr(self, f"_get_k{self.k}")(system, True, False)
 
@@ -472,7 +474,7 @@ class MBTR(DescriptorGlobal):
             numbers.append(specie)
 
         # Check that species exists
-        self.check_atomic_numbers(numbers)
+        self.validate_atomic_numbers(numbers)
 
         # Change into internal indexing
         numbers = [self.atomic_number_to_index[x] for x in numbers]
@@ -929,7 +931,7 @@ class MBTR(DescriptorGlobal):
 
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
-        self.check_atomic_numbers(system.get_atomic_numbers())
+        self.validate_atomic_numbers(system.get_atomic_numbers())
 
         mbtr, mbtr_d = getattr(self, f"_get_k{self.k}")(system, return_descriptor, True)
 
