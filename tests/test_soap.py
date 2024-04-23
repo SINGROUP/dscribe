@@ -871,9 +871,7 @@ def test_rbf_orthonormality():
             gto = np.zeros((nr))
             rspace = np.linspace(0, r_cut + 5, nr)
             for k in range(n_max):
-                gto += (
-                    betas[l, n, k] * rspace**l * np.exp(-alphas[l, k] * rspace**2)
-                )
+                gto += betas[l, n, k] * rspace**l * np.exp(-alphas[l, k] * rspace**2)
             n_basis += 1
             functions[n, l, :] = gto
 

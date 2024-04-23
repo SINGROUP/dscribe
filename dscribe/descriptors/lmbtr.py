@@ -753,12 +753,12 @@ class LMBTR(DescriptorLocal):
 
             # Fill in block for extended system to new system
             dmat_ext_to_new = scipy.spatial.distance.cdist(ext_pos, new_pos)
-            dmat[
-                0:n_atoms_ext, n_atoms_ext : n_atoms_ext + n_atoms_new
-            ] = dmat_ext_to_new
-            dmat[
-                n_atoms_ext : n_atoms_ext + n_atoms_new, 0:n_atoms_ext
-            ] = dmat_ext_to_new.T
+            dmat[0:n_atoms_ext, n_atoms_ext : n_atoms_ext + n_atoms_new] = (
+                dmat_ext_to_new
+            )
+            dmat[n_atoms_ext : n_atoms_ext + n_atoms_new, 0:n_atoms_ext] = (
+                dmat_ext_to_new.T
+            )
 
             # Calculate adjacencies and the dense version
             dmat = dmat.tocoo()

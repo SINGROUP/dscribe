@@ -79,7 +79,9 @@ class ACSF(DescriptorLocal):
         """
         super().__init__(periodic=periodic, sparse=sparse, dtype=dtype)
 
-        self.acsf_wrapper = ACSFWrapper(r_cut, g2_params, g3_params, g4_params, g5_params, periodic)
+        self.acsf_wrapper = ACSFWrapper(
+            r_cut, g2_params, g3_params, g4_params, g5_params, periodic
+        )
 
         # Setup
         # self.species = species
