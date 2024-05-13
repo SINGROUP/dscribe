@@ -209,7 +209,7 @@ def test_electrostatics(setup):
 
     # The value in each matrix element should correspond to the Coulomb
     # energy of a system with with only those atoms. Here the energies from
-    # the Ewald matrix are compared against the Ewald energy calculated
+    # the Ewald matrix are compared against the Ewald energy precalculated
     # with pymatgen.
     energy_pymatgen = load_ewald(create_args)
     assert np.allclose(energy_matrix, energy_pymatgen, atol=1e-5, rtol=0)
