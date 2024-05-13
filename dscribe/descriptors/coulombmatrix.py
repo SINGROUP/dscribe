@@ -14,15 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import numpy as np
-
 from ase import Atoms
 import ase.geometry.cell
 
-import sparse
-
 from dscribe.descriptors.descriptormatrix import DescriptorMatrix
-from dscribe.utils.dimensionality import is1d
-
 import dscribe.ext
 
 
@@ -130,7 +125,7 @@ class CoulombMatrix(DescriptorMatrix):
         """
         # Validate and normalize system
         positions = self.validate_positions(system.get_positions())
-        atomic_numbers = self.validate_atomic_numbers(system.get_atomic_numbers())
+        atomic_numbers = system.get_atomic_numbers()
         pbc = self.validate_pbc(system.get_pbc())
         cell = self.validate_cell(system.get_cell(), pbc)
 
