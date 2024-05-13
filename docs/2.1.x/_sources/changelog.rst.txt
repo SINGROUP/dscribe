@@ -1,5 +1,11 @@
 Changelog
 =========
+ - 2.1.1:
+    - Added:
+        - Better validation of the input system, including checks and possible normalization of positions, cell, atomic numbers and periodic boundary conditions.
+    - Fixed:
+        - Issue with ACSF G5 calculation. See issue `#138 <https://github.com/SINGROUP/dscribe/issues/138>`_.
+
  - 2.1.0:
     - Added:
         - New :code:`compression` option for :code:`SOAP` courtesy of `jlparkI <https://github.com/jlparkI>`_.
@@ -10,7 +16,7 @@ Changelog
     - Added:
         - Wheel distributions for Linux, MacOS and Windows.
     - Fixed:
-        - Issue with exception not being raised when analytical derivatives were requested for SOAP with weighting turned on. See issue `#89 <https://github.com/SINGROUP/dscribe/issues/113>`_.
+        - Issue with exception not being raised when analytical derivatives were requested for SOAP with weighting turned on. See issue `#113 <https://github.com/SINGROUP/dscribe/issues/113>`_.
 
  - 2.0.0:
     - Added:

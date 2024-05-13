@@ -256,7 +256,9 @@
         <span class="c1"># Check that the system does not have elements that are not in the list</span>
         <span class="c1"># of atomic numbers</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">positions</span><span class="o">.</span><span class="n">any</span><span class="p">()):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The given system has a NaN value in the atomic positions.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The given system has a NaN value in the atomic positions.&quot;</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="n">positions</span></div>
 
 <div class="viewcode-block" id="Descriptor.validate_pbc"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.validate_pbc">[docs]</a>    <span class="k">def</span> <span class="nf">validate_pbc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pbc</span><span class="p">):</span>
