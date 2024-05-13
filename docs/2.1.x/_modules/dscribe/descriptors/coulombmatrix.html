@@ -98,15 +98,10 @@
 <span class="sd">limitations under the License.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
 <span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
 <span class="kn">import</span> <span class="nn">ase.geometry.cell</span>
 
-<span class="kn">import</span> <span class="nn">sparse</span>
-
 <span class="kn">from</span> <span class="nn">dscribe.descriptors.descriptormatrix</span> <span class="kn">import</span> <span class="n">DescriptorMatrix</span>
-<span class="kn">from</span> <span class="nn">dscribe.utils.dimensionality</span> <span class="kn">import</span> <span class="n">is1d</span>
-
 <span class="kn">import</span> <span class="nn">dscribe.ext</span>
 
 
@@ -212,16 +207,22 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            ndarray: The zero padded matrix as a flattened 1D array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Validate and normalize system</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_positions</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">())</span>
+        <span class="n">atomic_numbers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
+        <span class="n">pbc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_pbc</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_cell</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">pbc</span><span class="p">)</span>
+
         <span class="c1"># Initialize output array in dense format.</span>
         <span class="n">out_des</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 
         <span class="c1"># Calculate with C++ extension</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wrapper</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
             <span class="n">out_des</span><span class="p">,</span>
-            <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span>
-            <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
-            <span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span>
-            <span class="n">system</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">(),</span>
+            <span class="n">positions</span><span class="p">,</span>
+            <span class="n">atomic_numbers</span><span class="p">,</span>
+            <span class="n">cell</span><span class="p">,</span>
+            <span class="n">pbc</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">out_des</span></div>

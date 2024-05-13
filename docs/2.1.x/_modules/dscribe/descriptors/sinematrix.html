@@ -196,7 +196,7 @@
         <span class="n">B</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">B_inv</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_cell_inverse</span><span class="p">()</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;The given system has a non-invertible cell matrix: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
             <span class="p">)</span>

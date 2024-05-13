@@ -172,7 +172,7 @@ class Descriptor(ABC):
         # Check that the system does not have elements that are not in the list
         # of atomic numbers
         if np.isnan(positions.any()):
-            raise ValueError("The given system contain NaN value in the positions")
+            raise ValueError("The given system has a NaN value in the atomic positions.")
         return positions
 
     def validate_pbc(self, pbc):

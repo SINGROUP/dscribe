@@ -146,7 +146,7 @@ sparse matrix classes.</p>
 for atom at index i is given by accessing the ith element of this list.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)">list</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -160,12 +160,12 @@ complexity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The cutoff radius within which distances are
+<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The cutoff radius within which distances are
 calculated. Distances outside this radius are not included.</p></li>
 <li><p><strong>pos1</strong> (<em>np.ndarray</em>) – A list of N-dimensional positions.</p></li>
 <li><p><strong>pos2</strong> (<em>np.ndarray</em>) – A list of N-dimensional positions. If not provided,
 is assumed to be the same as pos1.</p></li>
-<li><p><strong>output_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Which container to use for output data. Options:
+<li><p><strong>output_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – Which container to use for output data. Options:
 “dok_matrix”, “coo_matrix”, “dict”, or “ndarray”. Default:
 “dok_matrix”.</p></li>
 </ul>
@@ -175,7 +175,7 @@ is assumed to be the same as pos1.</p></li>
 matrix containing the pairwise distances.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dok_matrix | np.array | coo_matrix | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
+<dd class="field-odd"><p>dok_matrix | np.array | coo_matrix | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -192,7 +192,7 @@ radial cutoff from the given centers.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>original_system</strong> (<em>ase.Atoms</em>) – The original periodic system to duplicate.</p></li>
-<li><p><strong>radial_cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The radial cutoff to use in constructing the
+<li><p><strong>radial_cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The radial cutoff to use in constructing the
 extended system.</p></li>
 <li><p><strong>centers</strong> (<em>np.ndarray</em>) – Array of xyz-coordinates from which the distance
 is calculated. If provided, these centers are used to calculate the
@@ -209,7 +209,7 @@ system as the first entry and the index of the periodically repeated
 cell for each atom as the second entry.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ase.Atoms | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)">tuple</a></p>
+<dd class="field-odd"><p>ase.Atoms | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)">tuple</a></p>
 </dd>
 </dl>
 </dd></dl>

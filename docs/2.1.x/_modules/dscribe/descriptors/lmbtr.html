@@ -475,16 +475,16 @@
 <span class="sd">            centers, for k terms, as an array. These are ordered as given in</span>
 <span class="sd">            centers.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Check that the system does not have elements that are not in the list</span>
-        <span class="c1"># of atomic numbers</span>
-        <span class="n">atomic_number_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">atomic_number_set</span><span class="p">)</span>
+        <span class="c1"># Validate and normalize system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_positions</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">())</span>
+        <span class="n">atomic_numbers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
+        <span class="n">pbc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_pbc</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_cell</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">pbc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
         <span class="n">system_positions</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
-        <span class="n">system_atomic_numbers</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()</span>
 
         <span class="c1"># Ensure that the atomic number 0 is not present in the system</span>
-        <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">atomic_number_set</span><span class="p">:</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Please do not use the atomic number 0 in local MBTR as it &quot;</span>
                 <span class="s2">&quot;is reserved to mark the atoms use as analysis centers.&quot;</span>
@@ -521,7 +521,7 @@
                     <span class="n">indices_k2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                     <span class="n">indices_k3</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                     <span class="n">new_pos_k2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">system_positions</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-                    <span class="n">new_atomic_numbers_k2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">system_atomic_numbers</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">new_atomic_numbers_k2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atomic_numbers</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -837,12 +837,12 @@
 
             <span class="c1"># Fill in block for extended system to new system</span>
             <span class="n">dmat_ext_to_new</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">ext_pos</span><span class="p">,</span> <span class="n">new_pos</span><span class="p">)</span>
-            <span class="n">dmat</span><span class="p">[</span>
-                <span class="mi">0</span><span class="p">:</span><span class="n">n_atoms_ext</span><span class="p">,</span> <span class="n">n_atoms_ext</span> <span class="p">:</span> <span class="n">n_atoms_ext</span> <span class="o">+</span> <span class="n">n_atoms_new</span>
-            <span class="p">]</span> <span class="o">=</span> <span class="n">dmat_ext_to_new</span>
-            <span class="n">dmat</span><span class="p">[</span>
-                <span class="n">n_atoms_ext</span> <span class="p">:</span> <span class="n">n_atoms_ext</span> <span class="o">+</span> <span class="n">n_atoms_new</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="n">n_atoms_ext</span>
-            <span class="p">]</span> <span class="o">=</span> <span class="n">dmat_ext_to_new</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">dmat</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">n_atoms_ext</span><span class="p">,</span> <span class="n">n_atoms_ext</span> <span class="p">:</span> <span class="n">n_atoms_ext</span> <span class="o">+</span> <span class="n">n_atoms_new</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">dmat_ext_to_new</span>
+            <span class="p">)</span>
+            <span class="n">dmat</span><span class="p">[</span><span class="n">n_atoms_ext</span> <span class="p">:</span> <span class="n">n_atoms_ext</span> <span class="o">+</span> <span class="n">n_atoms_new</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="n">n_atoms_ext</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">dmat_ext_to_new</span><span class="o">.</span><span class="n">T</span>
+            <span class="p">)</span>
 
             <span class="c1"># Calculate adjacencies and the dense version</span>
             <span class="n">dmat</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span>
@@ -946,7 +946,7 @@
             <span class="n">numbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">specie</span><span class="p">)</span>
 
         <span class="c1"># Check that species exists and that X is included</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_atomic_numbers</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
         <span class="k">if</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;The central species X (atomic number 0) has to be one of the elements.&quot;</span>

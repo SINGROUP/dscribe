@@ -108,6 +108,9 @@ class DescriptorMatrix(DescriptorGlobal):
         Returns:
             ndarray: The zero padded matrix either as a 1D array.
         """
+        # Validate positions
+        self.validate_positions(system.get_positions())
+
         # Remove the old norm vector for the new system
         self._norm_vector = None
 

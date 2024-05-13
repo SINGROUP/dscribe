@@ -192,6 +192,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            ndarray: The zero padded matrix either as a 1D array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Validate positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_positions</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">())</span>
+
         <span class="c1"># Remove the old norm vector for the new system</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_norm_vector</span> <span class="o">=</span> <span class="kc">None</span>
 
