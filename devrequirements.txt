@@ -1,5 +1,5 @@
 coverage
-ruff
+black
 coveralls
 pymatgen
 sphinx
