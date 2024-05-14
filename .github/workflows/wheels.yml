@@ -3,7 +3,7 @@ name: wheels
 on: [workflow_dispatch]
 
 env:
-  CIBW_SKIP: cp36-*, pp36-*, cp37-*, pp37-*
+  CIBW_SKIP: cp36-*
 
 jobs:
   build_wheels:
@@ -12,8 +12,7 @@ jobs:
     strategy:
       matrix:
         # macos-13 is an intel runner, macos-14 is apple silicon
-        # os: [ubuntu-latest, windows-latest, macos-13, macos-14]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
 
     steps:
       - uses: actions/checkout@v4
