@@ -51,7 +51,7 @@ dev = [
     "coverage",
     "ruff",
     "coveralls",
-    "pymatgen",
+    "pymatgen>=2024.2.20",
     "sphinx",
     "sphinx_rtd_theme",
     "sphinxcontrib-bibtex",
