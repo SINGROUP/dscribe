@@ -252,6 +252,42 @@ def test_features():
     assert acsfg5[1, 2] == pytest.approx(g5_o_hh)
 
 
+def test_jk_distance_bigger_than_cutoff():
+    """Tests that calculating G4 and G5 works correctly when the j-k distance is
+    larger than cutoff."""
+    distance = 2
+    angle = np.pi / 2
+    system = Atoms(
+        symbols=["H", "H", "H"],
+        positions=[[0, 0, 0], [distance, 0, 0], [0, distance, 0]],
+        pbc=False,
+    )
+    r_cut = 2.8
+    zeta = 1
+    eta = 1
+    lmbd = 1
+    desc = ACSF(
+        r_cut=r_cut,
+        species=["H"],
+        g4_params=[[eta, zeta, lmbd]],
+        g5_params=[[eta, zeta, lmbd]],
+    )
+    features = desc.create(system, [0])
+
+    g1 = 2 * cutoff(2, r_cut)
+    g4 = 0  # cutoff function for j-k pair is zero
+    g5 = (
+        np.power(2, 1 - zeta)
+        * np.power((1 + lmbd * np.cos(angle)), zeta)
+        * (np.exp(-eta * (2 * distance**2)))
+        * cutoff(distance, r_cut)
+        * cutoff(distance, r_cut)
+    )
+    assert features[0, 0] == pytest.approx(g1)
+    assert features[0, 1] == pytest.approx(g4)
+    assert features[0, 2] == pytest.approx(g5)
+
+
 def test_periodicity():
     """Test that periodic copies are correctly repeated and included in the
     output.

@@ -7,8 +7,8 @@ DScribe
 .. image:: https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master
     :target: https://coveralls.io/github/SINGROUP/dscribe?branch=master
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
+.. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+    :target: https://github.com/astral-sh/ruff
 
 DScribe is a Python package for transforming atomic structures into fixed-size
 numerical fingerprints. These fingerprints are often called "descriptors" and

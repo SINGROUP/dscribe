@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>dscribe.descriptors.acsf &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css?v=7d1ac55c" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script defer="defer" src="../../../_static/js/versions.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=c41997dc"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script defer="defer" src="../../../_static/js/versions.js?v=413e22da"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -97,19 +99,17 @@
 <span class="sd">See the License for the specific language governing permissions and</span>
 <span class="sd">limitations under the License.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">sparse</span> <span class="k">as</span> <span class="nn">sp</span>
-<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">coo_matrix</span>
 <span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
 
 <span class="kn">from</span> <span class="nn">dscribe.descriptors.descriptorlocal</span> <span class="kn">import</span> <span class="n">DescriptorLocal</span>
 <span class="kn">from</span> <span class="nn">dscribe.ext</span> <span class="kn">import</span> <span class="n">ACSFWrapper</span>
-<span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
 
 
-<div class="viewcode-block" id="ACSF"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF">[docs]</a><span class="k">class</span> <span class="nc">ACSF</span><span class="p">(</span><span class="n">DescriptorLocal</span><span class="p">):</span>
+<div class="viewcode-block" id="ACSF">
+<a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF">[docs]</a>
+<span class="k">class</span> <span class="nc">ACSF</span><span class="p">(</span><span class="n">DescriptorLocal</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Implementation of Atom-Centered Symmetry Functions.</span>
 
 <span class="sd">    Notice that the species of the central atom is not encoded in the output,</span>
@@ -122,7 +122,9 @@
 <span class="sd">        Physics, 134, 074106 (2011), https://doi.org/10.1063/1.3553717</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ACSF.__init__"><a class="viewcode-back" href="../../../tutorials/descriptors/acsf.html#dscribe.descriptors.acsf.ACSF.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="ACSF.__init__">
+<a class="viewcode-back" href="../../../tutorials/descriptors/acsf.html#dscribe.descriptors.acsf.ACSF.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">r_cut</span><span class="p">,</span>
         <span class="n">g2_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -162,17 +164,21 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">periodic</span><span class="o">=</span><span class="n">periodic</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span> <span class="o">=</span> <span class="n">ACSFWrapper</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_species</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span> <span class="o">=</span> <span class="n">ACSFWrapper</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate_r_cut</span><span class="p">(</span><span class="n">r_cut</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate_g2_params</span><span class="p">(</span><span class="n">g2_params</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate_g3_params</span><span class="p">(</span><span class="n">g3_params</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate_g4_params</span><span class="p">(</span><span class="n">g4_params</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate_g5_params</span><span class="p">(</span><span class="n">g5_params</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">,</span>
+            <span class="n">periodic</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
-        <span class="c1"># Setup</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">g2_params</span> <span class="o">=</span> <span class="n">g2_params</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">g3_params</span> <span class="o">=</span> <span class="n">g3_params</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">g4_params</span> <span class="o">=</span> <span class="n">g4_params</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">g5_params</span> <span class="o">=</span> <span class="n">g5_params</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">r_cut</span> <span class="o">=</span> <span class="n">r_cut</span></div>
 
-<div class="viewcode-block" id="ACSF.create"><a class="viewcode-back" href="../../../tutorials/descriptors/acsf.html#dscribe.descriptors.acsf.ACSF.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+<div class="viewcode-block" id="ACSF.create">
+<a class="viewcode-back" href="../../../tutorials/descriptors/acsf.html#dscribe.descriptors.acsf.ACSF.create">[docs]</a>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ACSF output for the given systems and given centers.</span>
@@ -256,7 +262,10 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="ACSF.create_single"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create_single">[docs]</a>    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ACSF.create_single">
+<a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create_single">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates the descriptor for the given system.</span>
 
 <span class="sd">        Args:</span>
@@ -270,115 +279,52 @@
 <span class="sd">            first dimension is given by the number of centers and the second</span>
 <span class="sd">            dimension is determined by the get_number_of_features()-function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Check if there are types that have not been declared</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
+        <span class="c1"># Validate and normalize system</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_positions</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">())</span>
+        <span class="n">atomic_numbers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_atomic_numbers</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">())</span>
+        <span class="n">pbc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_pbc</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_cell</span><span class="p">(</span><span class="n">system</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">pbc</span><span class="p">)</span>
 
         <span class="c1"># Create C-compatible list of atomic indices for which the ACSF is</span>
         <span class="c1"># calculated</span>
-        <span class="n">calculate_all</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">centers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">calculate_all</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">indices</span> <span class="o">=</span> <span class="n">centers</span>
-
-        <span class="c1"># If periodicity is not requested, and the output is requested for all</span>
-        <span class="c1"># atoms, we skip all the intricate optimizations that will make things</span>
-        <span class="c1"># actually slower for this case.</span>
-        <span class="k">if</span> <span class="n">calculate_all</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
-            <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
-            <span class="n">all_pos</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
-            <span class="n">dmat</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">r_cut</span><span class="p">,</span> <span class="n">all_pos</span><span class="p">,</span> <span class="n">all_pos</span>
-            <span class="p">)</span>
-        <span class="c1"># Otherwise the amount of pairwise distances that are calculated is</span>
-        <span class="c1"># kept at minimum. Only distances for the given indices (and possibly</span>
-        <span class="c1"># the secondary neighbours if G4 is specified) are calculated.</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Create the extended system if periodicity is requested. For ACSF only</span>
-            <span class="c1"># the distance from central atom needs to be considered in extending</span>
-            <span class="c1"># the system.</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">:</span>
-                <span class="n">system</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_extended_system</span><span class="p">(</span>
-                    <span class="n">system</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_cut</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span>
-                <span class="p">)</span>
-
-            <span class="c1"># First calculate distances from specified centers to all other</span>
-            <span class="c1"># atoms. This is already enough for everything else except G4.</span>
-            <span class="n">n_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
-            <span class="n">all_pos</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
-            <span class="n">central_pos</span> <span class="o">=</span> <span class="n">all_pos</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
-            <span class="n">dmat_primary</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">r_cut</span><span class="p">,</span> <span class="n">central_pos</span><span class="p">,</span> <span class="n">all_pos</span>
-            <span class="p">)</span>
-
-            <span class="c1"># Create symmetric full matrix</span>
-            <span class="n">col</span> <span class="o">=</span> <span class="n">dmat_primary</span><span class="o">.</span><span class="n">col</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_primary</span><span class="o">.</span><span class="n">row</span>
-            <span class="p">]</span>  <span class="c1"># Fix row numbering to refer to original system</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">dmat_primary</span><span class="o">.</span><span class="n">data</span>
-            <span class="n">dmat</span> <span class="o">=</span> <span class="n">coo_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">))</span>
-            <span class="n">dmat_lil</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">tolil</span><span class="p">()</span>
-            <span class="n">dmat_lil</span><span class="p">[</span><span class="n">col</span><span class="p">,</span> <span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat_lil</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
-
-            <span class="c1"># If G4 terms are requested, calculate also secondary neighbour distances</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g4_params</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">neighbour_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
-                <span class="n">neigh_pos</span> <span class="o">=</span> <span class="n">all_pos</span><span class="p">[</span><span class="n">neighbour_indices</span><span class="p">]</span>
-                <span class="n">dmat_secondary</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_matrix</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">r_cut</span><span class="p">,</span> <span class="n">neigh_pos</span><span class="p">,</span> <span class="n">neigh_pos</span>
-                <span class="p">)</span>
-                <span class="n">col</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">neighbour_indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_secondary</span><span class="o">.</span><span class="n">col</span>
-                <span class="p">]</span>  <span class="c1"># Fix col numbering to refer to original system</span>
-                <span class="n">row</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">neighbour_indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dmat_secondary</span><span class="o">.</span><span class="n">row</span>
-                <span class="p">]</span>  <span class="c1"># Fix row numbering to refer to original system</span>
-                <span class="n">dmat_lil</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dmat_secondary</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-
-            <span class="n">dmat</span> <span class="o">=</span> <span class="n">dmat_lil</span><span class="o">.</span><span class="n">tocoo</span><span class="p">()</span>
-
-        <span class="c1"># Get adjancency list and full dense adjancency matrix</span>
-        <span class="n">neighbours</span> <span class="o">=</span> <span class="n">dscribe</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">get_adjacency_list</span><span class="p">(</span><span class="n">dmat</span><span class="p">)</span>
-        <span class="n">dmat_dense</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span>
-        <span class="p">)</span>  <span class="c1"># The non-neighbor values are treated as &quot;infinitely far&quot;.</span>
-        <span class="n">dmat_dense</span><span class="p">[</span><span class="n">dmat</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">dmat</span><span class="o">.</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmat</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">centers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">))</span>
 
         <span class="c1"># Calculate ACSF with C++</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-                <span class="n">system</span><span class="o">.</span><span class="n">get_positions</span><span class="p">(),</span>
-                <span class="n">system</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">(),</span>
-                <span class="n">dmat_dense</span><span class="p">,</span>
-                <span class="n">neighbours</span><span class="p">,</span>
-                <span class="n">indices</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_descriptor_array</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">out</span><span class="p">,</span>
+            <span class="n">positions</span><span class="p">,</span>
+            <span class="n">atomic_numbers</span><span class="p">,</span>
+            <span class="n">cell</span><span class="p">,</span>
+            <span class="n">pbc</span><span class="p">,</span>
+            <span class="n">centers</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">output</span></div>
+        <span class="k">return</span> <span class="n">out</span></div>
 
-<div class="viewcode-block" id="ACSF.get_number_of_features"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ACSF.get_number_of_features">
+<a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
 <span class="sd">        will have.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            int: Number of features for this descriptor.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">wrapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span>
-        <span class="n">descsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">n_g2</span> <span class="o">+</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">n_g3</span><span class="p">)</span> <span class="o">*</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">n_types</span>
-        <span class="n">descsize</span> <span class="o">+=</span> <span class="p">(</span><span class="n">wrapper</span><span class="o">.</span><span class="n">n_g4</span> <span class="o">+</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">n_g5</span><span class="p">)</span> <span class="o">*</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">n_type_pairs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">get_number_of_features</span><span class="p">()</span></div>
 
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">descsize</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ACSF.validate_derivatives_method"><a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.validate_derivatives_method">[docs]</a>    <span class="k">def</span> <span class="nf">validate_derivatives_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">attach</span><span class="p">):</span>
+<div class="viewcode-block" id="ACSF.validate_derivatives_method">
+<a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.validate_derivatives_method">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_derivatives_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">attach</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">attach</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;ACSF derivatives can only be calculated with attach=True.&quot;</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate_derivatives_method</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">attach</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -397,12 +343,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_species</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">atomic_numbers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">r_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">r_cut</span>
-
-    <span class="nd">@r_cut</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">r_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<div class="viewcode-block" id="ACSF.validate_r_cut">
+<a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.validate_r_cut">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_r_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given radial cutoff.</span>
 
 <span class="sd">        Args:</span>
@@ -410,14 +353,20 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cutoff radius should be positive.&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">r_cut</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">g2_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">get_g2_params</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">r_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">r_cut</span>
 
-    <span class="nd">@g2_params</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">g2_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="nd">@r_cut</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">r_cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">r_cut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_r_cut</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ACSF.validate_g2_params">
+<a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.validate_g2_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_g2_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given G2 parameters.</span>
 
 <span class="sd">        Args:</span>
@@ -442,14 +391,20 @@
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;G2 eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">set_g2_params</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">g3_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g3_params</span>
+    <span class="k">def</span> <span class="nf">g2_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g2_params</span>
 
-    <span class="nd">@g3_params</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">g3_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="nd">@g2_params</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">g2_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g2_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_g2_params</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ACSF.validate_g3_params">
+<a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.validate_g3_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_g3_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given G3 parameters and to</span>
 <span class="sd">        initialize the C-memory layout for them.</span>
 
@@ -465,14 +420,26 @@
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;g3_params should be a vector.&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g3_params</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">g4_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g4_params</span>
+    <span class="k">def</span> <span class="nf">g3_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g3_params</span>
 
-    <span class="nd">@g4_params</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">g4_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="nd">@g3_params</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">g3_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given G3 parameters and to</span>
+<span class="sd">        initialize the C-memory layout for them.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value(array): List of G3 parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g3_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_g3_params</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ACSF.validate_g4_params">
+<a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.validate_g4_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_g4_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given G4 parameters and to</span>
 <span class="sd">        initialize the C-memory layout for them.</span>
 
@@ -498,14 +465,20 @@
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;3-body G4 eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g4_params</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">g5_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g5_params</span>
+    <span class="k">def</span> <span class="nf">g4_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g4_params</span>
 
-    <span class="nd">@g5_params</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">g5_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="nd">@g4_params</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">g4_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g4_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_g4_params</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ACSF.validate_g5_params">
+<a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.validate_g5_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_g5_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given G5 parameters and to</span>
 <span class="sd">        initialize the C-memory layout for them.</span>
 
@@ -531,7 +504,17 @@
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">value</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;3-body G5 eta parameters should be positive numbers.&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g5_params</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">g5_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g5_params</span>
+
+    <span class="nd">@g5_params</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">g5_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acsf_wrapper</span><span class="o">.</span><span class="n">g5_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_g5_params</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

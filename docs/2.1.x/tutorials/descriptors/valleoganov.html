@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Valle-Oganov descriptor &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=7d1ac55c" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script defer="defer" src="../../_static/js/versions.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=c41997dc"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
@@ -109,7 +111,7 @@
            <div itemprop="articleBody">
              
   <section id="valle-oganov-descriptor">
-<h1>Valle-Oganov descriptor<a class="headerlink" href="#valle-oganov-descriptor" title="Permalink to this heading"></a></h1>
+<h1>Valle-Oganov descriptor<a class="headerlink" href="#valle-oganov-descriptor" title="Link to this heading"></a></h1>
 <p>Implementation of the fingerprint descriptor by Valle and Oganov
 <span id="id1">[<a class="reference internal" href="#id14" title="Mario Valle and Artem R Oganov. Crystal fingerprint space–a novel paradigm for studying crystal-structure sets. Acta Crystallographica Section A: Foundations of Crystallography, 66(5):507–517, 2010.">1</a>]</span> for <span class="math notranslate nohighlight">\(k=2\)</span> and <span class="math notranslate nohighlight">\(k=3\)</span>
 <span id="id2">[<a class="reference internal" href="#id15" title="Malthe K Bisbo and Bjørk Hammer. Global optimization of atomistic structure enhanced by machine learning. arXiv preprint arXiv:2012.15222, 2020.">2</a>]</span>. Note that the descriptor is implemented as a subclass
@@ -129,7 +131,7 @@ are:</p>
 </ul>
 </div></blockquote>
 <section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
 <p>Instantiating a Valle-Oganov descriptor can be done as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">ValleOganov</span>
@@ -147,7 +149,7 @@ are:</p>
 <p>The arguments have the following effect:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dscribe.descriptors.valleoganov.ValleOganov.__init__">
-<span class="sig-prename descclassname"><span class="pre">ValleOganov.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_cut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float64'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/valleoganov.html#ValleOganov.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.valleoganov.ValleOganov.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">ValleOganov.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_cut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float64'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/valleoganov.html#ValleOganov.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.valleoganov.ValleOganov.__init__" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -158,7 +160,7 @@ should contain all the elements that are ever going to be
 encountered when creating the descriptors for a set of systems.
 Keeping the number of chemical species as low as possible is
 preferable.</p></li>
-<li><p><strong>function</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>The geometry function. The order <span class="math notranslate nohighlight">\(k\)</span>
+<li><p><strong>function</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – <p>The geometry function. The order <span class="math notranslate nohighlight">\(k\)</span>
 tells how many atoms are involved in the calculation and thus
 also heavily influence the computational time.</p>
 <p>The following geometry functions are available:</p>
@@ -179,12 +181,12 @@ also heavily influence the computational time.</p>
 </li>
 </ul>
 </p></li>
-<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Number of discretization points.</p></li>
-<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Standard deviation of the gaussian broadening</p></li>
-<li><p><strong>r_cut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Radial cutoff.</p></li>
-<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – Number of discretization points.</p></li>
+<li><p><strong>sigma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Standard deviation of the gaussian broadening</p></li>
+<li><p><strong>r_cut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Radial cutoff.</p></li>
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
 dense numpy array.</p></li>
-<li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>The data type of the output. Valid options are:</p>
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – <p>The data type of the output. Valid options are:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code>: Single precision floating point numbers.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;float64&quot;</span></code>: Double precision floating point numbers.</p></li>
@@ -201,7 +203,7 @@ to keep consistent with MBTR. The correlation between <code class="code docutils
 <span class="math notranslate nohighlight">\(\Delta\)</span> is <span class="math notranslate nohighlight">\(n=(max-min)/\Delta+1=(r_{cutoff})/\Delta+1\)</span>.</p>
 </section>
 <section id="creation">
-<h2>Creation<a class="headerlink" href="#creation" title="Permalink to this heading"></a></h2>
+<h2>Creation<a class="headerlink" href="#creation" title="Link to this heading"></a></h2>
 <p>After the descriptor has been set up, it may be used on atomic structures with the
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code>-method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
@@ -236,17 +238,17 @@ to keep consistent with MBTR. The correlation between <code class="code docutils
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or many atomic structures.</p></li>
-<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
 with n_jobs=1. If a negative number is given, the used cpus
 will be calculated with, n_cpus + n_jobs, where n_cpus is the
 amount of CPUs as reported by the OS. With only_physical_cores
 you can control which types of CPUs are counted in n_cpus.</p></li>
-<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If a negative n_jobs is given,
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – If a negative n_jobs is given,
 determines which types of CPUs are used in calculating the
 number of jobs. If set to False (default), also virtual CPUs
 are counted.  If set to True, only physical CPUs are counted.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Controls whether to print the progress of each job
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>
 </dd>
@@ -265,11 +267,11 @@ The number of features may be requested beforehand with the
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code>-method.</p>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
 <p>The following examples demonstrate some use cases for the descriptor. These
 examples are also available in dscribe/examples/valleoganov.py.</p>
 <section id="visualization">
-<h3>Visualization<a class="headerlink" href="#visualization" title="Permalink to this heading"></a></h3>
+<h3>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h3>
 <p>The following snippet demonstrates how the output for <span class="math notranslate nohighlight">\(k=2\)</span> can be
 visualized with matplotlib. Visualization works very similarly to MBTR.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
@@ -312,12 +314,12 @@ visualized with matplotlib. Visualization works very similarly to MBTR.</p>
 <a class="reference internal image-reference" href="../../_images/vo_k2.png"><img alt="Valle-Oganov k=2" src="../../_images/vo_k2.png" style="width: 686.4px; height: 463.2px;" /></a>
 <figcaption>
 <p><span class="caption-text">The Valle-Oganov output for k=2. The graphs for Na-Na and Cl-Cl overlap due to their
-identical arrangement in the crystal.</span><a class="headerlink" href="#id17" title="Permalink to this image"></a></p>
+identical arrangement in the crystal.</span><a class="headerlink" href="#id17" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="setup-with-mbtr-class">
-<h3>Setup with MBTR class<a class="headerlink" href="#setup-with-mbtr-class" title="Permalink to this heading"></a></h3>
+<h3>Setup with MBTR class<a class="headerlink" href="#setup-with-mbtr-class" title="Link to this heading"></a></h3>
 <p>For comparison, the setup for Valle-Oganov descriptor for the previous structure, but using
 the MBTR class, would look like the following.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">MBTR</span>
@@ -337,7 +339,7 @@ the MBTR class, would look like the following.</p>
 </div>
 </section>
 <section id="side-by-side-with-mbtr-output">
-<h3>Side by side with MBTR output<a class="headerlink" href="#side-by-side-with-mbtr-output" title="Permalink to this heading"></a></h3>
+<h3>Side by side with MBTR output<a class="headerlink" href="#side-by-side-with-mbtr-output" title="Link to this heading"></a></h3>
 <p>A graph of the output for the same structure created with different descriptors. Also demonstrates how the <a class="reference internal" href="mbtr.html#norm-label"><span class="std std-ref">Valle-Oganov normalization</span></a> for k2 term converges at 1.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nacl</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;NaCl&quot;</span><span class="p">,</span> <span class="s2">&quot;rocksalt&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">5.64</span><span class="p">)</span>
 
@@ -382,10 +384,11 @@ the MBTR class, would look like the following.</p>
 <figure class="align-center" id="id18">
 <a class="reference internal image-reference" href="../../_images/vo_mbtr.png"><img alt="Valle-Oganov and MBTR comparison" src="../../_images/vo_mbtr.png" style="width: 686.4px; height: 463.2px;" /></a>
 <figcaption>
-<p><span class="caption-text">Outputs for k=2. For the sake of clarity, the cutoff distance has been lengthened and only the Na-Cl pair has been plotted.</span><a class="headerlink" href="#id18" title="Permalink to this image"></a></p>
+<p><span class="caption-text">Outputs for k=2. For the sake of clarity, the cutoff distance has been lengthened and only the Na-Cl pair has been plotted.</span><a class="headerlink" href="#id18" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <div class="docutils container" id="id3">
+<div role="list" class="citation-list">
 <div class="citation" id="id14" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>Mario Valle and Artem R Oganov. Crystal fingerprint space–a novel paradigm for studying crystal-structure sets. <em>Acta Crystallographica Section A: Foundations of Crystallography</em>, 66(5):507–517, 2010.</p>

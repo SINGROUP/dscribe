@@ -13,16 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import numpy as np
 
+import numpy as np
 from ase import Atoms
 import ase.geometry.cell
 
-import sparse
-
 from dscribe.descriptors.descriptormatrix import DescriptorMatrix
-from dscribe.utils.dimensionality import is1d
-
 import dscribe.ext
 
 
@@ -128,16 +124,22 @@ class CoulombMatrix(DescriptorMatrix):
         Returns:
             ndarray: The zero padded matrix as a flattened 1D array.
         """
+        # Validate and normalize system
+        positions = self.validate_positions(system.get_positions())
+        atomic_numbers = system.get_atomic_numbers()
+        pbc = self.validate_pbc(system.get_pbc())
+        cell = self.validate_cell(system.get_cell(), pbc)
+
         # Initialize output array in dense format.
         out_des = np.zeros((self.get_number_of_features()), dtype=np.float64)
 
         # Calculate with C++ extension
         self.wrapper.create(
             out_des,
-            system.get_positions(),
-            system.get_atomic_numbers(),
-            system.get_cell(),
-            system.get_pbc(),
+            positions,
+            atomic_numbers,
+            cell,
+            pbc,
         )
 
         return out_des

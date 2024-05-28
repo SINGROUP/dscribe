@@ -2,7 +2,7 @@
 
 ![Build status](https://github.com/SINGROUP/dscribe/actions/workflows/actions.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/SINGROUP/dscribe/badge.svg?branch=master)](https://coveralls.io/github/SINGROUP/dscribe?branch=master)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 DScribe is a Python package for transforming atomic structures into fixed-size
 numerical fingerprints. These fingerprints are often called "descriptors" and

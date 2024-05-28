@@ -13,11 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 from abc import ABC, abstractmethod
 
 import numpy as np
 
 import sparse as sp
+
+import ase.geometry.cell
 
 from dscribe.utils.species import get_atomic_numbers
 
@@ -124,7 +127,19 @@ class Descriptor(ABC):
         self._atomic_number_set = set(self._atomic_numbers)
         self._species = species
 
-    def check_atomic_numbers(self, atomic_numbers):
+    def validate_species(self, value):
+        """Used to validate the species information.
+
+        Args:
+            species(iterable): Chemical species either as a list of atomic
+                numbers or list of chemical symbols.
+
+        Returns:
+          List of atomic numbers.
+        """
+        return get_atomic_numbers(value)
+
+    def validate_atomic_numbers(self, atomic_numbers):
         """Used to check that the given atomic numbers have been defined for
         this descriptor.
 
@@ -143,6 +158,50 @@ class Descriptor(ABC):
                 "The following atomic numbers are not defined "
                 "for this descriptor: {}".format(zs.difference(self._atomic_number_set))
             )
+        return atomic_numbers
+
+    def validate_positions(self, positions):
+        """Used to check that the cartesian positions are valid.
+
+        Args:
+            positions(np.ndarray): Positions to check .
+
+        Raises:
+            ValueError: If the atomic numbers in the given system are not
+            included in the species given to this descriptor.
+        """
+        # Check that the system does not have elements that are not in the list
+        # of atomic numbers
+        if np.isnan(positions.any()):
+            raise ValueError(
+                "The given system has a NaN value in the atomic positions."
+            )
+        return positions
+
+    def validate_pbc(self, pbc):
+        """Used to check that the given pbc cell is valid and return a
+        normalized value.
+
+        Args:
+            pbc(np.ndarray): Cell periodicity as three booleans.
+        """
+        return np.asarray(pbc, dtype=bool)
+
+    def validate_cell(self, cell, pbc):
+        """Used to check that the given unit cell is valid.
+
+        Args:
+            cell(np.ndarray): 3x3 unit cell.
+            pbc(np.ndarray): Cell periodicity as three booleans.
+
+        Raises:
+            ValueError: If the given cell is invalid.
+        """
+        if self.periodic and any(pbc) and cell.volume == 0:
+            raise ValueError(
+                "Cannot compute periodic descriptor on a zero-volume cell."
+            )
+        return ase.geometry.cell.complete_cell(cell)
 
     def format_array(self, input):
         """Used to format a float64 numpy array in the final format that will be

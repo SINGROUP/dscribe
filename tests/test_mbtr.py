@@ -722,10 +722,7 @@ def test_gaussian_distribution(normalize_gaussians):
     # Check against the analytical value
     prefactor = 1 / np.sqrt(2 * np.pi) if normalize_gaussians else 1
     gaussian = (
-        lambda x, mean: 1
-        / std
-        * prefactor
-        * np.exp(-((x - mean) ** 2) / (2 * std**2))
+        lambda x, mean: 1 / std * prefactor * np.exp(-((x - mean) ** 2) / (2 * std**2))
     )
     assert np.allclose(peak1_y, 2 * gaussian(1, 1), rtol=0, atol=0.001)
     assert np.allclose(peak2_y, gaussian(8, 8), rtol=0, atol=0.001)

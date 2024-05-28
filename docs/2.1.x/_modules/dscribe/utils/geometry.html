@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>dscribe.utils.geometry &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/style.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css?v=7d1ac55c" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
-        <script defer="defer" src="../../../_static/js/versions.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=c41997dc"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script defer="defer" src="../../../_static/js/versions.js?v=413e22da"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -97,6 +99,7 @@
 <span class="sd">See the License for the specific language governing permissions and</span>
 <span class="sd">limitations under the License.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">import</span> <span class="nn">scipy.sparse</span>
@@ -105,7 +108,9 @@
 <span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
 
 
-<div class="viewcode-block" id="get_adjacency_matrix"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.geometry.get_adjacency_matrix">[docs]</a><span class="k">def</span> <span class="nf">get_adjacency_matrix</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;coo_matrix&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_adjacency_matrix">
+<a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.geometry.get_adjacency_matrix">[docs]</a>
+<span class="k">def</span> <span class="nf">get_adjacency_matrix</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;coo_matrix&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates a sparse adjacency matrix by only considering distances</span>
 <span class="sd">    within a certain cutoff. Uses a k-d tree to reach O(n log(N)) time</span>
 <span class="sd">    complexity.</span>
@@ -147,7 +152,10 @@
     <span class="k">return</span> <span class="n">dmat</span></div>
 
 
-<div class="viewcode-block" id="get_adjacency_list"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.geometry.get_adjacency_list">[docs]</a><span class="k">def</span> <span class="nf">get_adjacency_list</span><span class="p">(</span><span class="n">adjacency_matrix</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_adjacency_list">
+<a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.geometry.get_adjacency_list">[docs]</a>
+<span class="k">def</span> <span class="nf">get_adjacency_list</span><span class="p">(</span><span class="n">adjacency_matrix</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Used to transform an adjacency matrix into an adjacency list. The</span>
 <span class="sd">    adjacency list provides much faster access to the neighbours of a node.</span>
 
@@ -172,7 +180,10 @@
     <span class="k">return</span> <span class="n">adjacency_list</span></div>
 
 
-<div class="viewcode-block" id="get_extended_system"><a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.geometry.get_extended_system">[docs]</a><span class="k">def</span> <span class="nf">get_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_extended_system">
+<a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.geometry.get_extended_system">[docs]</a>
+<span class="k">def</span> <span class="nf">get_extended_system</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">radial_cutoff</span><span class="p">,</span> <span class="n">centers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_cell_indices</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Used to create a periodically extended system. If centers are not</span>
 <span class="sd">    specified, simply takes returns the original system multiplied by an</span>
 <span class="sd">    integer amount of times in each direction to cover the radial cutoff. If</span>
@@ -306,6 +317,7 @@
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">extended_system</span><span class="p">,</span> <span class="n">cell_indices</span></div>
+
 </pre></div>
 
            </div>

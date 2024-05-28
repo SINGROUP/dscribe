@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 from warnings import warn
 
 import numpy as np
@@ -306,9 +307,6 @@ class SOAP(DescriptorLocal):
 
     def prepare_centers(self, system, centers=None):
         """Validates and prepares the centers for the C++ extension."""
-        # Check that the system does not have elements that are not in the list
-        # of atomic numbers
-        self.check_atomic_numbers(system.get_atomic_numbers())
 
         # Check if periodic is valid
         if self.periodic:
@@ -505,11 +503,15 @@ class SOAP(DescriptorLocal):
             centers and the second dimension is determined by the
             get_number_of_features()-function.
         """
+        # Validate and normalize system
+        positions = self.validate_positions(system.get_positions())
+        atomic_numbers = self.validate_atomic_numbers(system.get_atomic_numbers())
+        pbc = self.validate_pbc(system.get_pbc())
+        cell = self.validate_cell(system.get_cell(), pbc)
+
         cutoff_padding = self.get_cutoff_padding()
         centers, _ = self.prepare_centers(system, centers)
         n_centers = centers.shape[0]
-        pos = system.get_positions()
-        Z = system.get_atomic_numbers()
         soap_mat = self.init_descriptor_array(n_centers)
 
         # Determine the function to call based on rbf
@@ -538,10 +540,10 @@ class SOAP(DescriptorLocal):
             # Calculate analytically with extension
             soap_gto.create(
                 soap_mat,
-                pos,
-                Z,
-                ase.geometry.cell.complete_cell(system.get_cell()),
-                np.asarray(system.get_pbc(), dtype=bool),
+                positions,
+                atomic_numbers,
+                cell,
+                pbc,
                 centers,
             )
         elif self._rbf == "polynomial":
@@ -568,10 +570,10 @@ class SOAP(DescriptorLocal):
             )
             soap_poly.create(
                 soap_mat,
-                pos,
-                Z,
-                ase.geometry.cell.complete_cell(system.get_cell()),
-                np.asarray(system.get_pbc(), dtype=bool),
+                positions,
+                atomic_numbers,
+                cell,
+                pbc,
                 centers,
             )
 

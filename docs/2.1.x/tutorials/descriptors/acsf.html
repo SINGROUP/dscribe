@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Atom-centered Symmetry Functions &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=7d1ac55c" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script defer="defer" src="../../_static/js/versions.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=c41997dc"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
@@ -108,7 +110,7 @@
            <div itemprop="articleBody">
              
   <section id="atom-centered-symmetry-functions">
-<h1>Atom-centered Symmetry Functions<a class="headerlink" href="#atom-centered-symmetry-functions" title="Permalink to this heading"></a></h1>
+<h1>Atom-centered Symmetry Functions<a class="headerlink" href="#atom-centered-symmetry-functions" title="Link to this heading"></a></h1>
 <p>Atom-centered Symmetry Functions (ACSFs) <span id="id1">[<a class="reference internal" href="#id10" title="Jörg Behler. Atom-centered symmetry functions for constructing high-dimensional neural network potentials. J. Chem. Phys., 134(7):074106, 2011.">1</a>]</span> can be used to represent
 the local environment near an atom by using a fingerprint composed of the
 output of multiple two- and three-body functions that can be customized to
@@ -137,7 +139,7 @@ for Z in atomic numbers in increasing order:
 </pre></div>
 </div>
 <section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
 <p>Instantiating an ACSF descriptor can be done as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">ACSF</span>
 
@@ -153,11 +155,11 @@ for Z in atomic numbers in increasing order:
 <p>The arguments have the following effect:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dscribe.descriptors.acsf.ACSF.__init__">
-<span class="sig-prename descclassname"><span class="pre">ACSF.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_cut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g2_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g3_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g4_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g5_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float64'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/acsf.html#ACSF.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">ACSF.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_cut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g2_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g3_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g4_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g5_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float64'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/acsf.html#ACSF.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.acsf.ACSF.__init__" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r_cut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The smooth cutoff value in angstroms. This cutoff
+<li><p><strong>r_cut</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The smooth cutoff value in angstroms. This cutoff
 value is used throughout the calculations for all symmetry
 functions.</p></li>
 <li><p><strong>g2_params</strong> (<em>n*2 np.ndarray</em>) – A list of pairs of <span class="math notranslate nohighlight">\(\eta\)</span> and
@@ -175,10 +177,10 @@ should contain all the elements that are ever going to be
 encountered when creating the descriptors for a set of systems.
 Keeping the number of chemical species as low as possible is
 preferable.</p></li>
-<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Set to true if you want the descriptor output to
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Set to true if you want the descriptor output to
 respect the periodicity of the atomic systems (see the
 pbc-parameter in the constructor of ase.Atoms).</p></li>
-<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
 dense numpy array.</p></li>
 </ul>
 </dd>
@@ -187,7 +189,7 @@ dense numpy array.</p></li>
 
 </section>
 <section id="creation">
-<h2>Creation<a class="headerlink" href="#creation" title="Permalink to this heading"></a></h2>
+<h2>Creation<a class="headerlink" href="#creation" title="Link to this heading"></a></h2>
 <p>After ACSF has been set up, it may be used on atomic structures with the
 <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.create" title="dscribe.descriptors.acsf.ACSF.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
@@ -211,21 +213,21 @@ dense numpy array.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or
 many atomic structures.</p></li>
-<li><p><strong>centers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – Indices of the atoms to use as ACSF centers. If no
+<li><p><strong>centers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a>) – Indices of the atoms to use as ACSF centers. If no
 centers are defined, the output will be created for all atoms in
 the system. When calculating output for multiple systems,
 provide the centers as a list for each system.</p></li>
-<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
 with n_jobs=1. If a negative number is given, the used cpus
 will be calculated with, n_cpus + n_jobs, where n_cpus is the
 amount of CPUs as reported by the OS. With only_physical_cores
 you can control which types of CPUs are counted in n_cpus.</p></li>
-<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If a negative n_jobs is given,
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – If a negative n_jobs is given,
 determines which types of CPUs are used in calculating the
 number of jobs. If set to False (default), also virtual CPUs
 are counted.  If set to True, only physical CPUs are counted.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Controls whether to print the progress of each job
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>
 </dd>
@@ -247,6 +249,7 @@ their centers.</p>
 <p>The output will in this case be a numpy array with shape <code class="code docutils literal notranslate"><span class="pre">[n_positions,</span> <span class="pre">n_features]</span></code>.
 The number of features may be requested beforehand with the <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.acsf.ACSF.get_number_of_features" title="dscribe.descriptors.acsf.ACSF.get_number_of_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_number_of_features()</span></code></a>-method.</p>
 <div class="docutils container" id="id2">
+<div role="list" class="citation-list">
 <div class="citation" id="id10" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>Jörg Behler. Atom-centered symmetry functions for constructing high-dimensional neural network potentials. <em>J. Chem. Phys.</em>, 134(7):074106, 2011.</p>

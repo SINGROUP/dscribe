@@ -5,8 +5,6 @@ from scipy.integrate import tplquad
 from scipy.linalg import sqrtm
 from ase import Atoms
 
-# from pymatgen.analysis.ewald import EwaldSummation
-# from pymatgen.core.structure import Structure
 from dscribe.descriptors import SOAP
 from joblib import Parallel, delayed
 from conftest import get_simple_finite
@@ -404,6 +402,9 @@ def save_poly_coefficients():
 
 def calculate_ewald(system, a=None, r_cut=None, g_cut=None, accuracy=None):
     """Used to precalculate the Ewald summation results using pymatgen."""
+    from pymatgen.analysis.ewald import EwaldSummation
+    from pymatgen.core.structure import Structure
+
     positions = system.get_positions()
     atomic_num = system.get_atomic_numbers()
     n_atoms = len(system)

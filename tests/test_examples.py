@@ -1,4 +1,5 @@
-import sys, os
+import sys
+import os
 from pathlib import Path
 from importlib import import_module
 

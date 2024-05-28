@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Unsupervised Learning: Clustering &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=7d1ac55c" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script defer="defer" src="../../_static/js/versions.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=c41997dc"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -103,14 +105,14 @@
            <div itemprop="articleBody">
              
   <section id="unsupervised-learning-clustering">
-<h1>Unsupervised Learning: Clustering<a class="headerlink" href="#unsupervised-learning-clustering" title="Permalink to this heading"></a></h1>
+<h1>Unsupervised Learning: Clustering<a class="headerlink" href="#unsupervised-learning-clustering" title="Link to this heading"></a></h1>
 <p>In this tutorial we take a look at how the descriptors can be used to perform a
 common unsupervised learning task called <em>clustering</em>. In clustering we are
 using an unlabeled dataset of input values – in this case the feature vectors
 that DScribe outputs – to train a model that organizes these inputs into
 meaningful groups/clusters.</p>
 <section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
 <p>We will try to find structurally similar locations on top of an copper
 FCC(111)-surface. To do this, we will first calculate a set of SOAP vectors on
 top of the surface. To simplify things, we will only consider a single plane 1
@@ -118,7 +120,7 @@ top of the surface. To simplify things, we will only consider a single plane 1
 <figure class="align-center" id="id1">
 <a class="reference internal image-reference" href="../../_images/fcc111.png"><img alt="FCC(111) surface" src="../../_images/fcc111.png" style="width: 50%;" /></a>
 <figcaption>
-<p><span class="caption-text">The used copper FCC(111) surface as viewed from above.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+<p><span class="caption-text">The used copper FCC(111) surface as viewed from above.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p>This dataset will be used as input for a clustering model. We will use one of
@@ -134,7 +136,7 @@ use a setup that provides a reasonable result in our opinion: this is
 essentially biasing our model.</p>
 </section>
 <section id="dataset-generation">
-<h2>Dataset generation<a class="headerlink" href="#dataset-generation" title="Permalink to this heading"></a></h2>
+<h2>Dataset generation<a class="headerlink" href="#dataset-generation" title="Link to this heading"></a></h2>
 <p>The following script generates our training dataset:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">ase</span>
@@ -183,7 +185,7 @@ essentially biasing our model.</p>
 </div>
 </section>
 <section id="training">
-<h2>Training<a class="headerlink" href="#training" title="Permalink to this heading"></a></h2>
+<h2>Training<a class="headerlink" href="#training" title="Link to this heading"></a></h2>
 <p>Let’s load the dataset and fit our model:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
@@ -209,7 +211,7 @@ essentially biasing our model.</p>
 </div>
 </section>
 <section id="analysis">
-<h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this heading"></a></h2>
+<h2>Analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h2>
 <p>When the training is done (takes few seconds), we can visually examine the
 clustering. Here we simply plot the sampled points and colour them based on the
 cluster that was assigned by our model.</p>
@@ -232,7 +234,7 @@ cluster that was assigned by our model.</p>
 <figure class="align-center" id="id2">
 <a class="reference internal image-reference" href="../../_images/clustering.png"><img alt="Lennard-Jones energies" src="../../_images/clustering.png" style="width: 90%;" /></a>
 <figcaption>
-<p><span class="caption-text">The k-means clustering result.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+<p><span class="caption-text">The k-means clustering result.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p>We can see that our simple clustering setup is able to determine similar

@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 import numpy as np
 from numpy.random import RandomState
 
@@ -108,6 +109,9 @@ class DescriptorMatrix(DescriptorGlobal):
         Returns:
             ndarray: The zero padded matrix either as a 1D array.
         """
+        # Validate positions
+        self.validate_positions(system.get_positions())
+
         # Remove the old norm vector for the new system
         self._norm_vector = None
 
