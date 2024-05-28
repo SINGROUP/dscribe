@@ -415,6 +415,7 @@ def test_atoms_to_system():
 
     class NaClFactory(SimpleCubicFactory):
         "A factory for creating NaCl (B1, Rocksalt) lattices."
+
         bravais_basis = [
             [0, 0, 0],
             [0, 0, 0.5],

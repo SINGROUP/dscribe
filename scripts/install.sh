@@ -1,3 +1,7 @@
+# Update pip and setuptools
+pip install pip --upgrade
+pip install setuptools --upgrade
+
 # Make a source distribution
 cd ..
 python setup.py sdist
@@ -8,4 +12,4 @@ version=`python setup.py --version`
 cd dist
 tar xvzf dscribe-$version.tar.gz
 cd dscribe-$version
-pip install .
+pip install .[dev]

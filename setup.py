@@ -7,7 +7,7 @@ if sys.version_info[:2] < (3, 7):
 import platform
 from distutils.ccompiler import new_compiler
 from distutils.sysconfig import customize_compiler
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, Extension
 from subprocess import getoutput
 
 
@@ -83,37 +83,4 @@ extensions = [
 ]
 
 if __name__ == "__main__":
-    setup(
-        name="dscribe",
-        version="2.1.1",
-        url="https://singroup.github.io/dscribe/",
-        description="A Python package for creating feature transformations in applications of machine learning to materials science.",
-        long_description="A Python package for creating feature transformations in applications of machine learning to materials science.",
-        packages=find_packages(),
-        setup_requires=['pybind11>=2.4'],
-        install_requires=['pybind11>=2.4', "numpy", "scipy", "ase>=3.19.0", "scikit-learn", "joblib>=1.0.0", "sparse"],
-        include_package_data=True,  # This ensures that files defined in MANIFEST.in are included
-        ext_modules=extensions,
-        license="Apache License 2.0",
-        classifiers=[
-            "Development Status :: 5 - Production/Stable",
-            "Intended Audience :: Science/Research",
-            "Intended Audience :: Developers",
-            "Topic :: Scientific/Engineering",
-            "Topic :: Scientific/Engineering :: Physics",
-            "License :: OSI Approved :: Apache Software License",
-            "Operating System :: MacOS",
-            "Operating System :: Unix",
-            "Programming Language :: C",
-            "Programming Language :: C++",
-            "Programming Language :: Python",
-            "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.7",
-            "Programming Language :: Python :: 3.8",
-            "Programming Language :: Python :: 3.9",
-            "Programming Language :: Python :: 3.10",
-            "Programming Language :: Python :: 3 :: Only",
-        ],
-        keywords="descriptor machine learning atomistic structure materials science",
-        python_requires=">=3.7",
-    )
+    setup(ext_modules=extensions)
