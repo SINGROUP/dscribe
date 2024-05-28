@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Supervised Learning: Training an ML Force-field &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=7d1ac55c" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script defer="defer" src="../../_static/js/versions.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=c41997dc"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
@@ -104,7 +106,7 @@
            <div itemprop="articleBody">
              
   <section id="supervised-learning-training-an-ml-force-field">
-<h1>Supervised Learning: Training an ML Force-field<a class="headerlink" href="#supervised-learning-training-an-ml-force-field" title="Permalink to this heading"></a></h1>
+<h1>Supervised Learning: Training an ML Force-field<a class="headerlink" href="#supervised-learning-training-an-ml-force-field" title="Link to this heading"></a></h1>
 <p>This tutorial covers how descriptors can be effectively used as input for a
 machine learning model that will predict energies and forces. There are several
 design choices that you have to make when building a ML force-field: which ML
@@ -131,7 +133,7 @@ all descriptors).</p></li>
 </ul>
 </div></blockquote>
 <section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
 <p>We will use a dataset of feature vectors <span class="math notranslate nohighlight">\(\mathbf{D}\)</span>, their derivatives
 <span class="math notranslate nohighlight">\(\nabla_{\mathbf{r_i}} \mathbf{D}\)</span> and the associated system energies <span class="math notranslate nohighlight">\(E\)</span> and
 forces <span class="math notranslate nohighlight">\(\mathbf{F}\)</span> for training. We will use a neural network <span class="math notranslate nohighlight">\(f\)</span>
@@ -167,7 +169,7 @@ of these two properties in the loss function their values are scaled by their
 variance in the training set.</p>
 </section>
 <section id="dataset-generation">
-<h2>Dataset generation<a class="headerlink" href="#dataset-generation" title="Permalink to this heading"></a></h2>
+<h2>Dataset generation<a class="headerlink" href="#dataset-generation" title="Link to this heading"></a></h2>
 <p>The following script generates our training dataset (full script in the GitHub
 repository: <em>examples/forces_and_energies/dataset.py</em>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -228,7 +230,7 @@ repository: <em>examples/forces_and_energies/dataset.py</em>):</p>
 <a class="reference internal image-reference" href="../../_images/lj.png"><img alt="Lennard-Jones energies" class="align-center" src="../../_images/lj.png" style="width: 90%;" /></a>
 </section>
 <section id="training">
-<h2>Training<a class="headerlink" href="#training" title="Permalink to this heading"></a></h2>
+<h2>Training<a class="headerlink" href="#training" title="Link to this heading"></a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The training code shown in this tutorial uses <a class="reference external" href="https://pytorch.org/">pytorch</a>, which you need to install if you wish to run this
@@ -445,7 +447,7 @@ model and produce predicted data that is saved on disk for later analysis:</p>
 </div>
 </section>
 <section id="analysis">
-<h2>Analysis<a class="headerlink" href="#analysis" title="Permalink to this heading"></a></h2>
+<h2>Analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h2>
 <p>In order to quickly assess the model performance, we will simply plot the model
 response in the whole dataset input domain and compare it to the correct values
 (full script in the GitHub repository:

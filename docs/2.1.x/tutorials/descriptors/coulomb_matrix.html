@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Coulomb Matrix &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=7d1ac55c" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script defer="defer" src="../../_static/js/versions.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=c41997dc"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
@@ -109,7 +111,7 @@
            <div itemprop="articleBody">
              
   <section id="coulomb-matrix">
-<h1>Coulomb Matrix<a class="headerlink" href="#coulomb-matrix" title="Permalink to this heading"></a></h1>
+<h1>Coulomb Matrix<a class="headerlink" href="#coulomb-matrix" title="Link to this heading"></a></h1>
 <p>Coulomb Matrix (CM) <span id="id1">[<a class="reference internal" href="#id7" title="Matthias Rupp, Alexandre Tkatchenko, Klaus-Robert Müller, and O. Anatole von Lilienfeld. Fast and accurate modeling of molecular atomization energies with machine learning. Phys. Rev. Lett., 108:058301, Jan 2012. doi:10.1103/PhysRevLett.108.058301.">1</a>]</span> is a simple global descriptor which mimics the
 electrostatic interaction between nuclei.</p>
 <p>Coulomb matrix is calculated with the equation below.</p>
@@ -148,7 +150,7 @@ have been developed. However, CM still does a reasonably good job when
 comparing molecules with each other. Apart from that, it can be understood
 intuitively and is a good introduction to descriptors.</p>
 <section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
 <p>Instantiating the object that is used to create Coulomb matrices can be done as
 follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">CoulombMatrix</span>
@@ -160,7 +162,7 @@ follows:</p>
 <p>The constructor takes the following parameters:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__">
-<span class="sig-prename descclassname"><span class="pre">CoulombMatrix.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_atoms_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sorted_l2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">CoulombMatrix.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_atoms_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sorted_l2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/dscribe/descriptors/coulombmatrix.html#CoulombMatrix.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.descriptors.coulombmatrix.CoulombMatrix.__init__" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -199,7 +201,7 @@ dense numpy array.</p></li>
 
 </section>
 <section id="creation">
-<h2>Creation<a class="headerlink" href="#creation" title="Permalink to this heading"></a></h2>
+<h2>Creation<a class="headerlink" href="#creation" title="Link to this heading"></a></h2>
 <p>After CM has been set up, it may be used on atomic structures with the
 <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.coulombmatrix.CoulombMatrix.create" title="dscribe.descriptors.coulombmatrix.CoulombMatrix.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create</span></code></a>-method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create CM output for the system</span>
@@ -258,16 +260,16 @@ features may be requested beforehand with the
 and spaws a separate process to handle each part.</p>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
 <p>The following examples demonstrate usage of the descriptor. These
 examples are also available in dscribe/examples/coulombmatrix.py.</p>
 <section id="flattening">
-<h3>Flattening<a class="headerlink" href="#flattening" title="Permalink to this heading"></a></h3>
+<h3>Flattening<a class="headerlink" href="#flattening" title="Link to this heading"></a></h3>
 <p>You can control whether the returned array is two-dimensional or
 one-dimensional by using the <em>flatten</em>-parameter</p>
 </section>
 <section id="options-for-permutation">
-<h3>Options for permutation<a class="headerlink" href="#options-for-permutation" title="Permalink to this heading"></a></h3>
+<h3>Options for permutation<a class="headerlink" href="#options-for-permutation" title="Link to this heading"></a></h3>
 <p>The following snippet introduces the different options for handling permutation
 invariance. See <span id="id2">[<a class="reference internal" href="#id8" title="Grégoire Montavon, Katja Hansen, Siamac Fazli, Matthias Rupp, Franziska Biegler, Andreas Ziehe, Alexandre Tkatchenko, Anatole V. Lilienfeld, and Klaus-Robert Müller. Learning invariant representations of molecules for atomization energy prediction. In F. Pereira, C. J. C. Burges, L. Bottou, and K. Q. Weinberger, editors, Advances in Neural Information Processing Systems 25, pages 440–448. Curran Associates, Inc., 2012. URL: http://papers.nips.cc/paper/4830-learning-invariant-representations-of-molecules-for-atomization-energy-prediction.pdf.">2</a>]</span> for more information on these methods.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># No sorting</span>
@@ -332,7 +334,7 @@ in the CM interactions.</p></li>
 </ul>
 </section>
 <section id="zero-padding">
-<h3>Zero-padding<a class="headerlink" href="#zero-padding" title="Permalink to this heading"></a></h3>
+<h3>Zero-padding<a class="headerlink" href="#zero-padding" title="Link to this heading"></a></h3>
 <p>The number of non-zero features in CM depends on the size of the system. If the
 structure has fewer atoms than <code class="code docutils literal notranslate"><span class="pre">n_atoms_max</span></code>, the rest of the CM will be
 zero-padded. One can imagine non-interacting ghost atoms as place-holders to
@@ -347,7 +349,7 @@ ensure the same number of atoms in every system.</p>
 </div>
 </section>
 <section id="not-meant-for-periodic-systems">
-<h3>Not meant for periodic systems<a class="headerlink" href="#not-meant-for-periodic-systems" title="Permalink to this heading"></a></h3>
+<h3>Not meant for periodic systems<a class="headerlink" href="#not-meant-for-periodic-systems" title="Link to this heading"></a></h3>
 <p>The CM was not designed for periodic systems. If you do add periodic boundary
 conditions, you will see that it does not change the elements.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Not meant for periodic systems</span>
@@ -366,7 +368,7 @@ conditions, you will see that it does not change the elements.</p>
 <p>Instead, the <a class="reference internal" href="sine_matrix.html"><span class="doc">Sine Matrix</span></a> and the <a class="reference internal" href="ewald_sum_matrix.html"><span class="doc">Ewald Sum Matrix</span></a> have been designed as periodic counterparts to the CM.</p>
 </section>
 <section id="invariance">
-<h3>Invariance<a class="headerlink" href="#invariance" title="Permalink to this heading"></a></h3>
+<h3>Invariance<a class="headerlink" href="#invariance" title="Link to this heading"></a></h3>
 <p>A good descriptor should be invariant with respect to translation, rotation and
 permutation. No matter how you translate or rotate it or change the indexing of
 the atoms (not the atom types!), it will still be the same molecule! The
@@ -394,6 +396,7 @@ following lines confirm that this is true for CM.</p>
 </pre></div>
 </div>
 <div class="docutils container" id="id3">
+<div role="list" class="citation-list">
 <div class="citation" id="id7" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>Matthias Rupp, Alexandre Tkatchenko, Klaus-Robert Müller, and O. Anatole von Lilienfeld. Fast and accurate modeling of molecular atomization energies with machine learning. <em>Phys. Rev. Lett.</em>, 108:058301, Jan 2012. <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.108.058301">doi:10.1103/PhysRevLett.108.058301</a>.</p>

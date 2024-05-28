@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Building similarity kernels from local environments &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=7d1ac55c" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script defer="defer" src="../../_static/js/versions.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=c41997dc"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
@@ -101,7 +103,7 @@
            <div itemprop="articleBody">
              
   <section id="building-similarity-kernels-from-local-environments">
-<h1>Building similarity kernels from local environments<a class="headerlink" href="#building-similarity-kernels-from-local-environments" title="Permalink to this heading"></a></h1>
+<h1>Building similarity kernels from local environments<a class="headerlink" href="#building-similarity-kernels-from-local-environments" title="Link to this heading"></a></h1>
 <p>Measuring the similarity of structures becomes easy when the feature vectors
 represent the whole structure, such as in the case of Coulomb matrix or MBTR.
 In these cases the feature vectors are directly comparable with different
@@ -113,7 +115,7 @@ This tutorial goes through two different strategies for building such global
 similarity measures by comparing local atomic environments between structures.
 For more insight, see <span id="id1">[<a class="reference internal" href="#id11" title="Sandip De, Albert P. Bartók, Gábor Csányi, and Michele Ceriotti. Comparing molecules and solids across structural and alchemical space. Phys. Chem. Chem. Phys., 18(20):13754–13769, 2016. arXiv:1601.04077.">1</a>]</span>.</p>
 <section id="average-kernel">
-<h2>Average kernel<a class="headerlink" href="#average-kernel" title="Permalink to this heading"></a></h2>
+<h2>Average kernel<a class="headerlink" href="#average-kernel" title="Link to this heading"></a></h2>
 <p>The simplest approach is to average over the local contributions to create a
 global similarity measure. This average kernel <span class="math notranslate nohighlight">\(K\)</span> is defined as:</p>
 <div class="math notranslate nohighlight">
@@ -153,7 +155,7 @@ metric:</p>
 </div>
 </section>
 <section id="rematch-kernel">
-<h2>REMatch kernel<a class="headerlink" href="#rematch-kernel" title="Permalink to this heading"></a></h2>
+<h2>REMatch kernel<a class="headerlink" href="#rematch-kernel" title="Link to this heading"></a></h2>
 <p>The REMatch kernel lets you choose between the best match of local environments
 and the averaging strategy. The parameter <span class="math notranslate nohighlight">\(\alpha\)</span> determines the
 contribution of the two: <span class="math notranslate nohighlight">\(\alpha = 0\)</span> means only the similarity of
@@ -200,6 +202,7 @@ again be calculated with any pairwise metric (e.g. linear, gaussian).</p>
 </pre></div>
 </div>
 <div class="docutils container" id="id2">
+<div role="list" class="citation-list">
 <div class="citation" id="id11" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>Sandip De, Albert P. Bartók, Gábor Csányi, and Michele Ceriotti. Comparing molecules and solids across structural and alchemical space. <em>Phys. Chem. Chem. Phys.</em>, 18(20):13754–13769, 2016. <a class="reference external" href="https://arxiv.org/abs/1601.04077">arXiv:1601.04077</a>.</p>
