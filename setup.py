@@ -66,7 +66,7 @@ extensions = [
             "dscribe/ext/soapGTO.cpp",
             "dscribe/ext/soapGeneral.cpp",
             "dscribe/ext/acsf.cpp",
-            "dscribe/ext/mbtr.cpp",
+            "dscribe/ext/mbtr2.cpp",
         ],
         include_dirs=[
             # Path to Eigen headers

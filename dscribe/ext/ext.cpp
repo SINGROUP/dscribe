@@ -22,7 +22,7 @@ limitations under the License.
 #include "coulombmatrix.h"
 #include "soap.h"
 #include "acsf.h"
-#include "mbtr.h"
+#include "mbtr2.h"
 #include "geometry.h"
 
 namespace py = pybind11;
@@ -110,13 +110,49 @@ PYBIND11_MODULE(ext, m) {
         ));
  
     // MBTR
-    py::class_<MBTR>(m, "MBTRWrapper")
-        .def(py::init< map<int,int>, int , vector<vector<int>>  >())
-        .def("get_k1", &MBTR::getK1)
-        .def("get_k2", &MBTR::getK2)
-        .def("get_k3", &MBTR::getK3)
-        .def("get_k2_local", &MBTR::getK2Local)
-        .def("get_k3_local", &MBTR::getK3Local);
+    // py::class_<MBTR>(m, "MBTRWrapper")
+    //     .def(py::init< map<int,int>, int , vector<vector<int>>  >())
+    //     .def("get_k1", &MBTR::getK1)
+    //     .def("get_k2", &MBTR::getK2)
+    //     .def("get_k3", &MBTR::getK3)
+    //     .def("get_k2_local", &MBTR::getK2Local)
+    //     .def("get_k3_local", &MBTR::getK3Local);
+    // MBTR
+    py::class_<MBTR>(m, "MBTR")
+        .def(py::init<py::dict, py::dict, py::dict, bool, string, py::array_t<int>, bool>())
+        .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>>()(&DescriptorGlobal::create))
+        .def("get_number_of_features", &MBTR::get_number_of_features)
+        .def("get_location", overload_cast_<int>()(&MBTR::get_location))
+        .def("get_location", overload_cast_<int, int>()(&MBTR::get_location))
+        .def("get_location", overload_cast_<int, int, int>()(&MBTR::get_location))
+        .def_property("geometry", &MBTR::get_geometry, &MBTR::set_geometry)
+        .def_property("grid", &MBTR::get_grid, &MBTR::set_grid)
+        .def_property("weighting", &MBTR::get_weighting, &MBTR::set_weighting)
+        .def_property_readonly("k", &MBTR::get_k)
+        .def_property("species", &MBTR::get_species, &MBTR::set_species)
+        .def_property("normalization", &MBTR::get_normalization, &MBTR::set_normalization)
+        .def_property("normalize_gaussians", &MBTR::get_normalize_gaussians, &MBTR::set_normalize_gaussians)
+        .def_property_readonly("species_index_map", &MBTR::get_species_index_map)
+        .def("derivatives_numerical", &MBTR::derivatives_numerical)
+        .def(py::pickle(
+            [](const MBTR &p) {
+                return py::make_tuple(p.geometry, p.grid, p.weighting, p.normalize_gaussians, p.normalization, p.species, p.periodic);
+            },
+            [](py::tuple t) {
+                if (t.size() != 7)
+                    throw std::runtime_error("Invalid state!");
+                MBTR p(
+                    t[0].cast<py::dict>(),
+                    t[1].cast<py::dict>(),
+                    t[2].cast<py::dict>(),
+                    t[3].cast<bool>(),
+                    t[4].cast<string>(),
+                    t[5].cast<py::array_t<int>>(),
+                    t[6].cast<bool>()
+                );
+                return p;
+            }
+        ));
 
     // CellList
     py::class_<CellList>(m, "CellList")

@@ -36,7 +36,7 @@ class Descriptor {
         Descriptor(bool periodic, string average="", double cutoff=0);
         const bool periodic;
         const string average;
-        const double cutoff;
+        double cutoff;
 };
 
 #endif

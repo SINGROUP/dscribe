@@ -34,6 +34,57 @@ inline double norm(const vector<double>& a) {
     return sqrt(accum);
 };
 
+System::System(
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    bool extra
+)
+    : positions(positions)
+    , atomic_numbers(atomic_numbers)
+{
+    if (!extra) { return; }
+
+    // Create the default set of interactive atoms, which encompasses the whole
+    // system
+    unordered_set<int> interactive_atoms = unordered_set<int>();
+    int n_atoms = atomic_numbers.size();
+    for (int i = 0; i < n_atoms; ++i) {
+        interactive_atoms.insert(i);
+    }
+    this->interactive_atoms = interactive_atoms;
+
+    // Create the default cell indices
+    py::array_t<int> cell_indices({n_atoms});
+    auto cell_indices_mu = cell_indices.mutable_unchecked<1>();
+    for (int i = 0; i < n_atoms; ++i) {
+        cell_indices_mu(i) = 0;
+    }
+    this->cell_indices = cell_indices;
+
+    // Create the default indices
+    py::array_t<int> indices({uint(n_atoms)});
+    auto indices_mu = indices.mutable_unchecked<1>();
+    for (int i = 0; i < n_atoms; ++i) {
+        indices_mu(i) = i;
+    }
+    this->indices = indices;
+}
+
+System::System(
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<int> indices,
+    py::array_t<int> cell_indices,
+    unordered_set<int> interactive_atoms
+)
+    : positions(positions)
+    , atomic_numbers(atomic_numbers)
+    , indices(indices)
+    , cell_indices(cell_indices)
+    , interactive_atoms(interactive_atoms)
+{
+}
+
 ExtendedSystem extend_system(
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
