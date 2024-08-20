@@ -148,23 +148,28 @@ int MBTR::get_number_of_features() const {
  * @param start Start index, defaults to 0
  * @param end End index, defaults to -1 = end of array
  */
-void MBTR::normalize_output(py::array_t<double> &out, int start, int end) {
+void MBTR::normalize_output(py::array_t<double> &out, int n_atoms) {
+    double factor = 1;
+    int end = out.size();
+    auto out_mu = out.mutable_unchecked<1>();
     if (this->normalization == "l2") {
         // Gather magnitude
-        auto out_mu = out.mutable_unchecked<1>();
-        if (end == -1) {
-            end = out.size();
-        }
         double norm = 0;
-        for (int i = start; i < end; ++i) {
+        for (int i = 0; i < end; ++i) {
             norm += out_mu[i] * out_mu[i];
         }
 
         // Divide by L2 norm
-        double factor = 1 / sqrt(norm);
-        for (int i = start; i < end; ++i) {
-            out_mu[i] *= factor;
-        }
+        factor = 1 / sqrt(norm);
+    } else if (this->normalization == "n_atoms") {
+        factor = 1 / n_atoms;
+    } else if (this->normalization == "valle_oganov") {
+        factor = 1 / n_atoms;
+    }
+
+    // Multiply by factor. Multiplication is faster than division.
+    for (int i = 0; i < end; ++i) {
+        out_mu[i] *= factor;
     }
 }
 
@@ -172,7 +177,9 @@ void MBTR::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
-    CellList cell_list
+    CellList cell_list,
+    bool return_descriptor,
+    bool return_derivatives
 ) {
     System system = System(positions, atomic_numbers, true);
     if (this->k == 1) {
@@ -182,7 +189,7 @@ void MBTR::create(
     } else if (this->k == 3) {
         this->calculate_k3(out, system, cell_list);
     }
-    this->normalize_output(out);
+    this->normalize_output(out, atomic_numbers.size());
     return;
 }
 
@@ -324,7 +331,7 @@ void MBTR::set_normalize_gaussians(bool normalize_gaussians) {
 }
 
 void MBTR::set_normalization(string normalization) {
-    unordered_set<string> options({"l2", "none"});
+    unordered_set<string> options({"l2", "none", "n_atoms"});
     if (options.find(normalization) == options.end()) {
         throw invalid_argument("Unknown normalization option.");
     }
@@ -386,6 +393,11 @@ double MBTR::get_cutoff() {
     // distance to get the actual cutoff.
     if (this->k == 3) {
         cutoff *= 0.5;
+    }
+
+    // For k1, the cutoff is set to zero.
+    if (this->k == 1) {
+        cutoff = 0;
     }
     return cutoff;
 }

@@ -246,7 +246,7 @@ class DescriptorGlobal(Descriptor):
                     i_pos = system_disturbed.get_positions()
                     i_pos[i_atom, i_comp] += h * deltas[i_stencil]
                     system_disturbed.set_positions(i_pos)
-                    d1 = self.create_single(system_disturbed)
+                    d1 = self.create_single(system_disturbed, True, False)
                     derivatives_python[i_atom, i_comp, :] += coeffs[i_stencil] * d1 / h
 
         i = 0
@@ -255,4 +255,4 @@ class DescriptorGlobal(Descriptor):
             i += 1
 
         if return_descriptor:
-            np.copyto(c, self.create_single(system))
+            np.copyto(c, self.create_single(system, True, False))

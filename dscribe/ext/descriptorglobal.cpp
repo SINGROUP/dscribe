@@ -31,7 +31,9 @@ void DescriptorGlobal::create(
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,
-    py::array_t<bool> pbc
+    py::array_t<bool> pbc,
+    bool return_descriptor,
+    bool return_derivatives
 )
 {
     // Extend system if periodicity is requested.
@@ -42,18 +44,20 @@ void DescriptorGlobal::create(
         positions = system_extended.positions;
         atomic_numbers = system_extended.atomic_numbers;
     }
-    this->create(out, positions, atomic_numbers);
+    this->create(out, positions, atomic_numbers, return_descriptor, return_derivatives);
 }
 
 void DescriptorGlobal::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
-    py::array_t<int> atomic_numbers
+    py::array_t<int> atomic_numbers,
+    bool return_descriptor,
+    bool return_derivatives
 )
 {
     // Calculate neighbours with a cell list
     CellList cell_list(positions, this->cutoff);
-    this->create(out, positions, atomic_numbers, cell_list);
+    this->create(out, positions, atomic_numbers, cell_list, return_descriptor, return_derivatives);
 }
 
 void DescriptorGlobal::derivatives_numerical(
@@ -89,7 +93,7 @@ void DescriptorGlobal::derivatives_numerical(
 
     // Calculate the desciptor value if requested
     if (return_descriptor) {
-        this->create(descriptor, positions, atomic_numbers, cell_list_atoms);
+        this->create(descriptor, positions, atomic_numbers, cell_list_atoms, true, false);
     }
 
     // Central finite difference with error O(h^2)
@@ -136,7 +140,7 @@ void DescriptorGlobal::derivatives_numerical(
                 auto d_mu = d.mutable_unchecked<1>();
 
                 // Calculate descriptor value
-                this->create(d, positions, atomic_numbers, cell_list_atoms);
+                this->create(d, positions, atomic_numbers, cell_list_atoms, true, false);
 
                 // Add value to final derivative array
                 double coeff = coefficients[i_stencil];

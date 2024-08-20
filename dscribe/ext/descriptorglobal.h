@@ -44,7 +44,9 @@ class DescriptorGlobal : public Descriptor {
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
             py::array_t<double> cell,
-            py::array_t<bool> pbc
+            py::array_t<bool> pbc,
+            bool return_descriptor,
+            bool return_derivatives
         );
 
         /**
@@ -57,7 +59,9 @@ class DescriptorGlobal : public Descriptor {
         void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
-            py::array_t<int> atomic_numbers
+            py::array_t<int> atomic_numbers,
+            bool return_descriptor,
+            bool return_derivatives
         );
 
         /**
@@ -72,7 +76,9 @@ class DescriptorGlobal : public Descriptor {
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
-            CellList cell_list
+            CellList cell_list,
+            bool return_descriptor,
+            bool return_derivatives
         ) = 0;
 
         /**

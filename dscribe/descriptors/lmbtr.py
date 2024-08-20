@@ -32,7 +32,7 @@ from dscribe.descriptors.mbtr import (
     k1_geometry_functions,
 )
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
-from dscribe.ext import MBTRWrapper
+import dscribe.ext
 import dscribe.utils.geometry
 
 
@@ -582,7 +582,7 @@ class LMBTR(DescriptorLocal):
             ext_system = System.from_atoms(system)
             cell_indices = np.zeros((len(system), 3), dtype=int)
 
-        cmbtr = MBTRWrapper(
+        cmbtr = dscribe.ext.MBTR(
             self.atomic_number_to_index, self._interaction_limit, cell_indices
         )
 

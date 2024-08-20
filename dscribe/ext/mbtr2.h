@@ -49,8 +49,10 @@ class MBTR: public DescriptorGlobal {
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
-            CellList cell_list
-	);
+            CellList cell_list,
+            bool return_descriptor,
+            bool return_derivatives
+        );
 
         /**
          * Get the number of features.
@@ -149,7 +151,7 @@ class MBTR: public DescriptorGlobal {
         int get_number_of_k1_features() const;
         int get_number_of_k2_features() const;
         int get_number_of_k3_features() const;
-        void normalize_output(py::array_t<double> &out, int start = 0, int end = -1);
+        void normalize_output(py::array_t<double> &out, int n_atoms);
 };
 
 #endif

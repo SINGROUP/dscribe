@@ -270,7 +270,7 @@ class Descriptor(ABC):
         """
         # If single system given, skip the parallelization overhead
         if len(inp) == 1:
-            return self.format_array(func(*inp[0]))
+            return self.format_array(func(*inp[0], True, False))
 
         # Determine the number of jobs
         if n_jobs < 0:
@@ -307,7 +307,7 @@ class Descriptor(ABC):
             n_samples = len(arguments)
 
             for i_sample, i_arg in enumerate(arguments):
-                i_out = func(*i_arg)
+                i_out = func(*i_arg, True, False)
                 i_out = self.format_array(i_out)
 
                 # If the shape varies, just add result into a list

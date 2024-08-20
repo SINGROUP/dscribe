@@ -25,6 +25,101 @@ from dscribe.utils.species import get_atomic_numbers
 import dscribe.ext
 
 
+k1_geometry_functions = set(["atomic_number"])
+k2_geometry_functions = set(["distance", "inverse_distance"])
+k3_geometry_functions = set(["angle", "cosine"])
+
+def check_grid(grid: dict):
+    """Used to ensure that the given grid settings are valid.
+
+    Args:
+        grid(dict): Dictionary containing the grid setup.
+    """
+    msg = "The grid information is missing the value for {}"
+    val_names = ["min", "max", "sigma", "n"]
+    for val_name in val_names:
+        try:
+            grid[val_name]
+        except Exception:
+            raise KeyError(msg.format(val_name))
+
+    # Make the n into integer
+    grid["n"] = int(grid["n"])
+    if grid["min"] >= grid["max"]:
+        raise ValueError("The min value should be smaller than the max value.")
+
+
+def check_geometry(geometry: dict):
+    """Used to ensure that the given geometry settings are valid.
+
+    Args:
+        geometry: Dictionary containing the geometry setup.
+    """
+
+    if "function" in geometry:
+        function = geometry["function"]
+        valid_functions = (
+            k1_geometry_functions | k2_geometry_functions | k3_geometry_functions
+        )
+        if function not in valid_functions:
+            raise ValueError(
+                f"Unknown geometry function. Please use one of the following: {sorted(list(valid_functions))}"
+            )
+    else:
+        raise ValueError("Please specify a geometry function.")
+
+
+def check_weighting(k: int, weighting: dict, periodic: bool):
+    """Used to ensure that the given weighting settings are valid.
+
+    Args:
+        k: The MBTR degree.
+        weighting: Dictionary containing the weighting setup.
+        periodic: Whether the descriptor is periodic or not.
+    """
+    if weighting is not None:
+        if k == 1:
+            valid_functions = set(["unity"])
+        elif k == 2:
+            valid_functions = set(["unity", "exp", "inverse_square"])
+        elif k == 3:
+            valid_functions = set(["unity", "exp", "smooth_cutoff"])
+        function = weighting.get("function")
+        if function not in valid_functions:
+            raise ValueError(
+                f"Unknown weighting function specified for k={k}. Please use one of the following: {sorted(list(valid_functions))}"
+            )
+        else:
+            if function == "exp":
+                if "threshold" not in weighting:
+                    raise ValueError("Missing value for 'threshold' in the weighting.")
+                if "scale" not in weighting and "r_cut" not in weighting:
+                    raise ValueError(
+                        "Provide either 'scale' or 'r_cut' in the weighting."
+                    )
+                if "scale" in weighting and "r_cut" in weighting:
+                    raise ValueError(
+                        "Provide either 'scale' or 'r_cut', not both in the weighting."
+                    )
+            elif function == "inverse_square":
+                if "r_cut" not in weighting:
+                    raise ValueError("Missing value for 'r_cut' in the weighting.")
+            elif function == "smooth_cutoff":
+                if "r_cut" not in weighting:
+                    raise ValueError("Missing value for 'r_cut' in the weighting.")
+
+    # Check that weighting function is specified for periodic systems
+    if periodic and k > 1:
+        valid = False
+        if weighting is not None:
+            function = weighting.get("function")
+            if function is not None:
+                if function != "unity":
+                    valid = True
+        if not valid:
+            raise ValueError("Periodic systems need to have a weighting function.")
+
+
 class MBTR(DescriptorGlobal):
     """Implementation of the Many-body tensor representation.
 
@@ -145,87 +240,7 @@ class MBTR(DescriptorGlobal):
             get_atomic_numbers(species),
             periodic,
         )
-
-    def create(self, system, n_jobs=1, only_physical_cores=False, verbose=False):
-        """Return MBTR output for the given systems.
-
-        Args:
-            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or many atomic structures.
-            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
-                the calculation across samples. Defaults to serial calculation
-                with n_jobs=1. If a negative number is given, the used cpus
-                will be calculated with, n_cpus + n_jobs, where n_cpus is the
-                amount of CPUs as reported by the OS. With only_physical_cores
-                you can control which types of CPUs are counted in n_cpus.
-            only_physical_cores (bool): If a negative n_jobs is given,
-                determines which types of CPUs are used in calculating the
-                number of jobs. If set to False (default), also virtual CPUs
-                are counted.  If set to True, only physical CPUs are counted.
-            verbose(bool): Controls whether to print the progress of each job
-                into to the console.
-
-        Returns:
-            np.ndarray | sparse.COO MBTR for the
-            given systems. The return type depends on the 'sparse' attribute.
-        """
-        # Combine input arguments
-        system = [system] if isinstance(system, Atoms) else system
-        inp = [(i_sys,) for i_sys in system]
-
-        # Determine if the outputs have a fixed size
-        static_size = [self.get_number_of_features()]
-
-        # Create in parallel
-        output = self.create_parallel(
-            inp,
-            self.create_single,
-            n_jobs,
-            static_size,
-            only_physical_cores,
-            verbose=verbose,
-        )
-
-        return output
-
-    def create_single(self, system):
-        """Return the many-body tensor representation for the given system.
-
-        Args:
-            system (:class:`ase.Atoms`): Input system.
-
-        Returns:
-            np.ndarray | sparse.COO: The return type is
-            specified by the 'sparse'-parameter.
-        """
-        # Calculate with extension
-        output = np.zeros((self.get_number_of_features()), dtype=np.float64)
-        self.wrapper.create(
-            output,
-            system.get_positions(),
-            system.get_atomic_numbers(),
-            ase.geometry.cell.complete_cell(system.get_cell()),
-            np.asarray(system.get_pbc(), dtype=bool),
-            True
-        )
-
-        # Convert to the final output precision.
-        if self.dtype != "float64":
-            output = output.astype(self.dtype)
-
-        # Make into a sparse array if requested
-        if self._sparse:
-            output = sparse.COO.from_numpy(output)
-
-        return output
-
-    def get_number_of_features(self):
-        """Used to inquire the final number of features that this descriptor
-        will have.
-
-        Returns:
-            int: Number of features for this descriptor.
-        """
-        return self.wrapper.get_number_of_features()
+        self._set_species(species)
 
     @property
     def geometry(self):
@@ -261,6 +276,8 @@ class MBTR(DescriptorGlobal):
 
     @species.setter
     def species(self, value):
+        # The species are stored as atomic numbers for internal use.
+        self._set_species(value)
         self.wrapper.species = get_atomic_numbers(value)
 
     @property
@@ -278,6 +295,86 @@ class MBTR(DescriptorGlobal):
     @normalize_gaussians.setter
     def normalize_gaussians(self, value):
         self.wrapper.normalize_gaussians = value
+
+    def create(self, system, n_jobs=1, only_physical_cores=False, verbose=False):
+        """Return MBTR output for the given systems.
+
+        Args:
+            system (:class:`ase.Atoms` or list of :class:`ase.Atoms`): One or many atomic structures.
+            n_jobs (int): Number of parallel jobs to instantiate. Parallellizes
+                the calculation across samples. Defaults to serial calculation
+                with n_jobs=1. If a negative number is given, the used cpus
+                will be calculated with, n_cpus + n_jobs, where n_cpus is the
+                amount of CPUs as reported by the OS. With only_physical_cores
+                you can control which types of CPUs are counted in n_cpus.
+            only_physical_cores (bool): If a negative n_jobs is given,
+                determines which types of CPUs are used in calculating the
+                number of jobs. If set to False (default), also virtual CPUs
+                are counted.  If set to True, only physical CPUs are counted.
+            verbose(bool): Controls whether to print the progress of each job
+                into to the console.
+
+        Returns:
+            np.ndarray | sparse.COO: MBTR for the given systems. The return type
+            depends on the 'sparse' attribute.
+        """
+        # Combine input arguments
+        system = [system] if isinstance(system, Atoms) else system
+        inp = [(i_sys,) for i_sys in system]
+
+        # Determine if the outputs have a fixed size
+        static_size = [self.get_number_of_features()]
+
+        # Create in parallel
+        output = self.create_parallel(
+            inp,
+            self.create_single,
+            n_jobs,
+            static_size,
+            only_physical_cores,
+            verbose=verbose,
+        )
+
+        return output
+
+    def create_single(self, system, return_descriptor, return_derivatives):
+        """Return the many-body tensor representation for the given system.
+
+        Args:
+            system (:class:`ase.Atoms`): Input system.
+
+        Returns:
+            np.ndarray | sparse.COO: The return type is
+            specified by the 'sparse'-parameter.
+        """
+        # Validate and normalize system
+        positions = self.validate_positions(system.get_positions())
+        atomic_numbers = self.validate_atomic_numbers(system.get_atomic_numbers())
+        pbc = self.validate_pbc(system.get_pbc())
+        cell = self.validate_cell(system.get_cell(), pbc)
+
+        # Calculate with extension
+        output = np.zeros((self.get_number_of_features()), dtype=np.float64)
+        self.wrapper.create(
+            output,
+            positions,
+            atomic_numbers,
+            cell,
+            pbc,
+            return_descriptor,
+            return_derivatives,
+        )
+
+        return output
+
+    def get_number_of_features(self):
+        """Used to inquire the final number of features that this descriptor
+        will have.
+
+        Returns:
+            int: Number of features for this descriptor.
+        """
+        return self.wrapper.get_number_of_features()
 
     def get_location(self, species):
         """Can be used to query the location of a species combination in the
@@ -334,12 +431,63 @@ class MBTR(DescriptorGlobal):
 
         return slice(start, end)
 
-    def get_derivatives_method(self, method):
-        methods = {"numerical", "auto"}
+    def validate_derivatives_method(self, method):
+        """Used to validate and determine the final method for calculating the
+        derivatives.
+        """
+        methods = {"numerical", "analytical", "auto"}
         if method not in methods:
             raise ValueError(
                 "Invalid method specified. Please choose from: {}".format(methods)
             )
-        if method == "auto":
-            method = "numerical"
+
+        if method == "numerical":
+            return method
+
+        # Check if analytical derivatives can be used
+        try:
+            supported_normalization = ["none", "n_atoms", "valle_oganov"]
+            if self.normalization not in supported_normalization:
+                raise ValueError(
+                    "Analytical derivatives not implemented for normalization option '{}'. Please choose from: {}".format(
+                        self.normalization, supported_normalization
+                    )
+                )
+            # Derivatives are not currently implemented for all k3 options
+            if self.k == 3:
+                # "angle" function is not differentiable
+                if self.geometry["function"] == "angle":
+                    raise ValueError(
+                        "Analytical derivatives not implemented for k3 geometry function 'angle'."
+                    )
+        except Exception as e:
+            if method == "analytical":
+                raise e
+            elif method == "auto":
+                method = "numerical"
+        else:
+            if method == "auto":
+                method = "analytical"
+
         return method
+
+    def derivatives_analytical(self, d, c, system, indices, return_descriptor):
+        # Check that the system does not have elements that are not in the list
+        # of atomic numbers
+        self.validate_atomic_numbers(system.get_atomic_numbers())
+
+        mbtr, mbtr_d = self.create_single(
+            system,
+            return_descriptor=return_descriptor,
+            return_derivatives=True
+        )
+
+        # For now, the derivatives are calculated with regard to all atomic
+        # positions. The desired indices are extracted here at the end.
+        i = 0
+        for index in indices:
+            d[i, :] = mbtr_d[index, :, :]
+            i += 1
+
+        if return_descriptor:
+            np.copyto(c, mbtr)
