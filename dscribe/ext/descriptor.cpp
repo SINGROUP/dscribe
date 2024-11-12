@@ -18,9 +18,10 @@ limitations under the License.
 
 using namespace std;
 
-Descriptor::Descriptor(bool periodic, string average, double cutoff)
+Descriptor::Descriptor(bool periodic, string average, double cutoff, string normalization)
     : periodic(periodic)
     , average(average)
     , cutoff(cutoff)
+    , normalization(normalization)
 {
 }

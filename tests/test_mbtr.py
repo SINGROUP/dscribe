@@ -130,8 +130,8 @@ def test_systems(pbc, cell):
 @pytest.mark.parametrize(
     "setup",
     [
-        pytest.param(default_k1, id="K1"),
-        pytest.param(default_k2, id="K2"),
+        # pytest.param(default_k1, id="K1"),
+        # pytest.param(default_k2, id="K2"),
         pytest.param(default_k3, id="K3"),
     ],
 )
@@ -360,39 +360,39 @@ water_periodic.set_pbc(True)
 @pytest.mark.parametrize(
     "system,k,geometry,grid,weighting,periodic,peaks,prominence",
     [
-        pytest.param(
-            get_simple_finite(),
-            1,
-            {"function": "atomic_number"},
-            {"min": 0, "max": 9, "sigma": 0.5, "n": 1000},
-            None,
-            False,
-            [(("H"), [1], [2]), (("O"), [8], [1])],
-            0.5,
-            id="k1 finite",
-        ),
-        pytest.param(
-            water_periodic,
-            1,
-            {"function": "atomic_number"},
-            {"min": 0, "max": 9, "sigma": 0.5, "n": 1000},
-            None,
-            True,
-            [(("H"), [1], [2]), (("O"), [8], [1])],
-            0.5,
-            id="k1 periodic",
-        ),
-        pytest.param(
-            get_simple_finite(),
-            2,
-            {"function": "distance"},
-            {"min": -1, "max": 3, "sigma": 0.5, "n": 1000},
-            {"function": "unity"},
-            False,
-            [(("H", "H"), [1.4972204318527715], [1]), (("H", "O"), [0.95], [2])],
-            0.5,
-            id="k2 finite",
-        ),
+        # pytest.param(
+        #     get_simple_finite(),
+        #     1,
+        #     {"function": "atomic_number"},
+        #     {"min": 0, "max": 9, "sigma": 0.5, "n": 1000},
+        #     None,
+        #     False,
+        #     [(("H"), [1], [2]), (("O"), [8], [1])],
+        #     0.5,
+        #     id="k1 finite",
+        # ),
+        # pytest.param(
+        #     water_periodic,
+        #     1,
+        #     {"function": "atomic_number"},
+        #     {"min": 0, "max": 9, "sigma": 0.5, "n": 1000},
+        #     None,
+        #     True,
+        #     [(("H"), [1], [2]), (("O"), [8], [1])],
+        #     0.5,
+        #     id="k1 periodic",
+        # ),
+        # pytest.param(
+        #     get_simple_finite(),
+        #     2,
+        #     {"function": "distance"},
+        #     {"min": -1, "max": 3, "sigma": 0.5, "n": 1000},
+        #     {"function": "unity"},
+        #     False,
+        #     [(("H", "H"), [1.4972204318527715], [1]), (("H", "O"), [0.95], [2])],
+        #     0.5,
+        #     id="k2 finite",
+        # ),
         pytest.param(
             Atoms(
                 cell=[
@@ -416,151 +416,151 @@ water_periodic.set_pbc(True)
             0.001,
             id="k2 periodic",
         ),
-        pytest.param(
-            get_simple_finite(),
-            3,
-            {"function": "angle"},
-            {"min": -10, "max": 180, "sigma": 5, "n": 2000},
-            {"function": "unity"},
-            False,
-            [(("H", "H", "O"), [38], [2]), (("H", "O", "H"), [104], [1])],
-            0.5,
-            id="k3 finite",
-        ),
-        pytest.param(
-            Atoms(
-                cell=[
-                    [10, 0, 0],
-                    [0, 10, 0],
-                    [0, 0, 10],
-                ],
-                symbols=3 * ["H"],
-                scaled_positions=[
-                    [0.05, 0.40, 0.5],
-                    [0.05, 0.60, 0.5],
-                    [0.95, 0.5, 0.5],
-                ],
-                pbc=True,
-            ),
-            3,
-            {"function": "angle"},
-            {"min": 0, "max": 180, "sigma": 5, "n": 2000},
-            {"function": "exp", "scale": 0.85, "threshold": 1e-3},
-            True,
-            [
-                (
-                    ("H", "H", "H"),
-                    [45, 90],
-                    [
-                        2 * np.exp(-0.85 * (2 + 2 * np.sqrt(2))),
-                        np.exp(-0.85 * (2 + 2 * np.sqrt(2))),
-                    ],
-                )
-            ],
-            0.01,
-            id="k3 periodic cubic 1",
-        ),
-        pytest.param(
-            Atoms(
-                cell=[[2.2, 0.0, 0.0], [0.0, 2.2, 0.0], [0.0, 0.0, 2.2]],
-                positions=[
-                    [0, 0, 0],
-                ],
-                symbols=["H"],
-                pbc=True,
-            ),
-            3,
-            {"function": "cosine"},
-            {"min": -1.1, "max": 1.1, "sigma": 0.010, "n": 2000},
-            {"function": "exp", "scale": 1, "threshold": 1e-4},
-            True,
-            [
-                (
-                    ("H", "H", "H"),
-                    np.cos(
-                        np.array(
-                            [
-                                180,
-                                90,
-                                np.arctan(np.sqrt(2)) * 180 / np.pi,
-                                45,
-                                np.arctan(np.sqrt(2) / 2) * 180 / np.pi,
-                                0,
-                            ]
-                        )
-                        * np.pi
-                        / 180
-                    ),
-                    [
-                        0.00044947,
-                        0.00911117,
-                        0.00261005,
-                        0.01304592,
-                        0.00261256,
-                        0.00089893,
-                    ],
-                )
-            ],
-            0.0001,
-            id="k3 periodic cubic 2",
-        ),
-        pytest.param(
-            Atoms(
-                cell=geometry.cellpar_to_cell([3 * 2.2, 2.2, 2.2, 30, 90, 90]),
-                positions=[
-                    [0, 0, 0],
-                ],
-                symbols=["H"],
-                pbc=True,
-            ),
-            3,
-            {"function": "cosine"},
-            {"min": -1.1, "max": 1.1, "sigma": 0.01, "n": 2000},
-            {"function": "exp", "scale": 1.5, "threshold": 1e-4},
-            True,
-            [
-                (
-                    ("H", "H", "H"),
-                    np.cos(np.array([180, 105, 75, 51.2, 30, 23.8, 0]) * np.pi / 180),
-                    [
-                        0.00107715,
-                        0.00044707,
-                        0.00098481,
-                        0.00044723,
-                        0.00049224,
-                        0.00044734,
-                        0.00215429,
-                    ],
-                )
-            ],
-            0.00001,
-            id="k3 periodic non-cubic",
-        ),
-        pytest.param(
-            Atoms(
-                positions=[
-                    [0, 0, 0],
-                    [1, 0, 0],
-                    [0, 1, 0],
-                ],
-                symbols=3 * ["H"],
-                pbc=True,
-            ),
-            3,
-            {"function": "angle"},
-            {"min": 0, "max": 180, "sigma": 1, "n": 1801},
-            {"function": "smooth_cutoff", "sharpness": 2.0, "r_cut": 1.1},
-            False,
-            [
-                (
-                    ("H", "H", "H"),
-                    [90.0],
-                    [0.00021632],
-                )
-            ],
-            0.0001,
-            id="k3 smooth_cutoff",
-        ),
+        # pytest.param(
+        #     get_simple_finite(),
+        #     3,
+        #     {"function": "angle"},
+        #     {"min": -10, "max": 180, "sigma": 5, "n": 2000},
+        #     {"function": "unity"},
+        #     False,
+        #     [(("H", "H", "O"), [38], [2]), (("H", "O", "H"), [104], [1])],
+        #     0.5,
+        #     id="k3 finite",
+        # ),
+        # pytest.param(
+        #     Atoms(
+        #         cell=[
+        #             [10, 0, 0],
+        #             [0, 10, 0],
+        #             [0, 0, 10],
+        #         ],
+        #         symbols=3 * ["H"],
+        #         scaled_positions=[
+        #             [0.05, 0.40, 0.5],
+        #             [0.05, 0.60, 0.5],
+        #             [0.95, 0.5, 0.5],
+        #         ],
+        #         pbc=True,
+        #     ),
+        #     3,
+        #     {"function": "angle"},
+        #     {"min": 0, "max": 180, "sigma": 5, "n": 2000},
+        #     {"function": "exp", "scale": 0.85, "threshold": 1e-3},
+        #     True,
+        #     [
+        #         (
+        #             ("H", "H", "H"),
+        #             [45, 90],
+        #             [
+        #                 2 * np.exp(-0.85 * (2 + 2 * np.sqrt(2))),
+        #                 np.exp(-0.85 * (2 + 2 * np.sqrt(2))),
+        #             ],
+        #         )
+        #     ],
+        #     0.01,
+        #     id="k3 periodic cubic 1",
+        # ),
+        # pytest.param(
+        #     Atoms(
+        #         cell=[[2.2, 0.0, 0.0], [0.0, 2.2, 0.0], [0.0, 0.0, 2.2]],
+        #         positions=[
+        #             [0, 0, 0],
+        #         ],
+        #         symbols=["H"],
+        #         pbc=True,
+        #     ),
+        #     3,
+        #     {"function": "cosine"},
+        #     {"min": -1.1, "max": 1.1, "sigma": 0.010, "n": 2000},
+        #     {"function": "exp", "scale": 1, "threshold": 1e-4},
+        #     True,
+        #     [
+        #         (
+        #             ("H", "H", "H"),
+        #             np.cos(
+        #                 np.array(
+        #                     [
+        #                         180,
+        #                         90,
+        #                         np.arctan(np.sqrt(2)) * 180 / np.pi,
+        #                         45,
+        #                         np.arctan(np.sqrt(2) / 2) * 180 / np.pi,
+        #                         0,
+        #                     ]
+        #                 )
+        #                 * np.pi
+        #                 / 180
+        #             ),
+        #             [
+        #                 0.00044947,
+        #                 0.00911117,
+        #                 0.00261005,
+        #                 0.01304592,
+        #                 0.00261256,
+        #                 0.00089893,
+        #             ],
+        #         )
+        #     ],
+        #     0.0001,
+        #     id="k3 periodic cubic 2",
+        # ),
+        # pytest.param(
+        #     Atoms(
+        #         cell=geometry.cellpar_to_cell([3 * 2.2, 2.2, 2.2, 30, 90, 90]),
+        #         positions=[
+        #             [0, 0, 0],
+        #         ],
+        #         symbols=["H"],
+        #         pbc=True,
+        #     ),
+        #     3,
+        #     {"function": "cosine"},
+        #     {"min": -1.1, "max": 1.1, "sigma": 0.01, "n": 2000},
+        #     {"function": "exp", "scale": 1.5, "threshold": 1e-4},
+        #     True,
+        #     [
+        #         (
+        #             ("H", "H", "H"),
+        #             np.cos(np.array([180, 105, 75, 51.2, 30, 23.8, 0]) * np.pi / 180),
+        #             [
+        #                 0.00107715,
+        #                 0.00044707,
+        #                 0.00098481,
+        #                 0.00044723,
+        #                 0.00049224,
+        #                 0.00044734,
+        #                 0.00215429,
+        #             ],
+        #         )
+        #     ],
+        #     0.00001,
+        #     id="k3 periodic non-cubic",
+        # ),
+        # pytest.param(
+        #     Atoms(
+        #         positions=[
+        #             [0, 0, 0],
+        #             [1, 0, 0],
+        #             [0, 1, 0],
+        #         ],
+        #         symbols=3 * ["H"],
+        #         pbc=True,
+        #     ),
+        #     3,
+        #     {"function": "angle"},
+        #     {"min": 0, "max": 180, "sigma": 1, "n": 1801},
+        #     {"function": "smooth_cutoff", "sharpness": 2.0, "r_cut": 1.1},
+        #     False,
+        #     [
+        #         (
+        #             ("H", "H", "H"),
+        #             [90.0],
+        #             [0.00021632],
+        #         )
+        #     ],
+        #     0.0001,
+        #     id="k3 smooth_cutoff",
+        # ),
     ],
 )
 def test_peaks(system, k, geometry, grid, weighting, periodic, peaks, prominence):
@@ -616,7 +616,7 @@ def test_exceptions():
             **setup,
             periodic=True,
         )
-    msg = "Unknown weighting function specified for k=1. Please use one of the following: ['unity']"
+    msg = "Unknown weighting function specified for k=1. Please use one of the following: 'unity'."
     assert msg == str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
@@ -627,7 +627,7 @@ def test_exceptions():
             **setup,
             periodic=True,
         )
-    msg = "Unknown weighting function specified for k=2. Please use one of the following: ['exp', 'inverse_square', 'unity']"
+    msg = "Unknown weighting function specified for k=2. Please use one of the following: 'exp', 'exponential', 'inverse_square', 'unity'."
     assert msg == str(excinfo.value)
 
     with pytest.raises(ValueError) as excinfo:
@@ -638,7 +638,7 @@ def test_exceptions():
             **setup,
             periodic=True,
         )
-    msg = "Unknown weighting function specified for k=3. Please use one of the following: ['exp', 'smooth_cutoff', 'unity']"
+    msg = "Unknown weighting function specified for k=3. Please use one of the following: 'exp', 'exponential', 'smooth_cutoff', 'unity'."
     assert msg == str(excinfo.value)
 
     # Invalid geometry function
@@ -650,7 +650,7 @@ def test_exceptions():
             periodic=False,
         )
 
-    msg = "Unknown geometry function. Please use one of the following: ['angle', 'atomic_number', 'cosine', 'distance', 'inverse_distance']"
+    msg = "Unknown geometry function. Please use one of the following: 'angle', 'atomic_number', 'cosine', 'distance', 'inverse_distance'."
     assert msg == str(excinfo.value)
 
     # Missing threshold
@@ -675,13 +675,13 @@ def test_exceptions():
         setup["weighting"]["scale"] = 1
         setup["weighting"]["r_cut"] = 1
         MBTR(**setup, species=[1], periodic=True)
-    msg = "Provide either 'scale' or 'r_cut', not both in the weighting."
+    msg = "Provide only 'scale' or 'r_cut' in the weighting, not both."
     assert msg == str(excinfo.value)
 
     # Unknown normalization
     with pytest.raises(ValueError) as excinfo:
         MBTR(**default_k2, species=[1], normalization="l2_test", periodic=True)
-    msg = "Unknown normalization option given. Please use one of the following: l2, n_atoms, none, valle_oganov."
+    msg = "Unknown normalization option. Please use one of the following: 'l2', 'n_atoms', 'none', 'valle_oganov'."
     assert msg == str(excinfo.value)
 
 

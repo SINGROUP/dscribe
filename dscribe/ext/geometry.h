@@ -25,28 +25,31 @@ namespace py = pybind11;
 using namespace Eigen;
 using namespace std;
 
-struct ExtendedSystem {
-    py::array_t<double> positions;
-    py::array_t<int> atomic_numbers;
-    py::array_t<int> indices;
-};
-
 class System {
     public:
         System(
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
             bool extra = true
         );
         System(
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<int> indices
+        );
+        System(
+            py::array_t<double> positions,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
             py::array_t<int> indices,
             py::array_t<int> cell_indices,
             unordered_set<int> interactive_atoms
         );
         py::array_t<double> positions;
         py::array_t<int> atomic_numbers;
+        py::array_t<double> cell;
         /**
          * Indices is a one-dimensional array that links each atom in the system
          * into an index in the original, non-repeated system.
@@ -76,6 +79,9 @@ class System {
 inline vector<double> cross(const vector<double>& a, const vector<double>& b);
 inline double dot(const vector<double>& a, const vector<double>& b);
 inline double norm(const vector<double>& a);
+double get_volume(const py::array_t<double>& cell);
+std::unordered_map<int, int> count_unique(py::array_t<int> &input_array);
+
 
 /**
  * Used to periodically extend an atomic system in order to take into account
@@ -87,9 +93,9 @@ inline double norm(const vector<double>& a);
  * @param pbc Periodic boundary conditions (array of three booleans) of the original system.
  * @param cutoff Radial cutoff value for determining extension size.
  *
- * @return Instance of ExtendedSystem.
+ * @return Instance of System.
  */
-ExtendedSystem extend_system(
+System extend_system(
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,

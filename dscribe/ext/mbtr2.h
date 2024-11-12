@@ -49,6 +49,7 @@ class MBTR: public DescriptorGlobal {
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
             CellList cell_list,
             bool return_descriptor,
             bool return_derivatives
@@ -102,7 +103,6 @@ class MBTR: public DescriptorGlobal {
         py::dict grid;
         py::dict weighting;
         bool normalize_gaussians;
-        string normalization;
         py::array_t<int> species;
         bool periodic;
 
@@ -151,7 +151,7 @@ class MBTR: public DescriptorGlobal {
         int get_number_of_k1_features() const;
         int get_number_of_k2_features() const;
         int get_number_of_k3_features() const;
-        void normalize_output(py::array_t<double> &out, int n_atoms);
+        void normalize_output(py::array_t<double> &out, System &system);
 };
 
 #endif

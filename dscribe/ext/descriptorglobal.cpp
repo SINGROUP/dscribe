@@ -21,8 +21,8 @@ limitations under the License.
 
 using namespace std;
 
-DescriptorGlobal::DescriptorGlobal(bool periodic, string average, double cutoff)
-    : Descriptor(periodic, average, cutoff)
+DescriptorGlobal::DescriptorGlobal(bool periodic, string average, double cutoff, string normalization)
+    : Descriptor(periodic, average, cutoff, normalization)
 {
 }
 
@@ -40,24 +40,25 @@ void DescriptorGlobal::create(
     auto pbc_u = pbc.unchecked<1>();
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
     if (is_periodic) {
-        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        System system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
         positions = system_extended.positions;
         atomic_numbers = system_extended.atomic_numbers;
     }
-    this->create(out, positions, atomic_numbers, return_descriptor, return_derivatives);
+    this->create(out, positions, atomic_numbers, cell, return_descriptor, return_derivatives);
 }
 
 void DescriptorGlobal::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
     bool return_descriptor,
     bool return_derivatives
 )
 {
     // Calculate neighbours with a cell list
     CellList cell_list(positions, this->cutoff);
-    this->create(out, positions, atomic_numbers, cell_list, return_descriptor, return_derivatives);
+    this->create(out, positions, atomic_numbers, cell, cell_list, return_descriptor, return_derivatives);
 }
 
 void DescriptorGlobal::derivatives_numerical(
@@ -81,7 +82,7 @@ void DescriptorGlobal::derivatives_numerical(
     // Extend the system if it is periodic
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
     if (is_periodic) {
-        ExtendedSystem system_extension = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        System system_extension = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
         n_copies = system_extension.atomic_numbers.size()/atomic_numbers.size();
         positions = system_extension.positions;
         atomic_numbers = system_extension.atomic_numbers;
@@ -93,7 +94,7 @@ void DescriptorGlobal::derivatives_numerical(
 
     // Calculate the desciptor value if requested
     if (return_descriptor) {
-        this->create(descriptor, positions, atomic_numbers, cell_list_atoms, true, false);
+        this->create(descriptor, positions, atomic_numbers, cell, cell_list_atoms, true, false);
     }
 
     // Central finite difference with error O(h^2)
@@ -140,7 +141,7 @@ void DescriptorGlobal::derivatives_numerical(
                 auto d_mu = d.mutable_unchecked<1>();
 
                 // Calculate descriptor value
-                this->create(d, positions, atomic_numbers, cell_list_atoms, true, false);
+                this->create(d, positions, atomic_numbers, cell, cell_list_atoms, true, false);
 
                 // Add value to final derivative array
                 double coeff = coefficients[i_stencil];

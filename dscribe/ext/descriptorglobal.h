@@ -60,6 +60,7 @@ class DescriptorGlobal : public Descriptor {
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
             bool return_descriptor,
             bool return_derivatives
         );
@@ -76,6 +77,7 @@ class DescriptorGlobal : public Descriptor {
             py::array_t<double> out, 
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
             CellList cell_list,
             bool return_descriptor,
             bool return_derivatives
@@ -105,7 +107,7 @@ class DescriptorGlobal : public Descriptor {
         );
 
     protected:
-        DescriptorGlobal(bool periodic, string average="", double cutoff=0);
+        DescriptorGlobal(bool periodic, string average="", double cutoff=0, string normalization="none");
 };
 
 #endif

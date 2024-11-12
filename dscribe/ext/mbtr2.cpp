@@ -15,9 +15,13 @@ limitations under the License.
 #include <functional>
 #include <algorithm>
 #include <limits>
-#include <unordered_set>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <set>
 #include "mbtr2.h"
 #include "constants.h"
+#include "geometry.h"
 
 
 using namespace std;
@@ -113,7 +117,7 @@ MBTR::MBTR(
     py::array_t<int> species,
     bool periodic
 )
-    : DescriptorGlobal(periodic)
+    : DescriptorGlobal(periodic, "", 0, normalization)
     , normalize_gaussians(normalize_gaussians)
 {
     this->set_species(species);
@@ -148,28 +152,71 @@ int MBTR::get_number_of_features() const {
  * @param start Start index, defaults to 0
  * @param end End index, defaults to -1 = end of array
  */
-void MBTR::normalize_output(py::array_t<double> &out, int n_atoms) {
+void MBTR::normalize_output(py::array_t<double> &out, System &system) {
     double factor = 1;
     int end = out.size();
     auto out_mu = out.mutable_unchecked<1>();
     if (this->normalization == "l2") {
-        // Gather magnitude
         double norm = 0;
         for (int i = 0; i < end; ++i) {
             norm += out_mu[i] * out_mu[i];
         }
-
-        // Divide by L2 norm
         factor = 1 / sqrt(norm);
+        for (int i = 0; i < end; ++i) {
+            out_mu[i] *= factor;
+        }
     } else if (this->normalization == "n_atoms") {
-        factor = 1 / n_atoms;
+        factor = 1 / system.atomic_numbers.size();
+        for (int i = 0; i < end; ++i) {
+            out_mu[i] *= factor;
+        }
     } else if (this->normalization == "valle_oganov") {
-        factor = 1 / n_atoms;
-    }
-
-    // Multiply by factor. Multiplication is faster than division.
-    for (int i = 0; i < end; ++i) {
-        out_mu[i] *= factor;
+        double volume = get_volume(system.cell);
+        int n_species = this->species.size();
+        std::unordered_map<int, int> counts = count_unique(system.atomic_numbers);
+        if (this->k == 2) {
+            for (auto& it_i: counts) {
+                for (auto& it_j: counts) {
+                    int Z_i = it_i.first;
+                    int Z_j = it_j.first;
+                    int i_z = this->species_index_map[Z_i];
+                    int j_z = this->species_index_map[Z_j];
+                    if (j_z < i_z) {
+                        continue;
+                    }
+                    double count_product = (Z_i == Z_j)
+                        ? 0.5 * counts.at(i_z) * counts.at(j_z)
+                        : counts.at(i_z) * counts.at(j_z);
+                    double factor = volume / (4.0 * PI * count_product);
+                    pair<int, int> location = get_location(i_z, j_z);
+                    for (int i = location.first; i < location.second; ++i) {
+                        out_mu[i] *= factor;
+                    }
+                }
+            }
+        } else if (this->k == 3) {
+            for (auto& it_i: counts) {
+                for (auto& it_j: counts) {
+                    for (auto& it_k: counts) {
+                        int Z_i = it_i.first;
+                        int Z_j = it_j.first;
+                        int Z_k = it_k.first;
+                        int i_z = this->species_index_map[Z_i];
+                        int j_z = this->species_index_map[Z_j];
+                        int k_z = this->species_index_map[Z_k];
+                        if (k_z < i_z) {
+                            continue;
+                        }
+                        double count_product = counts.at(i_z) * counts.at(j_z) * counts.at(k_z);
+                        double factor = volume /  (4.0 * PI * count_product);
+                        pair<int, int> location = get_location(i_z, j_z, k_z);
+                        for (int i = location.first; i < location.second; ++i) {
+                            out_mu[i] *= factor;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -177,11 +224,12 @@ void MBTR::create(
     py::array_t<double> out, 
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
     CellList cell_list,
     bool return_descriptor,
     bool return_derivatives
 ) {
-    System system = System(positions, atomic_numbers, true);
+    System system = System(positions, atomic_numbers, cell, true);
     if (this->k == 1) {
       this->calculate_k1(out, system);
     } else if (this->k == 2) {
@@ -189,7 +237,7 @@ void MBTR::create(
     } else if (this->k == 3) {
         this->calculate_k3(out, system, cell_list);
     }
-    this->normalize_output(out, atomic_numbers.size());
+    this->normalize_output(out, system);
     return;
 }
 
@@ -226,7 +274,6 @@ pair<int, int> MBTR::get_location(int z1, int z2) {
     // Change into internal indexing
     int i = this->species_index_map[z1];
     int j = this->species_index_map[z2];
-
 
     // Sort
     vector<int> numbers = {i, j};
@@ -289,9 +336,9 @@ void MBTR::set_geometry(py::dict geometry) {
     this->geometry = geometry;
     if (geometry.contains("function")) {
         string function = geometry["function"].cast<string>();
-        unordered_set<string> k1({"atomic_number"});
-        unordered_set<string> k2({"distance", "inverse_distance"});
-        unordered_set<string> k3({"angle", "cosine"});
+        set<string> k1({"atomic_number"});
+        set<string> k2({"distance", "inverse_distance"});
+        set<string> k3({"angle", "cosine"});
         if (k1.find(function) != k1.end()) {
             this->k = 1;
         } else if (k2.find(function) != k2.end()) {
@@ -299,7 +346,21 @@ void MBTR::set_geometry(py::dict geometry) {
         } else if (k3.find(function) != k3.end()) {
             this->k = 3;
         } else {
-            throw invalid_argument("Unknown geometry function.");
+            set<string> valid_functions = k1;
+            valid_functions.insert(k2.begin(), k2.end());
+            valid_functions.insert(k3.begin(), k3.end());
+            std::ostringstream oss;
+            oss << "Unknown geometry function. Please use one of the following: ";
+            bool first = true;
+            for (auto &it : valid_functions) {
+                if (!first) {
+                    oss << ", ";
+                }
+                oss << "'" << it << "'";
+                first = false;
+            }
+            oss << ".";
+            throw invalid_argument(oss.str());
         }
     } else {
         throw invalid_argument("Please specify a geometry function.");
@@ -331,9 +392,20 @@ void MBTR::set_normalize_gaussians(bool normalize_gaussians) {
 }
 
 void MBTR::set_normalization(string normalization) {
-    unordered_set<string> options({"l2", "none", "n_atoms"});
+    set<string> options({"l2", "n_atoms", "none", "valle_oganov"});
     if (options.find(normalization) == options.end()) {
-        throw invalid_argument("Unknown normalization option.");
+        std::ostringstream oss;
+        oss << "Unknown normalization option. Please use one of the following: ";
+        bool first = true;
+        for (auto &it : options) {
+            if (!first) {
+                oss << ", ";
+            }
+            oss << "'" << it << "'";
+            first = false;
+        }
+        oss << ".";
+        throw invalid_argument(oss.str());
     }
     this->normalization = normalization;
 }
@@ -377,7 +449,7 @@ double MBTR::get_cutoff() {
             } else if (weighting.contains("scale")) {
                 double scale = weighting["scale"].cast<double>();
                 if (!weighting.contains("threshold")) {
-                    throw invalid_argument("Missing value for 'threshold'.");
+                    throw invalid_argument("Missing value for 'threshold' in the weighting.");
                 }
                 double threshold = weighting["threshold"].cast<double>();
                 cutoff = -log(threshold) / scale;
@@ -430,34 +502,47 @@ void MBTR::assert_periodic_weighting() {
 }
 
 void MBTR::assert_weighting() {
-    unordered_set<string> valid_functions;
+    set<string> valid_functions;
     if (this->k == 1) {
-        valid_functions = unordered_set<string>({"unity"});
+        valid_functions = set<string>({"unity"});
+    } else if (this->k == 2) {
+        valid_functions = set<string>({"unity", "exp", "exponential", "inverse_square"});
     } else {
-        valid_functions = unordered_set<string>({"unity", "exp", "exponential", "inverse_square"});
+        valid_functions = set<string>({"unity", "exp", "exponential", "smooth_cutoff"});
     }
     ostringstream os;
     string function = weighting["function"].cast<string>();
     if (valid_functions.find(function) == valid_functions.end()) {
-        throw invalid_argument("Unknown weighting function.");
+        std::ostringstream oss;
+        oss << "Unknown weighting function specified for k=" << this->k << ". Please use one of the following: ";
+        bool first = true;
+        for (auto &it : valid_functions) {
+            if (!first) {
+                oss << ", ";
+            }
+            oss << "'" << it << "'";
+            first = false;
+        }
+        oss << ".";
+        throw invalid_argument(oss.str());
     } else {
         if (function == "exp" || function == "exponential") {
             if (!weighting.contains("threshold")) {
-                throw invalid_argument("Missing value for 'threshold'.");
+                throw invalid_argument("Missing value for 'threshold' in the weighting.");
             }
             if (!weighting.contains("scale") && !weighting.contains("r_cut")) {
-                throw invalid_argument("Provide either 'scale' or 'r_cut'.");
+                throw invalid_argument("Provide either 'scale' or 'r_cut' in the weighting.");
             }
             if (weighting.contains("scale") && weighting.contains("r_cut")) {
-                throw invalid_argument("Provide only 'scale' or 'r_cut', not both.");
+                throw invalid_argument("Provide only 'scale' or 'r_cut' in the weighting, not both.");
             }
         } else if (function == "inverse_square") {
             if (!weighting.contains("r_cut")) {
-                throw invalid_argument("Missing value for 'r_cut'.");
+                throw invalid_argument("Missing value for 'r_cut' in the weighting.");
             }
         } else if (function == "smooth_cutoff") {
             if (!weighting.contains("r_cut")) {
-                throw invalid_argument("Missing value for 'r_cut'.");
+                throw invalid_argument("Missing value for 'r_cut' in the weighting.");
             }
         }
     }
@@ -587,27 +672,28 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
     // Maybe looping over the interactive atoms only? Also maybe iterating over
     // the cells only in the positive lattice vector direction?
     double cutoff_k2 = this->cutoff;
-    int n_atoms = atomic_numbers.size();
     auto cell_indices_u = system.cell_indices.unchecked<1>();
-    for (int i=0; i < n_atoms; ++i) {
+
+    // Loop through all the atoms in the original, non-extended cell
+    for (auto &i : system.interactive_atoms) {
         // For each atom we loop only over the neighbours
         CellListResult neighbours_i = cell_list.getNeighboursForIndex(i);
         int n_neighbours = neighbours_i.indices.size();
 
         for (int it = 0; it < n_neighbours; ++it) {
+            // Early return if distance is bigger than cutoff
             int j = neighbours_i.indices[it];
             double distance = neighbours_i.distances[it];
             if (distance > cutoff_k2) {
                 continue;
             }
-
+            // Distance is symmetric, only consider one way
             if (j > i) {
                 // Only consider pairs that have at least one atom in the
                 // 'interactive subset', typically the original cell but can
                 // also be another local region.
-                bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
-                bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
-                if (i_interactive || j_interactive) {
+                if (system.interactive_atoms.find(i) != system.interactive_atoms.end() ||
+                    system.interactive_atoms.find(j) != system.interactive_atoms.end()) {
 
                     double geom = geom_func(distance);
                     double weight = weight_func(distance);
@@ -711,10 +797,9 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                 // Only consider triples that have at least one atom in the
                 // 'interaction subset', typically the original cell but can
                 // also be another local region.
-                bool i_interactive = system.interactive_atoms.find(i) != system.interactive_atoms.end();
-                bool j_interactive = system.interactive_atoms.find(j) != system.interactive_atoms.end();
-                bool k_interactive = system.interactive_atoms.find(k) != system.interactive_atoms.end();
-                if (i_interactive || j_interactive || k_interactive) {
+                if (system.interactive_atoms.find(i) != system.interactive_atoms.end() ||
+                    system.interactive_atoms.find(j) != system.interactive_atoms.end() ||
+                    system.interactive_atoms.find(k) != system.interactive_atoms.end()) {
                     // Calculate angle for all index permutations from choosing
                     // three out of n_atoms. The same atom cannot be present
                     // twice in the permutation.
@@ -722,17 +807,18 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                         // The angles are symmetric: ijk = kji. The value is
                         // calculated only for the triplet where k > i.
                         if (k > i) {
-
+                            // Early return if distance is bigger than cutoff
                             double distance_ij = neighbours_i.distances[it_i];
                             double distance_jk = neighbours_j.distances[k];
                             if (distance_ij + distance_jk > cutoff_k3) {
                                 continue;
                             }
-                            // The i-k distance is here calculated. TODO: One
-                            // could alternatively check if k is part of i's
-                            // neighbours: if not, then this triplet can be
-                            // skipped. This would be possible if e.g. celllist
-                            // result indices would be an ordered set.
+                            // The i-k distance is here calculated to check for
+                            // early return. TODO: One could alternatively check
+                            // if k is part of i's neighbours: if not, then this
+                            // triplet can be skipped. This would be possible if
+                            // e.g. celllist result indices would be an ordered
+                            // set.
                             double dx = positions_u(i, 0) - positions_u(k, 0);
                             double dy = positions_u(i, 1) - positions_u(k, 1);
                             double dz = positions_u(i, 2) - positions_u(k, 2);
@@ -759,8 +845,8 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                             // the atoms in the triple.
                             int diff_sum =
                                 (int)!same_cell(cell_indices_u, i, j)
-                              + (int)!same_cell(cell_indices_u, i, k)
-                              + (int)!same_cell(cell_indices_u, j, k);
+                                + (int)!same_cell(cell_indices_u, i, k)
+                                + (int)!same_cell(cell_indices_u, j, k);
                             if (diff_sum > 1) {
                                 weight /= diff_sum;
                             }
@@ -773,7 +859,8 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                             pair<int, int> loc = get_location(i_z, j_z, k_z);
 
                             // Add gaussian to output
-                            add_gaussian(geom, weight, start, dx, sigma, n, loc, out_mu);
+                            add_gaussian(1.0, 1.0, start, 0.5, sigma, n, loc, out_mu);
+                            // add_gaussian(geom, weight, start, dx, sigma, n, loc, out_mu);
                         }
                     }
                 }

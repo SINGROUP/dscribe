@@ -559,6 +559,10 @@ def assert_basis(descriptor_func):
     vec3 = desc.create(sys3)
     vec4 = desc.create(sys4)
 
+    # print(vec1.shape)
+    # print(vec1)
+    # raise
+
     # Average the result for local descriptors
     if isinstance(desc, DescriptorLocal):
         vec1 = np.mean(vec1, 0)
@@ -803,9 +807,10 @@ def assert_mbtr_peak(
     n = grid["n"]
     x = np.linspace(start, stop, n)
 
-    # import matplotlib.pyplot as mpl
-    # mpl.plot(features)
-    # mpl.show()
+    import matplotlib.pyplot as mpl
+    for i in range(0, int(features.size / x.size)):
+        mpl.plot(x, features[i*x.size:(i+1)*x.size])
+    mpl.show()
 
     # Check that the correct peaks can be found
     for location, peak_x, peak_y in peaks:

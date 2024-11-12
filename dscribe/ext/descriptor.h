@@ -33,10 +33,11 @@ class Descriptor {
          */
         virtual int get_number_of_features() const = 0; 
 
-        Descriptor(bool periodic, string average="", double cutoff=0);
+        Descriptor(bool periodic, string average="", double cutoff=0, string normalization="none");
         const bool periodic;
         const string average;
         double cutoff;
+        string normalization;
 };
 
 #endif

@@ -35,7 +35,7 @@ using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
 // correspond to the file name!
 PYBIND11_MODULE(ext, m) {
     // CoulombMatrix
-    py::class_<CoulombMatrix>(m, "CoulombMatrix")
+    py::class_<CoulombMatrix>(m, "CoulombMatrix", py::module_local())
         .def(py::init<unsigned int, string, double, int>())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, bool, bool >()(&DescriptorGlobal::create))
         .def("derivatives_numerical", &CoulombMatrix::derivatives_numerical)
@@ -55,24 +55,22 @@ PYBIND11_MODULE(ext, m) {
                 return p;
             }
         ));
-
     // SOAP
-    py::class_<SOAPGTO>(m, "SOAPGTO")
+    py::class_<SOAPGTO>(m, "SOAPGTO", py::module_local())
         .def(py::init<double, int, int, double, py::dict, string, double, py::array_t<int>, py::array_t<double>, bool, string, py::array_t<double>, py::array_t<double> >())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&DescriptorLocal::create))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&DescriptorLocal::create))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPGTO::create))
         .def("derivatives_numerical", &SOAPGTO::derivatives_numerical)
         .def("derivatives_analytical", &SOAPGTO::derivatives_analytical);
-    py::class_<SOAPPolynomial>(m, "SOAPPolynomial")
+    py::class_<SOAPPolynomial>(m, "SOAPPolynomial", py::module_local())
         .def(py::init<double, int, int, double, py::dict, string, double, py::array_t<int>, py::array_t<double>, bool, string, py::array_t<double>, py::array_t<double> >())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double> >()(&DescriptorLocal::create))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<double> >()(&DescriptorLocal::create))
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, CellList>()(&SOAPPolynomial::create))
         .def("derivatives_numerical", &SOAPPolynomial::derivatives_numerical);
-
     // ACSF
-    py::class_<ACSF>(m, "ACSFWrapper")
+    py::class_<ACSF>(m, "ACSFWrapper", py::module_local())
         .def(py::init<double, vector<vector<double> > , vector<double> , vector<vector<double> > , vector<vector<double> >, vector<int> , bool>())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<int> >()(&DescriptorLocal::create))
         .def("get_number_of_features", &ACSF::get_number_of_features)
@@ -108,17 +106,8 @@ PYBIND11_MODULE(ext, m) {
                 return p;
             }
         ));
- 
     // MBTR
-    // py::class_<MBTR>(m, "MBTRWrapper")
-    //     .def(py::init< map<int,int>, int , vector<vector<int>>  >())
-    //     .def("get_k1", &MBTR::getK1)
-    //     .def("get_k2", &MBTR::getK2)
-    //     .def("get_k3", &MBTR::getK3)
-    //     .def("get_k2_local", &MBTR::getK2Local)
-    //     .def("get_k3_local", &MBTR::getK3Local);
-    // MBTR
-    py::class_<MBTR>(m, "MBTR")
+    py::class_<MBTR>(m, "MBTR", py::module_local())
         .def(py::init<py::dict, py::dict, py::dict, bool, string, py::array_t<int>, bool>())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, bool, bool>()(&DescriptorGlobal::create))
         .def("get_number_of_features", &MBTR::get_number_of_features)
@@ -153,23 +142,21 @@ PYBIND11_MODULE(ext, m) {
                 return p;
             }
         ));
-
     // CellList
-    py::class_<CellList>(m, "CellList")
+    py::class_<CellList>(m, "CellList", py::module_local())
         .def(py::init<py::array_t<double>, double>())
         .def("get_neighbours_for_index", &CellList::getNeighboursForIndex)
         .def("get_neighbours_for_position", &CellList::getNeighboursForPosition);
-    py::class_<CellListResult>(m, "CellListResult")
+    py::class_<CellListResult>(m, "CellListResult", py::module_local())
         .def(py::init<>())
         .def_readonly("indices", &CellListResult::indices)
         .def_readonly("distances", &CellListResult::distances)
         .def_readonly("distances_squared", &CellListResult::distancesSquared);
-
     // Geometry
     m.def("extend_system", &extend_system, "Create a periodically extended system.");
-    py::class_<ExtendedSystem>(m, "ExtendedSystem")
-        .def(py::init<>())
-        .def_readonly("positions", &ExtendedSystem::positions)
-        .def_readonly("atomic_numbers", &ExtendedSystem::atomic_numbers)
-        .def_readonly("indices", &ExtendedSystem::indices);
+    py::class_<System>(m, "System", py::module_local())
+        .def(py::init<py::array_t<double>, py::array_t<int>, py::array_t<double>, bool>())
+        .def_property_readonly("positions", &System::get_positions)
+        .def_property_readonly("atomic_numbers", &System::get_atomic_numbers)
+        .def_property_readonly("indices", &System::get_indices);
 }
