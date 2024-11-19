@@ -37,12 +37,6 @@ class System {
             py::array_t<double> positions,
             py::array_t<int> atomic_numbers,
             py::array_t<double> cell,
-            py::array_t<int> indices
-        );
-        System(
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> cell,
             py::array_t<int> indices,
             py::array_t<int> cell_indices,
             unordered_set<int> interactive_atoms

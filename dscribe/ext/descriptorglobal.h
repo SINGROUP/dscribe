@@ -20,6 +20,7 @@ limitations under the License.
 #include <string>
 #include "descriptor.h"
 #include "celllist.h"
+#include "geometry.h"
 
 namespace py = pybind11;
 using namespace std;
@@ -58,9 +59,7 @@ class DescriptorGlobal : public Descriptor {
          */
         void create(
             py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> cell,
+            System &system,
             bool return_descriptor,
             bool return_derivatives
         );
@@ -75,9 +74,7 @@ class DescriptorGlobal : public Descriptor {
          */
         virtual void create(
             py::array_t<double> out, 
-            py::array_t<double> positions,
-            py::array_t<int> atomic_numbers,
-            py::array_t<double> cell,
+            System &system,
             CellList cell_list,
             bool return_descriptor,
             bool return_derivatives

@@ -222,14 +222,11 @@ void MBTR::normalize_output(py::array_t<double> &out, System &system) {
 
 void MBTR::create(
     py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    py::array_t<double> cell,
+    System &system,
     CellList cell_list,
     bool return_descriptor,
     bool return_derivatives
 ) {
-    System system = System(positions, atomic_numbers, cell, true);
     if (this->k == 1) {
       this->calculate_k1(out, system);
     } else if (this->k == 2) {
@@ -667,57 +664,34 @@ void MBTR::calculate_k2(py::array_t<double> &out, System &system, CellList &cell
         throw invalid_argument("Invalid weighting function for k=2.");
     }
 
-    // Loop over all atoms in the system
-    // TODO: There may be a more efficent way of looping through the atoms.
-    // Maybe looping over the interactive atoms only? Also maybe iterating over
-    // the cells only in the positive lattice vector direction?
     double cutoff_k2 = this->cutoff;
     auto cell_indices_u = system.cell_indices.unchecked<1>();
+    auto system_indices_u = system.indices.unchecked<1>();
 
     // Loop through all the atoms in the original, non-extended cell
     for (auto &i : system.interactive_atoms) {
-        // For each atom we loop only over the neighbours
         CellListResult neighbours_i = cell_list.getNeighboursForIndex(i);
         int n_neighbours = neighbours_i.indices.size();
-
+        // Loop through all neighbours of i
         for (int it = 0; it < n_neighbours; ++it) {
             // Early return if distance is bigger than cutoff
-            int j = neighbours_i.indices[it];
+            int j = system_indices_u(neighbours_i.indices[it]);
             double distance = neighbours_i.distances[it];
             if (distance > cutoff_k2) {
                 continue;
             }
             // Distance is symmetric, only consider one way
             if (j > i) {
-                // Only consider pairs that have at least one atom in the
-                // 'interactive subset', typically the original cell but can
-                // also be another local region.
-                if (system.interactive_atoms.find(i) != system.interactive_atoms.end() ||
-                    system.interactive_atoms.find(j) != system.interactive_atoms.end()) {
+                double geom = geom_func(distance);
+                double weight = weight_func(distance);
 
-                    double geom = geom_func(distance);
-                    double weight = weight_func(distance);
+                // Get the starting index of the species pair in the final vector
+                int i_z = atomic_numbers_u(i);
+                int j_z = atomic_numbers_u(j);
+                pair<int, int> loc = get_location(i_z, j_z);
 
-                    // When the pair of atoms are in different copies of the
-                    // cell, the weight is halved. This is done in order to
-                    // avoid double counting the same distance in the opposite
-                    // direction. This correction makes periodic cells with
-                    // different translations equal and also supercells equal to
-                    // the primitive cell within a constant that is given by the
-                    // number of repetitions of the primitive cell in the
-                    // supercell.
-                    if (!same_cell(cell_indices_u, i, j)) {
-                        weight /= 2;
-                    }
-
-                    // Get the starting index of the species pair in the final vector
-                    int i_z = atomic_numbers_u(i);
-                    int j_z = atomic_numbers_u(j);
-                    pair<int, int> loc = get_location(i_z, j_z);
-
-                    // Add gaussian to output
-                    add_gaussian(geom, weight, start, dx, sigma, n, loc, out_mu);
-                }
+                // Add gaussian to output
+                add_gaussian(geom, weight, start, dx, sigma, n, loc, out_mu);
             }
         }
     }
@@ -779,89 +753,68 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
         throw invalid_argument("Invalid weighting function for k=3.");
     }
 
-    // For each atom we loop only over the atoms triplets that are within the
-    // neighbourhood
     double cutoff_k3 = this->cutoff * 2;
     int n_atoms = atomic_numbers.size();
     auto pos_u = system.positions.unchecked<2>();
     auto cell_indices_u = system.cell_indices.unchecked<1>();
-    for (int i=0; i < n_atoms; ++i) {
+    auto system_indices_u = system.indices.unchecked<1>();
+
+    // Loop through all the atoms in the original, non-extended cell
+    for (auto &i : system.interactive_atoms) {
         CellListResult neighbours_i = cell_list.getNeighboursForIndex(i);
         int n_neighbours_i = neighbours_i.indices.size();
+        // Loop through all neighbours of i
         for (int it_i = 0; it_i < n_neighbours_i; ++it_i) {
-            int j = neighbours_i.indices[it_i];
-            CellListResult neighbours_j = cell_list.getNeighboursForIndex(j);
+            int j_ext = neighbours_i.indices[it_i];
+            int j = system_indices_u(j_ext);
+            CellListResult neighbours_j = cell_list.getNeighboursForIndex(j_ext);
             int n_neighbours_j = neighbours_j.indices.size();
+            // Loop through all neighours of j
             for (int it_j = 0; it_j < n_neighbours_j; ++it_j) {
-                int k = neighbours_j.indices[it_j];
-                // Only consider triples that have at least one atom in the
-                // 'interaction subset', typically the original cell but can
-                // also be another local region.
-                if (system.interactive_atoms.find(i) != system.interactive_atoms.end() ||
-                    system.interactive_atoms.find(j) != system.interactive_atoms.end() ||
-                    system.interactive_atoms.find(k) != system.interactive_atoms.end()) {
-                    // Calculate angle for all index permutations from choosing
-                    // three out of n_atoms. The same atom cannot be present
-                    // twice in the permutation.
-                    if (j != i && k != j && k != i) {
-                        // The angles are symmetric: ijk = kji. The value is
-                        // calculated only for the triplet where k > i.
-                        if (k > i) {
-                            // Early return if distance is bigger than cutoff
-                            double distance_ij = neighbours_i.distances[it_i];
-                            double distance_jk = neighbours_j.distances[k];
-                            if (distance_ij + distance_jk > cutoff_k3) {
-                                continue;
-                            }
-                            // The i-k distance is here calculated to check for
-                            // early return. TODO: One could alternatively check
-                            // if k is part of i's neighbours: if not, then this
-                            // triplet can be skipped. This would be possible if
-                            // e.g. celllist result indices would be an ordered
-                            // set.
-                            double dx = positions_u(i, 0) - positions_u(k, 0);
-                            double dy = positions_u(i, 1) - positions_u(k, 1);
-                            double dz = positions_u(i, 2) - positions_u(k, 2);
-                            double distance_ki = sqrt(dx*dx + dy*dy + dz*dz);
-                            if (distance_ij + distance_jk + distance_ki > cutoff_k3) {
-                                continue;
-                            }
-
-                            // Calculate geometry value.
-                            double geom = geom_func(distance_ij, distance_jk, distance_ki);
-
-                            // Calculate weight value.
-                            double weight = weight_func(distance_ij, distance_jk, distance_ki);
-
-                            // The contributions are weighted by their multiplicity arising from
-                            // the translational symmetry. Each triple of atoms is repeated N
-                            // times in the extended system through translational symmetry. The
-                            // weight for the angles is thus divided by N so that the
-                            // multiplication from symmetry is countered. This makes the final
-                            // spectrum invariant to the selected supercell size and shape
-                            // after normalization. The number of repetitions N is given by how
-                            // many unique cell indices (the index of the repeated cell with
-                            // respect to the original cell at index 0) are present for
-                            // the atoms in the triple.
-                            int diff_sum =
-                                (int)!same_cell(cell_indices_u, i, j)
-                                + (int)!same_cell(cell_indices_u, i, k)
-                                + (int)!same_cell(cell_indices_u, j, k);
-                            if (diff_sum > 1) {
-                                weight /= diff_sum;
-                            }
-
-                            // Get the starting index of the species triple in
-                            // the final vector
-                            int i_z = atomic_numbers_u(i);
-                            int j_z = atomic_numbers_u(j);
-                            int k_z = atomic_numbers_u(k);
-                            pair<int, int> loc = get_location(i_z, j_z, k_z);
-
-                            // Add gaussian to output
-                            add_gaussian(1.0, 1.0, start, 0.5, sigma, n, loc, out_mu);
-                            // add_gaussian(geom, weight, start, dx, sigma, n, loc, out_mu);
+                int k_ext = neighbours_j.indices[it_j];
+                int k = system_indices_u(k_ext);
+                // Calculate angle for all index permutations from choosing
+                // three out of n_atoms. The same atom cannot be present
+                // twice in the permutation.
+                if (j != i && k != j && k != i) {
+                    // The angles are symmetric: ijk = kji. The value is
+                    // calculated only for the triplet where k > i.
+                    if (k > i) {
+                        // Early return if distance is bigger than cutoff
+                        double distance_ij = neighbours_i.distances[it_i];
+                        double distance_jk = neighbours_j.distances[it_j];
+                        if (distance_ij + distance_jk > cutoff_k3) {
+                            continue;
                         }
+                        // The i-k distance is here calculated to check for
+                        // early return. TODO: One could alternatively check
+                        // if k is part of i's neighbours: if not, then this
+                        // triplet can be skipped. This would be possible if
+                        // e.g. celllist result indices would be an ordered
+                        // set.
+                        double d_x = positions_u(i, 0) - positions_u(k_ext, 0);
+                        double d_y = positions_u(i, 1) - positions_u(k_ext, 1);
+                        double d_z = positions_u(i, 2) - positions_u(k_ext, 2);
+                        double distance_ki = sqrt(d_x*d_x + d_y*d_y + d_z*d_z);
+                        if (distance_ij + distance_jk + distance_ki > cutoff_k3) {
+                            continue;
+                        }
+
+                        // Calculate geometry value.
+                        double geom = geom_func(distance_ij, distance_jk, distance_ki);
+
+                        // Calculate weight value.
+                        double weight = weight_func(distance_ij, distance_jk, distance_ki);
+
+                        // Get the starting index of the species triple in
+                        // the final vector
+                        int i_z = atomic_numbers_u(i);
+                        int j_z = atomic_numbers_u(j);
+                        int k_z = atomic_numbers_u(k);
+                        pair<int, int> loc = get_location(i_z, j_z, k_z);
+
+                        // Add gaussian to output
+                        add_gaussian(geom, weight, start, dx, sigma, n, loc, out_mu);
                     }
                 }
             }

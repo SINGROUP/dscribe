@@ -807,10 +807,10 @@ def assert_mbtr_peak(
     n = grid["n"]
     x = np.linspace(start, stop, n)
 
-    import matplotlib.pyplot as mpl
-    for i in range(0, int(features.size / x.size)):
-        mpl.plot(x, features[i*x.size:(i+1)*x.size])
-    mpl.show()
+    # import matplotlib.pyplot as mpl
+    # for i in range(0, int(features.size / x.size)):
+    #     mpl.plot(x, features[i*x.size:(i+1)*x.size])
+    # mpl.show()
 
     # Check that the correct peaks can be found
     for location, peak_x, peak_y in peaks:

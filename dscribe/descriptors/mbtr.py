@@ -337,11 +337,13 @@ class MBTR(DescriptorGlobal):
 
         return output
 
-    def create_single(self, system, return_descriptor, return_derivatives):
+    def create_single(self, system, return_descriptor=True, return_derivatives=False):
         """Return the many-body tensor representation for the given system.
 
         Args:
             system (:class:`ase.Atoms`): Input system.
+            return_descriptor: Whether to return the descriptor
+            return_derivatives: Whether to return the derivatives
 
         Returns:
             np.ndarray | sparse.COO: The return type is
