@@ -68,8 +68,8 @@ inline double weight_square_k2(double distance) {
 
 inline double weight_smooth_k3(double distance_ij, double distance_jk, double distance_ki, double sharpness, double cutoff) {
     double f_ij = 1 + sharpness * pow((distance_ij/cutoff), (sharpness+1)) - (sharpness+1)* pow((distance_ij/cutoff), sharpness);
-    double f_jk = 1 + sharpness * pow((distance_jk/cutoff), (sharpness+1)) - (sharpness+1)* pow((distance_jk/cutoff), sharpness);
-    return f_ij*f_jk;
+    double f_ik = 1 + sharpness * pow((distance_ki/cutoff), (sharpness+1)) - (sharpness+1)* pow((distance_ki/cutoff), sharpness);
+    return f_ij*f_ik;
 }
 
 inline double geom_atomic_number(int atomic_number) {
@@ -434,6 +434,7 @@ void MBTR::set_periodic(bool periodic) {
 
 double MBTR::get_cutoff() {
     double cutoff = numeric_limits<double>::infinity();
+    bool use_perimeter = true;
     if (weighting.contains("function")) {
         string function = weighting["function"].cast<string>();
         if (function == "exp" || function == "exponential") {
@@ -448,6 +449,12 @@ double MBTR::get_cutoff() {
                 cutoff = -log(threshold) / scale;
             }
         } else if (function == "inverse_square") {
+            use_perimeter = false;
+            if (weighting.contains("r_cut")) {
+                cutoff = weighting["r_cut"].cast<double>();
+            }
+        } else if (function == "smooth_cutoff") {
+            use_perimeter = false;
             if (weighting.contains("r_cut")) {
                 cutoff = weighting["r_cut"].cast<double>();
             }
@@ -456,7 +463,7 @@ double MBTR::get_cutoff() {
 
     // In k3, the distance is defined as the perimeter, thus we half the
     // distance to get the actual cutoff.
-    if (this->k == 3) {
+    if (this->k == 3 && use_perimeter) {
         cutoff *= 0.5;
     }
 
@@ -749,6 +756,7 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
     }
 
     // Determine the weighting function to use
+    bool use_perimeter = true;
     string weight_func_name = this->weighting["function"].cast<string>();
     function<double(double, double, double)> weight_func;
     if (weight_func_name == "unity") {
@@ -763,6 +771,7 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
             scale
         );
     } else if (weight_func_name == "smooth_cutoff") {
+        use_perimeter = false;
         double sharpness = this->weighting["sharpness"].cast<double>();
         double r_cut = this->weighting["r_cut"].cast<double>();
         weight_func = bind(
@@ -777,7 +786,8 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
         throw invalid_argument("Invalid weighting function for k=3.");
     }
 
-    double cutoff_k3 = this->cutoff * 2;
+    double cutoff_pairwise = this->cutoff;
+    double cutoff_perimeter = this->cutoff * 2;
     auto pos_u = system.positions.unchecked<2>();
     auto cell_indices_u = system.cell_indices.unchecked<1>();
     auto system_indices_u = system.indices.unchecked<1>();
@@ -795,11 +805,9 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
         // Loop through all neighbours of i
         for (int it_i = 0; it_i < n_neighbours_i; ++it_i) {
             int j = neighbours_i.indices[it_i];
-            CellListResult neighbours_j = cell_list.getNeighboursForIndex(j);
-            int n_neighbours_j = neighbours_j.indices.size();
-            // Loop through all neighbours of j
-            for (int it_j = 0; it_j < n_neighbours_j; ++it_j) {
-                int k = neighbours_j.indices[it_j];
+            // Loop through other neighbours of i
+            for (int it_j = 0; it_j < n_neighbours_i; ++it_j) {
+                int k = neighbours_i.indices[it_j];
                 // Only consider triplets that have at least one atom in the original cell
                 if (i >= n_atoms_original && j >= n_atoms_original && k >= n_atoms_original)  {
                     continue;
@@ -817,22 +825,30 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
 
                 // Early return if distance is bigger than cutoff
                 double distance_ij = neighbours_i.distances[it_i];
-                double distance_jk = neighbours_j.distances[it_j];
-                if (distance_ij + distance_jk > cutoff_k3) {
-                    continue;
+                double distance_ki = neighbours_i.distances[it_j];
+                if (use_perimeter) {
+                    if (distance_ij + distance_ki > cutoff_perimeter) {
+                        continue;
+                    }
+                } else {
+                    if (distance_ij > cutoff_pairwise || distance_ki > cutoff_pairwise) {
+                        continue;
+                    }
                 }
 
-                // The i-k distance is here calculated to check for early
+                // The j-k distance is here calculated to check for early
                 // return. TODO: One could alternatively check if k is part of
                 // i's neighbours: if not, then this triplet can be skipped.
                 // This would be possible if e.g. celllist result indices would
                 // be an ordered set.
-                double d_x = positions_u(i, 0) - positions_u(k, 0);
-                double d_y = positions_u(i, 1) - positions_u(k, 1);
-                double d_z = positions_u(i, 2) - positions_u(k, 2);
-                double distance_ki = sqrt(d_x*d_x + d_y*d_y + d_z*d_z);
-                if (distance_ij + distance_jk + distance_ki > cutoff_k3) {
-                    continue;
+                double d_x = positions_u(j, 0) - positions_u(k, 0);
+                double d_y = positions_u(j, 1) - positions_u(k, 1);
+                double d_z = positions_u(j, 2) - positions_u(k, 2);
+                double distance_jk = sqrt(d_x*d_x + d_y*d_y + d_z*d_z);
+                if (use_perimeter) {
+                    if (distance_ij + distance_ki + distance_jk > cutoff_perimeter) {
+                        continue;
+                    }
                 }
 
                 // Calculate geometry value.
