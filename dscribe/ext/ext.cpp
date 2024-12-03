@@ -22,7 +22,7 @@ limitations under the License.
 #include "coulombmatrix.h"
 #include "soap.h"
 #include "acsf.h"
-#include "mbtr2.h"
+#include "mbtr.h"
 #include "geometry.h"
 
 namespace py = pybind11;
