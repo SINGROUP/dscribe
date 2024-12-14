@@ -427,12 +427,12 @@ def assert_sparse(descriptor_func):
     # Dense
     desc = descriptor_func(sparse=False)([system])
     features = desc.create(system)
-    assert type(features) == np.ndarray
+    assert type(features) is np.ndarray
 
     # Sparse
     desc = descriptor_func(sparse=True)([system])
     features = desc.create(system)
-    assert type(features) == sparse.COO
+    assert type(features) is sparse.COO
 
 
 def assert_n_features(descriptor_func, n_features):

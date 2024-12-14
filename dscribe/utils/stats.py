@@ -57,8 +57,7 @@ def system_stats(system_iterator):
         symbols = symbols.union(i_symbols)
 
         # Gather maximum number of atoms
-        if n_atoms > n_atoms_max:
-            n_atoms_max = n_atoms
+        n_atoms_max = max(n_atoms, n_atoms_max)
 
         # Gather min distance. For periodic systems we must also consider
         # distances from an atom to it's periodic copy, as given by
