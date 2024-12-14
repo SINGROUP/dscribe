@@ -177,7 +177,17 @@ class EwaldSumMatrix(DescriptorMatrix):
 
         return output
 
-    def create_single(self, system, accuracy=1e-5, w=1, r_cut=None, g_cut=None, a=None, return_descriptor=True, return_derivaties=False):
+    def create_single(
+        self,
+        system,
+        accuracy=1e-5,
+        w=1,
+        r_cut=None,
+        g_cut=None,
+        a=None,
+        return_descriptor=True,
+        return_derivaties=False,
+    ):
         """
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.

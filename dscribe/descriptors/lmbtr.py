@@ -371,11 +371,7 @@ class LMBTR(DescriptorLocal):
         return output
 
     def create_single(
-        self,
-        system,
-        centers=None,
-        return_descriptor=True,
-        return_derivaties=False
+        self, system, centers=None, return_descriptor=True, return_derivaties=False
     ):
         """Return the local many-body tensor representation for the given
         system and centers.

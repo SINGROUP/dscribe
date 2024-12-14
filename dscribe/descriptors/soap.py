@@ -486,7 +486,9 @@ class SOAP(DescriptorLocal):
 
         return output
 
-    def create_single(self, system, centers=None, return_descriptor=True, return_derivatives=False):
+    def create_single(
+        self, system, centers=None, return_descriptor=True, return_derivatives=False
+    ):
         """Return the SOAP output for the given system and given centers.
 
         Args:

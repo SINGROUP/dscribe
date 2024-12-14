@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 import numpy as np
 
 import sparse
@@ -28,6 +29,7 @@ import dscribe.ext
 k1_geometry_functions = set(["atomic_number"])
 k2_geometry_functions = set(["distance", "inverse_distance"])
 k3_geometry_functions = set(["angle", "cosine"])
+
 
 def check_grid(grid: dict):
     """Used to ensure that the given grid settings are valid.
@@ -479,9 +481,7 @@ class MBTR(DescriptorGlobal):
         self.validate_atomic_numbers(system.get_atomic_numbers())
 
         mbtr, mbtr_d = self.create_single(
-            system,
-            return_descriptor=return_descriptor,
-            return_derivatives=True
+            system, return_descriptor=return_descriptor, return_derivatives=True
         )
 
         # For now, the derivatives are calculated with regard to all atomic

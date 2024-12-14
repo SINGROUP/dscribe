@@ -169,7 +169,9 @@ class ACSF(DescriptorLocal):
 
         return output
 
-    def create_single(self, system, centers=None, return_descriptor=True, return_derivatives=False):
+    def create_single(
+        self, system, centers=None, return_descriptor=True, return_derivatives=False
+    ):
         """Creates the descriptor for the given system.
 
         Args:
