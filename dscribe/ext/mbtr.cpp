@@ -157,12 +157,12 @@ void MBTR::normalize_output(py::array_t<double> &out, System &system) {
         for (int i = 0; i < end; ++i) {
             norm += out_mu[i] * out_mu[i];
         }
-        factor = 1 / sqrt(norm);
+        factor = 1.0 / sqrt(norm);
         for (int i = 0; i < end; ++i) {
             out_mu[i] *= factor;
         }
     } else if (this->normalization == "n_atoms") {
-        factor = 1 / system.atomic_numbers.size();
+        factor = 1.0 / system.interactive_atoms.size();
         for (int i = 0; i < end; ++i) {
             out_mu[i] *= factor;
         }

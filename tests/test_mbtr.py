@@ -130,8 +130,8 @@ def test_systems(pbc, cell):
 @pytest.mark.parametrize(
     "setup",
     [
-        # pytest.param(default_k1, id="K1"),
-        # pytest.param(default_k2, id="K2"),
+        pytest.param(default_k1, id="K1"),
+        pytest.param(default_k2, id="K2"),
         pytest.param(default_k3, id="K3"),
     ],
 )

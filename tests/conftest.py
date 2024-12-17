@@ -264,6 +264,7 @@ def assert_derivatives(
 
     # Check that derivatives are not super small: this typically indicates other
     # problems.
+    # print(np.max(np.abs(derivatives_python)))
     assert np.max(np.abs(derivatives_cpp)) > 1e-8
 
     # Compare derivative values
