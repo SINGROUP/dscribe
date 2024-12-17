@@ -168,7 +168,15 @@ void MBTR::normalize_output(py::array_t<double> &out, System &system) {
         }
     } else if (this->normalization == "valle_oganov") {
         double volume = get_volume(system.cell);
-        std::unordered_map<int, int> counts = count_unique(system.atomic_numbers);
+        py::array_t<int> atomic_numbers({uint(system.interactive_atoms.size())});
+        auto atomic_numbers_mu = atomic_numbers.mutable_unchecked<1>();
+        auto extended_atomic_numbers_u = system.atomic_numbers.unchecked<1>();
+        int index = 0;
+        for (auto &i : system.interactive_atoms) {
+            atomic_numbers_mu(index) = extended_atomic_numbers_u(i);
+            ++index;
+        }
+        std::unordered_map<int, int> counts = count_unique(atomic_numbers);
         if (this->k == 2) {
             for (auto& it_i: counts) {
                 for (auto& it_j: counts) {
@@ -180,10 +188,10 @@ void MBTR::normalize_output(py::array_t<double> &out, System &system) {
                         continue;
                     }
                     double count_product = (Z_i == Z_j)
-                        ? 0.5 * counts.at(i_z) * counts.at(j_z)
-                        : counts.at(i_z) * counts.at(j_z);
+                        ? 0.5 * counts.at(Z_i) * counts.at(Z_j)
+                        : counts.at(Z_i) * counts.at(Z_j);
                     double factor = volume / (4.0 * PI * count_product);
-                    pair<int, int> location = get_location(i_z, j_z);
+                    pair<int, int> location = get_location(Z_i, Z_j);
                     for (int i = location.first; i < location.second; ++i) {
                         out_mu[i] *= factor;
                     }
@@ -197,14 +205,13 @@ void MBTR::normalize_output(py::array_t<double> &out, System &system) {
                         int Z_j = it_j.first;
                         int Z_k = it_k.first;
                         int i_z = this->species_index_map[Z_i];
-                        int j_z = this->species_index_map[Z_j];
                         int k_z = this->species_index_map[Z_k];
                         if (k_z < i_z) {
                             continue;
                         }
-                        double count_product = counts.at(i_z) * counts.at(j_z) * counts.at(k_z);
+                        double count_product = counts.at(Z_i) * counts.at(Z_j) * counts.at(Z_k);
                         double factor = volume /  (4.0 * PI * count_product);
-                        pair<int, int> location = get_location(i_z, j_z, k_z);
+                        pair<int, int> location = get_location(Z_i, Z_j, Z_k);
                         for (int i = location.first; i < location.second; ++i) {
                             out_mu[i] *= factor;
                         }
