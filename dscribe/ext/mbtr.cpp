@@ -68,8 +68,8 @@ inline double weight_square_k2(double distance) {
 
 inline double weight_smooth_k3(double distance_ij, double distance_jk, double distance_ki, double sharpness, double cutoff) {
     double f_ij = 1 + sharpness * pow((distance_ij/cutoff), (sharpness+1)) - (sharpness+1)* pow((distance_ij/cutoff), sharpness);
-    double f_ik = 1 + sharpness * pow((distance_ki/cutoff), (sharpness+1)) - (sharpness+1)* pow((distance_ki/cutoff), sharpness);
-    return f_ij*f_ik;
+    double f_jk = 1 + sharpness * pow((distance_jk/cutoff), (sharpness+1)) - (sharpness+1)* pow((distance_jk/cutoff), sharpness);
+    return f_ij*f_jk;
 }
 
 inline double geom_atomic_number(int atomic_number) {
@@ -86,10 +86,10 @@ inline double geom_inverse_distance(double distance) {
 }
 
 inline double geom_cosine(double distance_ij, double distance_jk, double distance_ki) {
-    double distance_ji_square = distance_ij*distance_ij;
-    double distance_ki_square = distance_ki*distance_ki;
+    double distance_ij_square = distance_ij*distance_ij;
     double distance_jk_square = distance_jk*distance_jk;
-    double cosine = 0.5/(distance_jk*distance_ij) * (distance_ji_square+distance_jk_square-distance_ki_square);
+    double distance_ki_square = distance_ki*distance_ki;
+    double cosine = 0.5/(distance_ij*distance_jk) * (distance_ij_square+distance_jk_square-distance_ki_square);
 
     // Due to numerical reasons the cosine might be slightly under -1 or above 1
     // degrees. E.g. acos is not defined then so we clip the values to prevent
@@ -168,7 +168,6 @@ void MBTR::normalize_output(py::array_t<double> &out, System &system) {
         }
     } else if (this->normalization == "valle_oganov") {
         double volume = get_volume(system.cell);
-        int n_species = this->species.size();
         std::unordered_map<int, int> counts = count_unique(system.atomic_numbers);
         if (this->k == 2) {
             for (auto& it_i: counts) {
@@ -449,7 +448,6 @@ double MBTR::get_cutoff() {
                 cutoff = -log(threshold) / scale;
             }
         } else if (function == "inverse_square") {
-            use_perimeter = false;
             if (weighting.contains("r_cut")) {
                 cutoff = weighting["r_cut"].cast<double>();
             }
@@ -461,8 +459,8 @@ double MBTR::get_cutoff() {
         }
     }
 
-    // In k3, the distance is defined as the perimeter, thus we half the
-    // distance to get the actual cutoff.
+    // In k3, if the distance is defined as the perimeter we half it to get the
+    // actual cutoff.
     if (this->k == 3 && use_perimeter) {
         cutoff *= 0.5;
     }
@@ -794,61 +792,58 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
     int n_atoms = atomic_numbers.size();
     int n_atoms_original = system.interactive_atoms.size();
 
-    // Loop through all the atoms in the extended cell: TODO: It might be
-    // possible to only loop through atoms in the original cell, but then it is
-    // hard to figure out which triplets to drop out due to multiplicity caused
-    // by periodicity, especially when dealing with cells where the same atom
-    // interacts with itself.
-    for (int i = 0; i < n_atoms; ++i) {
-        CellListResult neighbours_i = cell_list.getNeighboursForIndex(i);
-        int n_neighbours_i = neighbours_i.indices.size();
-        // Loop through all neighbours of i
-        for (int it_i = 0; it_i < n_neighbours_i; ++it_i) {
-            int j = neighbours_i.indices[it_i];
-            // Loop through other neighbours of i
-            for (int it_j = 0; it_j < n_neighbours_i; ++it_j) {
-                int k = neighbours_i.indices[it_j];
+    // Loop through all the atoms in the extended cell. Atom j is the central
+    // one. TODO: It might be possible to only loop through atoms in the
+    // original cell, but then it is hard to figure out which triplets to drop
+    // out due to multiplicity caused by periodicity, especially when dealing
+    // with cells where the same atom interacts with itself.
+    for (int j = 0; j < n_atoms; ++j) {
+        CellListResult neighbours_j = cell_list.getNeighboursForIndex(j);
+        int n_neighbours_j = neighbours_j.indices.size();
+        // Loop through all neighbours of j
+        for (int it_i = 0; it_i < n_neighbours_j; ++it_i) {
+            int i = neighbours_j.indices[it_i];
+            // Loop through all other neighbours of j
+            for (int it_k = 0; it_k < n_neighbours_j; ++it_k) {
+                int k = neighbours_j.indices[it_k];
                 // Only consider triplets that have at least one atom in the original cell
                 if (i >= n_atoms_original && j >= n_atoms_original && k >= n_atoms_original)  {
                     continue;
                 }
-                // The same atom cannot be present twice in the permutation.
+
                 if (j == i || k == j || k == i) {
                     continue;
                 }
 
-                // The angles are symmetric: ijk = kji. The value is calculated
-                // only for the triplet where k > i.
+                // The angles are symmetric: angle between ij and jk is the same
+                // as the angle between jk and ij. The value is calculated only
+                // for the one where where k > i.
                 if (k <= i) {
                     continue;
                 }
 
                 // Early return if distance is bigger than cutoff
-                double distance_ij = neighbours_i.distances[it_i];
-                double distance_ki = neighbours_i.distances[it_j];
+                double distance_ij = neighbours_j.distances[it_i];
+                double distance_jk = neighbours_j.distances[it_k];
                 if (use_perimeter) {
-                    if (distance_ij + distance_ki > cutoff_perimeter) {
+                    if (distance_ij + distance_jk > cutoff_perimeter) {
                         continue;
                     }
-                } else {
-                    if (distance_ij > cutoff_pairwise || distance_ki > cutoff_pairwise) {
-                        continue;
-                    }
+                } else if (distance_ij > cutoff_pairwise || distance_jk > cutoff_pairwise) {
+                    continue;
                 }
 
-                // The j-k distance is here calculated to check for early
+                // The i-k distance is here calculated to check for early
                 // return. TODO: One could alternatively check if k is part of
                 // i's neighbours: if not, then this triplet can be skipped.
                 // This would be possible if e.g. celllist result indices would
                 // be an ordered set.
-                double d_x = positions_u(j, 0) - positions_u(k, 0);
-                double d_y = positions_u(j, 1) - positions_u(k, 1);
-                double d_z = positions_u(j, 2) - positions_u(k, 2);
-                double distance_jk = sqrt(d_x*d_x + d_y*d_y + d_z*d_z);
-                if (use_perimeter) {
-                    if (distance_ij + distance_ki + distance_jk > cutoff_perimeter) {
-                        continue;
-                    }
+                double d_x = positions_u(i, 0) - positions_u(k, 0);
+                double d_y = positions_u(i, 1) - positions_u(k, 1);
+                double d_z = positions_u(i, 2) - positions_u(k, 2);
+                double distance_ki = sqrt(d_x*d_x + d_y*d_y + d_z*d_z);
+                if (use_perimeter && (distance_ij + distance_jk + distance_ki > cutoff_perimeter)) {
+                    continue;
                 }
 
                 // Calculate geometry value.
@@ -871,9 +866,9 @@ void MBTR::calculate_k3(py::array_t<double> &out, System &system, CellList &cell
                 int j_cell = cell_indices_u(j);
                 int k_cell = cell_indices_u(k);
                 bool ij_diff = i_cell != j_cell;
-                bool ik_diff = i_cell != k_cell;
                 bool jk_diff = j_cell != k_cell;
-                int diff_sum = (int)ij_diff + (int)ik_diff + (int)jk_diff;
+                bool ki_diff = i_cell != k_cell;
+                int diff_sum = (int)ij_diff + (int)jk_diff + (int)ki_diff;
                 if (diff_sum > 1) {
                     weight /= diff_sum;
                 }
