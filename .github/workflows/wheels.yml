@@ -3,7 +3,7 @@ name: wheels
 on: [workflow_dispatch]
 
 env:
-  CIBW_SKIP: cp36-*
+  CIBW_SKIP: cp38-*
 
 jobs:
   build_wheels:
@@ -20,7 +20,7 @@ jobs:
           submodules: recursive
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.18.0
+        uses: pypa/cibuildwheel@v3.0.1
 
       - uses: actions/upload-artifact@v4
         with:
