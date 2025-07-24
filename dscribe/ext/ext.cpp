@@ -75,6 +75,16 @@ PYBIND11_MODULE(ext, m) {
     py::class_<ACSF>(m, "ACSFWrapper")
         .def(py::init<double, vector<vector<double> > , vector<double> , vector<vector<double> > , vector<vector<double> >, vector<int> , bool>())
         .def("create", overload_cast_<py::array_t<double>, py::array_t<double>, py::array_t<int>, py::array_t<double>, py::array_t<bool>, py::array_t<int> >()(&DescriptorLocal::create))
+        .def("derivatives_analytical", &ACSF::derivatives_analytical,
+             py::arg("derivatives"),          // py::array_t<double>
+             py::arg("descriptor"),           // py::array_t<double>
+             py::arg("atomic_numbers"),       // py::array_t<int>
+             py::arg("atomic_positions"),     // py::array_t<double>
+             py::arg("cell_list"),            // CellList
+             py::arg("desc_centers"),         // py::array_t<int>
+             py::arg("grad_centers"),         // py::array_t<int>
+             py::arg("return_descriptor")     // const bool
+        )
         .def("get_number_of_features", &ACSF::get_number_of_features)
         .def_readwrite("n_types", &ACSF::n_types)
         .def_readwrite("n_type_pairs", &ACSF::n_type_pairs)

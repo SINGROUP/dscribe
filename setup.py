@@ -77,7 +77,7 @@ extensions = [
             get_pybind_include(user=True),
         ],
         language='c++',
-        extra_compile_args=cpp_extra_compile_args + ["-fvisibility=hidden"],  # the -fvisibility flag is needed by pybind11
+        extra_compile_args=cpp_extra_compile_args + ["-fvisibility=hidden", "-ftemplate-depth=4096"],  # the -fvisibility flag is needed by pybind11
         extra_link_args=cpp_extra_link_args,
     )
 ]

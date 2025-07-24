@@ -32,7 +32,7 @@ class ACSF : public DescriptorLocal {
             py::array_t<int> centers,
             CellList cell_list
         );
-
+        
         void create(
             py::array_t<double> out, 
             py::array_t<double> positions,
@@ -41,6 +41,17 @@ class ACSF : public DescriptorLocal {
             CellList cell_list
         );
 
+        void derivatives_analytical(
+            py::array_t<double> derivatives,
+            py::array_t<double> descriptor,
+            py::array_t<int> atomic_numbers,
+            py::array_t<double> atomic_positions,
+            CellList cell_list,
+            py::array_t<int> desc_centers,
+            py::array_t<int> grad_centers,
+            const bool return_descriptor
+        ); 
+        
         int get_number_of_features() const;
 
         void set_r_cut(double r_cut);
