@@ -19,7 +19,6 @@ from ase import Atoms
 
 from dscribe.descriptors.descriptorlocal import DescriptorLocal
 from dscribe.ext import ACSFWrapper
-from dscribe.ext import CellList
 
 
 class ACSF(DescriptorLocal):
@@ -461,17 +460,17 @@ class ACSF(DescriptorLocal):
         """
         # --- CRUCIAL CHANGE HERE: Construct the CellList object in Python ---
         # This assumes that CellList is exposed in your pybind11 wrapper as self.acsf_wrapper.CellList
-        cell_list_obj = CellList(positions, self.r_cut)
         
         # Call the C++ function with the correct arguments and order
         self.acsf_wrapper.derivatives_analytical(
             d,                 # 1st arg: py::array_t<double> derivatives
             c,                 # 2nd arg: py::array_t<double> descriptor
-            atomic_numbers,    # 3rd arg: py::array_t<int> atomic_numbers
-            positions,         # 4th arg: py::array_t<double> atomic_positions
-            cell_list_obj,     # 5th arg: CellList cell_list (the constructed object)
-            centers,      # 6th arg: py::array_t<int> desc_centers
-            centers,      # 7th arg: py::array_t<int> grad_centers
+            atomic_numbers,    # 3rd arg: py::array_t<int> desc_centers
+            cell,              # 4th arg: py::array_t<double> desc_centers
+            pbc,               # 5th arg: py::array_t<int> desc_centers
+            positions,         # 6th arg: py::array_t<double> atomic_positions
+            centers,           # 7th arg: py::array_t<int> desc_centers
+            centers,           # 8th arg: py::array_t<int> grad_centers
             return_descriptor  # 8th arg: const bool return_descriptor
         )
         

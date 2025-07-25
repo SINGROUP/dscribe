@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <vector>
 #include "descriptorlocal.h"
+#include "celllist.h"
+#include "geometry.h"
 
 #define PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062
 
@@ -45,8 +47,9 @@ class ACSF : public DescriptorLocal {
             py::array_t<double> derivatives,
             py::array_t<double> descriptor,
             py::array_t<int> atomic_numbers,
+            py::array_t<double> cell,
+            py::array_t<int> pbc,
             py::array_t<double> atomic_positions,
-            CellList cell_list,
             py::array_t<int> desc_centers,
             py::array_t<int> grad_centers,
             const bool return_descriptor

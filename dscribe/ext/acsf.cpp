@@ -268,12 +268,17 @@ void ACSF::derivatives_analytical(
     py::array_t<double> derivatives,
     py::array_t<double> descriptor,
     py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
+    py::array_t<int> pbc,
     py::array_t<double> atomic_positions,
-    CellList cell_list,
     py::array_t<int> desc_centers,
     py::array_t<int> grad_centers, // we want derivatives w.r.t. these atoms
     const bool return_descriptor
 ) {
+    
+    // Calculate neighbours with a cell list
+    CellList cell_list(atomic_positions, this->cutoff);
+    
     int n_desc_centers = desc_centers.shape(0);
 
     auto descriptor_mu = descriptor.mutable_unchecked<2>(); // [n_desc_centers, n_features]

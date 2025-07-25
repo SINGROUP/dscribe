@@ -79,8 +79,9 @@ PYBIND11_MODULE(ext, m) {
              py::arg("derivatives"),          // py::array_t<double>
              py::arg("descriptor"),           // py::array_t<double>
              py::arg("atomic_numbers"),       // py::array_t<int>
+             py::arg("cell"),                 // py::array_t<double>
+             py::arg("pbc"),                  // py::array_t<int>
              py::arg("atomic_positions"),     // py::array_t<double>
-             py::arg("cell_list"),            // CellList
              py::arg("desc_centers"),         // py::array_t<int>
              py::arg("grad_centers"),         // py::array_t<int>
              py::arg("return_descriptor")     // const bool
