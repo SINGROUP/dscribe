@@ -276,6 +276,15 @@ void ACSF::derivatives_analytical(
     const bool return_descriptor
 ) {
     
+    ///INCOMPLETE_PERIODIC_SYSTEMS///auto pbc_u = pbc.unchecked<1>();
+    ///INCOMPLETE_PERIODIC_SYSTEMS///bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
+    ///INCOMPLETE_PERIODIC_SYSTEMS///if (is_periodic) {
+    ///INCOMPLETE_PERIODIC_SYSTEMS///    ExtendedSystem system_extended = extend_system(atomic_positions, atomic_numbers, cell, pbc, this->cutoff);
+    ///INCOMPLETE_PERIODIC_SYSTEMS///    atomic_positions = system_extended.positions;
+    ///INCOMPLETE_PERIODIC_SYSTEMS///    atomic_numbers = system_extended.atomic_numbers;
+    ///INCOMPLETE_PERIODIC_SYSTEMS///}
+
+
     // Calculate neighbours with a cell list
     CellList cell_list(atomic_positions, this->cutoff);
     
