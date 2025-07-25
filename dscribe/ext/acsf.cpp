@@ -469,7 +469,8 @@ void ACSF::derivatives_analytical(
 
                 // G4 Derivatives
                 if (r_jk <= r_cut){ // Only compute if r_jk is within cutoff for G4
-                    for (auto params : g4_params){ // loop over G4 functions
+                    double fc_jk = compute_cutoff(r_jk);
+                    for (auto params : g4_params) {
                         eta = params[0]; // eta is declared outside the loop now
                         zeta = params[1]; // zeta is declared outside the loop now
                         lambda = params[2]; // lambda is declared outside the loop now
@@ -488,26 +489,29 @@ void ACSF::derivatives_analytical(
                                 if(j == i){ // Derivative w.r.t. atom i
                                     dcostheta = 0.5*(r_ik*(r_ij_square-r_ik_square+r_jk_square)*e_ij[c] - r_ij*(r_ij_square-r_ik_square-r_jk_square)*e_ik[c])/(r_ij_square*r_ik_square);
                                     secnd_term = -2.0*eta * (r_ij*e_ij[c] + r_ik*e_ik[c])*ang*fc4;
-                                    third_term = (e_ij[c]*d_fc_ij*fc_ik*compute_cutoff(r_jk) + e_ik[c]*d_fc_ik*fc_ij*compute_cutoff(r_jk)) * ang + e_jk[c]*d_fc_jk*fc_ij*fc_ik * ang;
+                                    third_term = e_ij[c]*d_fc_ij*fc_ik*fc_jk + e_ik[c]*d_fc_ik*fc_ij*fc_jk; // + e_jk[c]*d_fc_jk*fc_ij*fc_ik ;
 
                                 } else if(j == x){ // Derivative w.r.t. atom x
                                     dcostheta = -0.5*(e_ik[c]*r_ij*r_ik - e_ij[c]*r_ik_square + e_jk[c]*r_ij*r_jk + e_ij[c]*r_jk_square)/(r_ij_square * r_ik);
                                     secnd_term = 2.0*eta * (r_ij*e_ij[c] - r_jk*e_jk[c])*ang*fc4;
-                                    third_term = (-e_ij[c]*d_fc_ij*fc_ik*compute_cutoff(r_jk) + e_jk[c]*d_fc_jk*fc_ij*fc_ik) * ang;
+                                    third_term = -e_ij[c]*d_fc_ij*fc_ik*fc_jk + e_jk[c]*d_fc_jk*fc_ij*fc_ik;
 
                                 } else if(j == y){ // Derivative w.r.t. atom y
                                     dcostheta = 0.5*(e_ik[c]*r_ij_square - r_ik*(e_ij[c]*r_ij - e_jk[c]*r_jk) - e_ik[c]*r_jk_square)/(r_ij*r_ik_square);
                                     secnd_term = 2.0*eta * (r_ik*e_ik[c] + r_jk*e_jk[c])*ang*fc4;
-                                    third_term = (-e_ik[c]*d_fc_ik*fc_ij*compute_cutoff(r_jk) - e_jk[c]*d_fc_jk*fc_ij*fc_ik) * ang;
+                                    third_term = -e_ik[c]*d_fc_ik*fc_ij*fc_jk - e_jk[c]*d_fc_jk*fc_ij*fc_ik;
                                 }
 
                                 first_term = dang*dcostheta*fc4;
-                                final = (first_term + secnd_term + third_term) * ef;
+                                third_term *= ang;
+
+                                final = first_term + secnd_term + third_term;
+                                final *= ef;
                                 derivatives_mu(idxi,idxj,c,o0_g4_g5) += final;
+                                }
                             }
+                            o0_g4_g5++; // Move to next G4 feature
                         }
-                        o0_g4_g5++; // Move to next G4 feature
-                    }
                 } else {
                     o0_g4_g5 += g4_params.size(); // Skip G4 features if r_jk is outside cutoff
                 }
