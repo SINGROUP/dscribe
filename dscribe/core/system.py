@@ -75,6 +75,12 @@ class System(Atoms):
     @staticmethod
     def from_atoms(atoms):
         """Creates a System object from ASE.Atoms object."""
+
+        try:
+            constraints = atoms._get_constraints()
+        except AttributeError:
+            # ASE 3.26 replaced `_get_constraints` to `constraints` property (#160)
+            constraints = atoms.constraints
         system = System(
             symbols=atoms.get_chemical_symbols(),
             positions=atoms.get_positions(),
@@ -86,7 +92,7 @@ class System(Atoms):
             cell=atoms.get_cell(),
             pbc=atoms.get_pbc(),
             celldisp=atoms.get_celldisp(),
-            constraint=atoms._get_constraints(),
+            constraint=constraints,
             calculator=atoms.get_calculator(),
             info=atoms.info,
         )
