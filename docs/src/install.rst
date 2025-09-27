@@ -76,3 +76,18 @@ Common issues
    .. code-block:: sh
 
        xcode-select --install
+
+ - **Missing headers when installing via pip on MacOS**: When installing the 
+   package via :code:`pip`, the package needs to compile some additional headers.
+   Your MacOS might not have the necessary header files. One option is to use :code:`g++`
+   installed via homebrew :code:`brew install gcc`. Assuming your homebrew install folder
+   is :code:`<homebrew>` (usually this is :code:`/opt/homebrew`). Check which compiler is used 
+   by your build system, this will usually be visible in the error log when installing
+   dscribe via pip. Assuming the build system uses the c++
+   compiler and you installed :code:`c++13` with brew, alias the homebrew compiler :code:`alias c++=<homebrew>/bin/c++-13`. Specify the 
+   necessary includes before invoking pip, as follows (the exact paths might be different on your system):
+
+   .. code-block:: sh
+
+      CPPFLAGS="-I<hombrew>/include/c++/13/ -I<hombrew>/include/c++/13/aarch64-apple-darwin23/ -ftemplate-depth=1500" \
+      pip install dscribe
