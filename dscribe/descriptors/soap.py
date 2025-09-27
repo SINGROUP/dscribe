@@ -486,7 +486,9 @@ class SOAP(DescriptorLocal):
 
         return output
 
-    def create_single(self, system, centers=None):
+    def create_single(
+        self, system, centers=None, return_descriptor=True, return_derivatives=False
+    ):
         """Return the SOAP output for the given system and given centers.
 
         Args:
@@ -495,6 +497,8 @@ class SOAP(DescriptorLocal):
                 specified, the SOAP spectrum will be created for these points.
                 If no centers are defined, the SOAP output will be created
                 for all atoms in the system.
+            return_descriptor: Whether to return the descriptor
+            return_derivatives: Whether to return the derivatives
 
         Returns:
             np.ndarray | sparse.COO: The SOAP output for the

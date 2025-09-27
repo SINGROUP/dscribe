@@ -177,7 +177,17 @@ class EwaldSumMatrix(DescriptorMatrix):
 
         return output
 
-    def create_single(self, system, accuracy=1e-5, w=1, r_cut=None, g_cut=None, a=None):
+    def create_single(
+        self,
+        system,
+        accuracy=1e-5,
+        w=1,
+        r_cut=None,
+        g_cut=None,
+        a=None,
+        return_descriptor=True,
+        return_derivatives=False,
+    ):
         """
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
@@ -198,6 +208,8 @@ class EwaldSumMatrix(DescriptorMatrix):
                 Gaussians. If not provided, a default value of :math:`\\alpha =
                 \\sqrt{\\pi}\\left(\\frac{N}{V^2}\\right)^{1/6}` is used.
                 Corresponds to the standard deviation of the Gaussians.
+            return_descriptor: Whether to return the descriptor
+            return_derivatives: Whether to return the derivatives
         """
         self.q = system.get_atomic_numbers()
         self.q_squared = self.q**2
@@ -213,6 +225,7 @@ class EwaldSumMatrix(DescriptorMatrix):
         # specified, use the accuracy and the weighting w to determine default
         # similarly as in https://doi.org/10.1080/08927022.2013.840898
         if r_cut is None and g_cut is None:
+
             f = np.sqrt(-np.log(accuracy))
             r_cut = f / a
             g_cut = 2 * a * f

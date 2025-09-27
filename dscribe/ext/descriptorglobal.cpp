@@ -21,8 +21,8 @@ limitations under the License.
 
 using namespace std;
 
-DescriptorGlobal::DescriptorGlobal(bool periodic, string average, double cutoff)
-    : Descriptor(periodic, average, cutoff)
+DescriptorGlobal::DescriptorGlobal(bool periodic, string average, double cutoff, string normalization)
+    : Descriptor(periodic, average, cutoff, normalization)
 {
 }
 
@@ -31,29 +31,30 @@ void DescriptorGlobal::create(
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,
-    py::array_t<bool> pbc
+    py::array_t<bool> pbc,
+    bool return_descriptor,
+    bool return_derivatives
 )
 {
     // Extend system if periodicity is requested.
     auto pbc_u = pbc.unchecked<1>();
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
-    if (is_periodic) {
-        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
-        positions = system_extended.positions;
-        atomic_numbers = system_extended.atomic_numbers;
-    }
-    this->create(out, positions, atomic_numbers);
+    System system = is_periodic
+        ? extend_system(positions, atomic_numbers, cell, pbc, this->cutoff)
+        : System(positions, atomic_numbers, cell);
+    this->create(out, system, return_descriptor, return_derivatives);
 }
 
 void DescriptorGlobal::create(
     py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers
+    System &system,
+    bool return_descriptor,
+    bool return_derivatives
 )
 {
     // Calculate neighbours with a cell list
-    CellList cell_list(positions, this->cutoff);
-    this->create(out, positions, atomic_numbers, cell_list);
+    CellList cell_list(system.positions, this->cutoff);
+    this->create(out, system, cell_list, return_descriptor, return_derivatives);
 }
 
 void DescriptorGlobal::derivatives_numerical(
@@ -67,7 +68,6 @@ void DescriptorGlobal::derivatives_numerical(
     bool return_descriptor
 )
 {
-    int n_copies = 1;
     int n_atoms = atomic_numbers.size();
     int n_features = this->get_number_of_features();
     auto derivatives_mu = derivatives.mutable_unchecked<3>();
@@ -76,20 +76,18 @@ void DescriptorGlobal::derivatives_numerical(
 
     // Extend the system if it is periodic
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
-    if (is_periodic) {
-        ExtendedSystem system_extension = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
-        n_copies = system_extension.atomic_numbers.size()/atomic_numbers.size();
-        positions = system_extension.positions;
-        atomic_numbers = system_extension.atomic_numbers;
-    }
-    auto positions_mu = positions.mutable_unchecked<2>();
+    System system = is_periodic
+      ? extend_system(positions, atomic_numbers, cell, pbc, this->cutoff)
+      : System(positions, atomic_numbers, cell);
+    int n_copies = system.atomic_numbers.size() / atomic_numbers.size();
+    auto positions_mu = system.positions.mutable_unchecked<2>();
 
     // Pre-calculate cell list for atoms
-    CellList cell_list_atoms(positions, this->cutoff);
+    CellList cell_list_atoms(system.positions, this->cutoff);
 
     // Calculate the desciptor value if requested
     if (return_descriptor) {
-        this->create(descriptor, positions, atomic_numbers, cell_list_atoms);
+        this->create(descriptor, system, cell_list_atoms, true, false);
     }
 
     // Central finite difference with error O(h^2)
@@ -136,7 +134,7 @@ void DescriptorGlobal::derivatives_numerical(
                 auto d_mu = d.mutable_unchecked<1>();
 
                 // Calculate descriptor value
-                this->create(d, positions, atomic_numbers, cell_list_atoms);
+                this->create(d, system, cell_list_atoms, true, false);
 
                 // Add value to final derivative array
                 double coeff = coefficients[i_stencil];

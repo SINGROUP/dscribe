@@ -116,10 +116,12 @@ class CoulombMatrix(DescriptorMatrix):
 
         return output
 
-    def create_single(self, system):
+    def create_single(self, system, return_descriptor=True, return_derivatives=False):
         """
         Args:
             system (:class:`ase.Atoms`): Input system.
+            return_descriptor: Whether to return the descriptor
+            return_derivatives: Whether to return the derivatives
 
         Returns:
             ndarray: The zero padded matrix as a flattened 1D array.
@@ -140,6 +142,8 @@ class CoulombMatrix(DescriptorMatrix):
             atomic_numbers,
             cell,
             pbc,
+            return_descriptor,
+            return_derivatives
         )
 
         return out_des

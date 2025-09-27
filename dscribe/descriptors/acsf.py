@@ -169,7 +169,9 @@ class ACSF(DescriptorLocal):
 
         return output
 
-    def create_single(self, system, centers=None):
+    def create_single(
+        self, system, centers=None, return_descriptor=True, return_derivatives=False
+    ):
         """Creates the descriptor for the given system.
 
         Args:
@@ -177,6 +179,8 @@ class ACSF(DescriptorLocal):
             centers (iterable): Indices of the atoms around which the ACSF
                 will be returned. If no centers defined, ACSF will be created
                 for all atoms in the system.
+            return_descriptor: Whether to return the descriptor
+            return_derivatives: Whether to return the derivatives
 
         Returns:
             np.ndarray: The ACSF output for the given system and centers. The

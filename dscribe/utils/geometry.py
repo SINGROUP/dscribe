@@ -78,7 +78,7 @@ def get_adjacency_list(adjacency_matrix):
         for atom at index i is given by accessing the ith element of this list.
     """
     # Ensure that we have a coo-matrix
-    if type(adjacency_matrix) != scipy.sparse.coo_matrix:
+    if type(adjacency_matrix) is not scipy.sparse.coo_matrix:
         adjacency_matrix = adjacency_matrix.tocoo()
 
     # Build adjacency list

@@ -101,10 +101,12 @@ class DescriptorMatrix(DescriptorGlobal):
             np.ndarray: The final two-dimensional matrix for this descriptor.
         """
 
-    def create_single(self, system):
+    def create_single(self, system, return_descriptor=True, return_derivatives=False):
         """
         Args:
             system (:class:`ase.Atoms` | :class:`.System`): Input system.
+            return_descriptor: Whether to return the descriptor
+            return_derivatives: Whether to return the derivatives
 
         Returns:
             ndarray: The zero padded matrix either as a 1D array.

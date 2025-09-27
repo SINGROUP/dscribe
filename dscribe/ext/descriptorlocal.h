@@ -29,7 +29,7 @@ using namespace std;
  */
 class DescriptorLocal : public Descriptor {
     public:
-        DescriptorLocal(bool periodic, string average="", double cutoff=0);
+        DescriptorLocal(bool periodic, string average="", double cutoff=0, string normalization="none");
         /**
          * Versions of 'create' that automatically extends the system based on
          * PBC and calculate celllist.
