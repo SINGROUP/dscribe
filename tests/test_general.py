@@ -6,6 +6,7 @@ from ase.lattice.cubic import SimpleCubicFactory
 from ase.build import bulk
 import ase.data
 from ase import Atoms
+from scipy.special import erf
 
 from dscribe.core import System
 from dscribe.descriptors import ACSF, SOAP
@@ -344,8 +345,6 @@ def test_cdf():
     cumulative distribution function works as expected.
     """
     # from scipy.stats import norm
-    from scipy.special import erf
-
     # import matplotlib.pyplot as mpl
 
     start = -5

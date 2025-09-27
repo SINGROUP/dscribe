@@ -143,7 +143,7 @@ class CoulombMatrix(DescriptorMatrix):
             cell,
             pbc,
             return_descriptor,
-            return_derivatives
+            return_derivatives,
         )
 
         return out_des

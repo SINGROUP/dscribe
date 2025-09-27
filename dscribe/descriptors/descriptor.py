@@ -270,7 +270,9 @@ class Descriptor(ABC):
         """
         # If single system given, skip the parallelization overhead
         if len(inp) == 1:
-            return self.format_array(func(*inp[0], return_descriptor=True, return_derivatives=False))
+            return self.format_array(
+                func(*inp[0], return_descriptor=True, return_derivatives=False)
+            )
 
         # Determine the number of jobs
         if n_jobs < 0:

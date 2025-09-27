@@ -219,7 +219,7 @@ class SOAP(DescriptorLocal):
             )
         if n_max < 1:
             raise ValueError(
-                "Must have at least one radial basis function." "n_max={}".format(n_max)
+                "Must have at least one radial basis function.n_max={}".format(n_max)
             )
         supported_average = set(("off", "inner", "outer"))
         if average not in supported_average:
@@ -1005,8 +1005,7 @@ class SOAP(DescriptorLocal):
                 )
             if i != j:
                 raise ValueError(
-                    "Compression has been selected. "
-                    "No cross-species output available"
+                    "Compression has been selected. No cross-species output available"
                 )
             start = int(i * n_elem_feat_symm)
             end = int(start + n_elem_feat_symm)

@@ -225,7 +225,6 @@ class EwaldSumMatrix(DescriptorMatrix):
         # specified, use the accuracy and the weighting w to determine default
         # similarly as in https://doi.org/10.1080/08927022.2013.840898
         if r_cut is None and g_cut is None:
-
             f = np.sqrt(-np.log(accuracy))
             r_cut = f / a
             g_cut = 2 * a * f
