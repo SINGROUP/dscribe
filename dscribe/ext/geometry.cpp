@@ -106,7 +106,7 @@ System::System(
     this->cell_indices = cell_indices;
 
     // Create the default indices
-    py::array_t<int> indices({uint(n_atoms)});
+    py::array_t<int> indices({int(n_atoms)});
     auto indices_mu = indices.mutable_unchecked<1>();
     for (int i = 0; i < n_atoms; ++i) {
         indices_mu(i) = i;
