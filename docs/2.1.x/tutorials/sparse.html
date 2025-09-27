@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -5,21 +7,17 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sparse output &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css?v=7d1ac55c" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=c41997dc"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script defer="defer" src="../_static/js/versions.js?v=413e22da"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=c41997dc"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script defer="defer" src="../_static/js/versions.js?v=413e22da"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
@@ -40,9 +38,6 @@
             
               <img src="../_static/logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                2.1.x
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -119,9 +114,9 @@ slicing syntax.</p>
 <h2>Persistence<a class="headerlink" href="#persistence" title="Link to this heading"></a></h2>
 <p>In order to save/load the sparse output you will need to use the <a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.save_npz.html">sparse.save_npz</a>/<a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.load_npz.html">sparse.load_npz</a>
 functions from the sparse library. The following example demonstrates this:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sparse</span>
-<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
-<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ase.build</span><span class="w"> </span><span class="kn">import</span> <span class="n">molecule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dscribe.descriptors</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOAP</span>
 
 <span class="c1"># Let&#39;s create SOAP feature vectors for two structures and all positions. If</span>
 <span class="c1"># the output sizes are the same for each structure, a single 3D array is</span>

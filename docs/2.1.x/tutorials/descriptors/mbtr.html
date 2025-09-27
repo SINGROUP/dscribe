@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,22 +7,18 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Many-body Tensor Representation &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=7d1ac55c" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=c41997dc"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=c41997dc"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -41,9 +39,6 @@
             
               <img src="../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                2.1.x
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -123,7 +118,8 @@ properties of the system.</p>
 values is then constructed with kernel density estimation to represent the
 structure.</p>
 <figure class="align-center" id="id16">
-<a class="reference internal image-reference" href="../../_images/mbtr.jpg"><img alt="MBTR stratification" src="../../_images/mbtr.jpg" style="width: 457.6px; height: 308.8px;" /></a>
+<a class="reference internal image-reference" href="../../_images/mbtr.jpg"><img alt="MBTR stratification" src="../../_images/mbtr.jpg" style="width: 457.6px; height: 308.8px;" />
+</a>
 <figcaption>
 <p><span class="caption-text">Illustration of the MBTR output for a water molecule.</span><a class="headerlink" href="#id16" title="Link to this image"></a></p>
 </figcaption>
@@ -131,7 +127,7 @@ structure.</p>
 <section id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
 <p>Instantiating an MBTR descriptor can be done as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">MBTR</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dscribe.descriptors</span><span class="w"> </span><span class="kn">import</span> <span class="n">MBTR</span>
 
 <span class="c1"># Setup</span>
 <span class="n">mbtr</span> <span class="o">=</span> <span class="n">MBTR</span><span class="p">(</span>
@@ -151,7 +147,7 @@ structure.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>geometry</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – <p>Setup the geometry function.
+<li><p><strong>geometry</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – <p>Setup the geometry function.
 For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;atomic_number&quot;</span><span class="p">}</span>
 </pre></div>
@@ -187,7 +183,7 @@ time.</p>
 </li>
 </ul>
 </p></li>
-<li><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – <p>Setup the discretization grid.
+<li><p><strong>grid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – <p>Setup the discretization grid.
 For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">}</span>
 </pre></div>
@@ -197,7 +193,7 @@ is the maximum value of the axis, <em>sigma</em> is the standard
 deviation of the gaussian broadening and <em>n</em> is the number of
 points sampled on the grid.</p>
 </p></li>
-<li><p><strong>weighting</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – <p>Setup the weighting function and its parameters.
+<li><p><strong>weighting</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – <p>Setup the weighting function and its parameters.
 For example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;weighting&quot;</span> <span class="p">:</span> <span class="p">{</span><span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="s2">&quot;r_cut&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">}</span>
 </pre></div>
@@ -254,11 +250,11 @@ cutoff function, additional weighting key <strong>sharpness</strong> can be
 added, which changes the value of <span class="math notranslate nohighlight">\(y\)</span>. If a value for it
 is not provided, it defaults to <cite>2</cite>.</p>
 </p></li>
-<li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Determines whether the gaussians are
+<li><p><strong>normalize_gaussians</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Determines whether the gaussians are
 normalized to an area of 1. Defaults to True. If False, the
 normalization factor is dropped and the gaussians have the form.
 <span class="math notranslate nohighlight">\(e^{-(x-\mu)^2/2\sigma^2}\)</span></p></li>
-<li><p><strong>normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – <p>Determines the method for normalizing the
+<li><p><strong>normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – <p>Determines the method for normalizing the
 output. The available options are:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>: No normalization.</p></li>
@@ -277,12 +273,12 @@ should contain all the elements that are ever going to be
 encountered when creating the descriptors for a set of systems.
 Keeping the number of chemical speices as low as possible is
 preferable.</p></li>
-<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Set to true if you want the descriptor output to
+<li><p><strong>periodic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Set to true if you want the descriptor output to
 respect the periodicity of the atomic systems (see the
 pbc-parameter in the constructor of ase.Atoms).</p></li>
-<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
+<li><p><strong>sparse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether the output should be a sparse matrix or a
 dense numpy array.</p></li>
-<li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – <p>The data type of the output. Valid options are:</p>
+<li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – <p>The data type of the output. Valid options are:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;float32&quot;</span></code>: Single precision floating point numbers.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&quot;float64&quot;</span></code>: Double precision floating point numbers.</p></li>
@@ -348,7 +344,7 @@ cutoff distance and y is a sharpness parameter which defaults to <cite>2</cite>.
 <h2>Creation<a class="headerlink" href="#creation" title="Link to this heading"></a></h2>
 <p>After MBTR has been set up, it may be used on atomic structures with the
 <a class="reference internal" href="../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create" title="dscribe.descriptors.mbtr.MBTR.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>-method.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">molecule</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.build</span><span class="w"> </span><span class="kn">import</span> <span class="n">molecule</span>
 
 <span class="n">water</span> <span class="o">=</span> <span class="n">molecule</span><span class="p">(</span><span class="s2">&quot;H2O&quot;</span><span class="p">)</span>
 
@@ -368,17 +364,17 @@ cutoff distance and y is a sharpness parameter which defaults to <cite>2</cite>.
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>system</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code> or list of <code class="xref py py-class docutils literal notranslate"><span class="pre">ase.Atoms</span></code>) – One or many atomic structures.</p></li>
-<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
+<li><p><strong>n_jobs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of parallel jobs to instantiate. Parallellizes
 the calculation across samples. Defaults to serial calculation
 with n_jobs=1. If a negative number is given, the used cpus
 will be calculated with, n_cpus + n_jobs, where n_cpus is the
 amount of CPUs as reported by the OS. With only_physical_cores
 you can control which types of CPUs are counted in n_cpus.</p></li>
-<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – If a negative n_jobs is given,
+<li><p><strong>only_physical_cores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If a negative n_jobs is given,
 determines which types of CPUs are used in calculating the
 number of jobs. If set to False (default), also virtual CPUs
 are counted.  If set to True, only physical CPUs are counted.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Controls whether to print the progress of each job
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Controls whether to print the progress of each job
 into to the console.</p></li>
 </ul>
 </dd>
@@ -421,8 +417,8 @@ example demonstrates its usage.</p>
 <h3>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h3>
 <p>The MBTR output vector can be visualized easily. The following snippet
 demonstrates how the output for <span class="math notranslate nohighlight">\(k=2\)</span> can be visualized with matplotlib.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">mpl</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ase.build</span><span class="w"> </span><span class="kn">import</span> <span class="n">bulk</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
 
 <span class="n">nacl</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s2">&quot;NaCl&quot;</span><span class="p">,</span> <span class="s2">&quot;rocksalt&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mf">5.64</span><span class="p">)</span>
 <span class="n">decay</span> <span class="o">=</span> <span class="mf">0.5</span>
@@ -456,7 +452,8 @@ demonstrates how the output for <span class="math notranslate nohighlight">\(k=2
 </pre></div>
 </div>
 <figure class="align-center" id="id18">
-<a class="reference internal image-reference" href="../../_images/mbtr_k2.png"><img alt="MBTR k=2" src="../../_images/mbtr_k2.png" style="width: 686.4px; height: 463.2px;" /></a>
+<a class="reference internal image-reference" href="../../_images/mbtr_k2.png"><img alt="MBTR k=2" src="../../_images/mbtr_k2.png" style="width: 686.4px; height: 463.2px;" />
+</a>
 <figcaption>
 <p><span class="caption-text">The MBTR output for k=2. The graphs for Na-Na and Cl-Cl overlap due to their
 identical arrangement in the crystal.</span><a class="headerlink" href="#id18" title="Link to this image"></a></p>
@@ -501,7 +498,8 @@ demonstrates both approaches.</p>
 </pre></div>
 </div>
 <figure class="align-center" id="id19">
-<a class="reference internal image-reference" href="../../_images/mbtr_weighting.png"><img alt="MBTR weighting" src="../../_images/mbtr_weighting.png" style="width: 686.4px; height: 463.2px;" /></a>
+<a class="reference internal image-reference" href="../../_images/mbtr_weighting.png"><img alt="MBTR weighting" src="../../_images/mbtr_weighting.png" style="width: 686.4px; height: 463.2px;" />
+</a>
 <figcaption>
 <p><span class="caption-text">The MBTR output for C60 without weighting and with exponential weighting for
 <span class="math notranslate nohighlight">\(k=2\)</span>. Without the weighting the carbon pairs that are far away will
@@ -591,7 +589,8 @@ demonstrates this for different cells representing the same crystal:</p>
 </pre></div>
 </div>
 <figure class="align-center" id="id20">
-<a class="reference internal image-reference" href="../../_images/mbtr_periodic.png"><img alt="MBTR unnormalized" src="../../_images/mbtr_periodic.png" style="width: 686.4px; height: 463.2px;" /></a>
+<a class="reference internal image-reference" href="../../_images/mbtr_periodic.png"><img alt="MBTR unnormalized" src="../../_images/mbtr_periodic.png" style="width: 686.4px; height: 463.2px;" />
+</a>
 <figcaption>
 <p><span class="caption-text">The raw MBTR output for different cells representing the same crystal. The
 shapes in the output are the same, but the intensities are different
@@ -614,7 +613,8 @@ cells representing the same material:</p>
 </pre></div>
 </div>
 <figure class="align-center" id="id21">
-<a class="reference internal image-reference" href="../../_images/mbtr_periodic_normalized.png"><img alt="MBTR normalized" src="../../_images/mbtr_periodic_normalized.png" style="width: 686.4px; height: 463.2px;" /></a>
+<a class="reference internal image-reference" href="../../_images/mbtr_periodic_normalized.png"><img alt="MBTR normalized" src="../../_images/mbtr_periodic_normalized.png" style="width: 686.4px; height: 463.2px;" />
+</a>
 <figcaption>
 <p><span class="caption-text">The normalized MBTR output for different cells representing the same
 crystal. After normalising the output with <code class="code docutils literal notranslate"><span class="pre">normalization='l2_each'</span></code>,

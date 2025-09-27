@@ -1,24 +1,22 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>dscribe.descriptors.mbtr &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css?v=7d1ac55c" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=c41997dc"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script defer="defer" src="../../../_static/js/versions.js?v=413e22da"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=c41997dc"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script defer="defer" src="../../../_static/js/versions.js?v=413e22da"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -37,9 +35,6 @@
             
               <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                2.1.x
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -100,17 +95,17 @@
 <span class="sd">limitations under the License.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
-<span class="kn">import</span> <span class="nn">ase.data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ase</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ase.data</span>
 
-<span class="kn">from</span> <span class="nn">dscribe.core</span> <span class="kn">import</span> <span class="n">System</span>
-<span class="kn">from</span> <span class="nn">dscribe.descriptors.descriptorglobal</span> <span class="kn">import</span> <span class="n">DescriptorGlobal</span>
-<span class="kn">from</span> <span class="nn">dscribe.ext</span> <span class="kn">import</span> <span class="n">MBTRWrapper</span>
-<span class="kn">import</span> <span class="nn">dscribe.utils.geometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dscribe.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">System</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dscribe.descriptors.descriptorglobal</span><span class="w"> </span><span class="kn">import</span> <span class="n">DescriptorGlobal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dscribe.ext</span><span class="w"> </span><span class="kn">import</span> <span class="n">MBTRWrapper</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dscribe.utils.geometry</span>
 
 
 <span class="n">k1_geometry_functions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">])</span>
@@ -120,7 +115,7 @@
 
 <div class="viewcode-block" id="check_grid">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.check_grid">[docs]</a>
-<span class="k">def</span> <span class="nf">check_grid</span><span class="p">(</span><span class="n">grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_grid</span><span class="p">(</span><span class="n">grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Used to ensure that the given grid settings are valid.</span>
 
 <span class="sd">    Args:</span>
@@ -143,7 +138,7 @@
 
 <div class="viewcode-block" id="check_geometry">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.check_geometry">[docs]</a>
-<span class="k">def</span> <span class="nf">check_geometry</span><span class="p">(</span><span class="n">geometry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_geometry</span><span class="p">(</span><span class="n">geometry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Used to ensure that the given geometry settings are valid.</span>
 
 <span class="sd">    Args:</span>
@@ -166,7 +161,7 @@
 
 <div class="viewcode-block" id="check_weighting">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.check_weighting">[docs]</a>
-<span class="k">def</span> <span class="nf">check_weighting</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">weighting</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">periodic</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_weighting</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">weighting</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">periodic</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Used to ensure that the given weighting settings are valid.</span>
 
 <span class="sd">    Args:</span>
@@ -220,7 +215,7 @@
 
 <div class="viewcode-block" id="MBTR">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR">[docs]</a>
-<span class="k">class</span> <span class="nc">MBTR</span><span class="p">(</span><span class="n">DescriptorGlobal</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MBTR</span><span class="p">(</span><span class="n">DescriptorGlobal</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Implementation of the Many-body tensor representation.</span>
 
 <span class="sd">    You can use this descriptor for finite and periodic systems. When dealing</span>
@@ -232,7 +227,7 @@
 
 <div class="viewcode-block" id="MBTR.__init__">
 <a class="viewcode-back" href="../../../tutorials/descriptors/mbtr.html#dscribe.descriptors.mbtr.MBTR.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">geometry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -367,20 +362,20 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span>
 
     <span class="nd">@grid</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="n">check_grid</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span>
 
     <span class="nd">@geometry</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="n">check_geometry</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="n">k_map</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;atomic_number&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
@@ -393,20 +388,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_geometry</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">weighting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">weighting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weighting</span>
 
     <span class="nd">@weighting</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">weighting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">weighting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="n">check_weighting</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_weighting</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span>
 
     <span class="nd">@species</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check the validity of given atomic numbers and to initialize</span>
 <span class="sd">        the C-memory layout for them.</span>
 
@@ -429,11 +424,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">min_atomic_number</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_atomic_numbers</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalization</span>
 
     <span class="nd">@normalization</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">normalization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks that the given normalization is valid.</span>
 
 <span class="sd">        Args:</span>
@@ -449,7 +444,7 @@
 
 <div class="viewcode-block" id="MBTR.create">
 <a class="viewcode-back" href="../../../tutorials/descriptors/valleoganov.html#dscribe.descriptors.mbtr.MBTR.create">[docs]</a>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">only_physical_cores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return MBTR output for the given systems.</span>
 
 <span class="sd">        Args:</span>
@@ -493,11 +488,13 @@
 
 <div class="viewcode-block" id="MBTR.create_single">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.create_single">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the many-body tensor representation for the given system.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            system (:class:`ase.Atoms` | :class:`.System`): Input system.</span>
+<span class="sd">            return_descriptor: Whether to return the descriptor</span>
+<span class="sd">            return_derivatives: Whether to return the derivatives</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            np.ndarray | sparse.COO: A single concatenated output vector is</span>
@@ -527,7 +524,7 @@
 
 <div class="viewcode-block" id="MBTR.get_number_of_features">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_number_of_features">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
 <span class="sd">        will have.</span>
 
@@ -549,7 +546,7 @@
 
 <div class="viewcode-block" id="MBTR.get_location">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.get_location">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Can be used to query the location of a species combination in the</span>
 <span class="sd">        the output.</span>
 
@@ -634,7 +631,7 @@
         <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_k1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_k1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates the first order term and/or its derivatives with</span>
 <span class="sd">        regard to atomic positions.</span>
 
@@ -695,7 +692,7 @@
 
         <span class="k">return</span> <span class="p">(</span><span class="n">k1</span><span class="p">,</span> <span class="n">k1_d</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_k2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_k2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates the second order term and/or its derivatives with</span>
 <span class="sd">        regard to atomic positions.</span>
 <span class="sd">        Returns:</span>
@@ -838,7 +835,7 @@
 
         <span class="k">return</span> <span class="p">(</span><span class="n">k2</span><span class="p">,</span> <span class="n">k2_d</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_k3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_k3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates the third order term and/or its derivatives with</span>
 <span class="sd">        regard to atomic positions.</span>
 <span class="sd">        Returns:</span>
@@ -999,7 +996,7 @@
 
 <div class="viewcode-block" id="MBTR.validate_derivatives_method">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.validate_derivatives_method">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate_derivatives_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_derivatives_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to validate and determine the final method for calculating the</span>
 <span class="sd">        derivatives.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1042,7 +1039,7 @@
 
 <div class="viewcode-block" id="MBTR.derivatives_analytical">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.mbtr.MBTR.derivatives_analytical">[docs]</a>
-    <span class="k">def</span> <span class="nf">derivatives_analytical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">derivatives_analytical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="p">):</span>
         <span class="c1"># Ensuring variables are re-initialized when a new system is introduced</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="n">system</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interaction_limit</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>

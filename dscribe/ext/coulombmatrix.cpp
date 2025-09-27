@@ -39,15 +39,16 @@ CoulombMatrix::CoulombMatrix(
 
 void CoulombMatrix::create(
     py::array_t<double> out, 
-    py::array_t<double> positions,
-    py::array_t<int> atomic_numbers,
-    CellList cell_list
+    System &system,
+    CellList cell_list,
+    bool return_descriptor,
+    bool return_derivatives
 )
 {
     // Calculate all pairwise distances.
     auto out_mu = out.mutable_unchecked<1>();
-    auto atomic_numbers_u = atomic_numbers.unchecked<1>();
-    auto positions_u = positions.unchecked<2>();
+    auto atomic_numbers_u = system.atomic_numbers.unchecked<1>();
+    auto positions_u = system.positions.unchecked<2>();
     int n_atoms = atomic_numbers_u.shape(0);
     MatrixXd matrix = distancesEigen(positions_u);
 

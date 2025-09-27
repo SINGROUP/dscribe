@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -5,22 +7,18 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>dscribe.core package &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/style.css?v=7d1ac55c" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=c41997dc"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script defer="defer" src="../_static/js/versions.js?v=413e22da"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=c41997dc"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script defer="defer" src="../_static/js/versions.js?v=413e22da"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
@@ -41,9 +39,6 @@
             
               <img src="../_static/logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                2.1.x
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -110,8 +105,8 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dscribe.core.lattice.Lattice">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dscribe.core.lattice.</span></span><span class="sig-name descname"><span class="pre">Lattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dscribe.core.lattice.</span></span><span class="sig-name descname"><span class="pre">Lattice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/lattice.html#Lattice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.core.lattice.Lattice" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A lattice object.  Essentially a matrix with conversion matrices. In
 general, it is assumed that length units are in Angstroms and angles are in
 degrees unless otherwise stated.</p>
@@ -133,7 +128,7 @@ with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].</p>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.abc">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">abc</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.abc" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">abc</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.abc" title="Link to this definition"></a></dt>
 <dd><p>Lengths of the lattice vectors, i.e. (a, b, c)</p>
 </dd></dl>
 
@@ -188,7 +183,7 @@ determine how many a_1”s it will take to contain the sphere.</p>
 <li><p><strong>frac_points</strong> – All points in the lattice in fractional coordinates.</p></li>
 <li><p><strong>center</strong> – Cartesian coordinates of center of sphere.</p></li>
 <li><p><strong>r</strong> – radius of sphere.</p></li>
-<li><p><strong>zip_results</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Whether to zip the results together to group by
+<li><p><strong>zip_results</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to zip the results together to group by
 point, or return the raw fcoord, dist, index arrays</p></li>
 </ul>
 </dd>
@@ -209,24 +204,24 @@ point, or return the raw fcoord, dist, index arrays</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.inv_matrix">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inv_matrix</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.inv_matrix" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inv_matrix</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.inv_matrix" title="Link to this definition"></a></dt>
 <dd><p>Inverse of lattice matrix.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.lengths">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lengths</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.lengths" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lengths</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.lengths" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.matrix">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.matrix" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.matrix" title="Link to this definition"></a></dt>
 <dd><p>Copy of matrix representing the Lattice</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.reciprocal_lattice">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reciprocal_lattice</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.reciprocal_lattice" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reciprocal_lattice</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.reciprocal_lattice" title="Link to this definition"></a></dt>
 <dd><p>Return the reciprocal lattice. Note that this is the standard
 reciprocal lattice used for solid state physics with a factor of 2 *
 pi. If you are looking for the crystallographic reciprocal lattice,
@@ -236,7 +231,7 @@ The property is lazily generated for efficiency.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="dscribe.core.lattice.Lattice.reciprocal_lattice_crystallographic">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reciprocal_lattice_crystallographic</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.reciprocal_lattice_crystallographic" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reciprocal_lattice_crystallographic</span></span><a class="headerlink" href="#dscribe.core.lattice.Lattice.reciprocal_lattice_crystallographic" title="Link to this definition"></a></dt>
 <dd><p>Returns the <em>crystallographic</em> reciprocal lattice, i.e., no factor of
 2 * pi.</p>
 </dd></dl>
@@ -260,7 +255,7 @@ See the License for the specific language governing permissions and
 limitations under the License.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dscribe.core.system.System">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dscribe.core.system.</span></span><span class="sig-name descname"><span class="pre">System</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numbers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momenta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magmoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaled_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">celldisp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wyckoff_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equivalent_atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.core.system.System" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dscribe.core.system.</span></span><span class="sig-name descname"><span class="pre">System</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numbers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">momenta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magmoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaled_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">celldisp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calculator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wyckoff_positions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equivalent_atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.core.system.System" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Atoms</span></code></p>
 <p>Represents atomic systems that are used internally by the package.
 Inherits from the ase.Atoms class, but adds the possibility to cache
@@ -268,7 +263,7 @@ various time-consuming quantities that can be shared when creating multiple
 descriptors.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dscribe.core.system.System.from_atoms">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.from_atoms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.core.system.System.from_atoms" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_atoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dscribe/core/system.html#System.from_atoms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dscribe.core.system.System.from_atoms" title="Link to this definition"></a></dt>
 <dd><p>Creates a System object from ASE.Atoms object.</p>
 </dd></dl>
 
@@ -326,9 +321,9 @@ complexity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The cutoff radius within which distances are
+<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The cutoff radius within which distances are
 calculated. Distances outside this radius are not included.</p></li>
-<li><p><strong>output_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – Which container to use for output data. Options:
+<li><p><strong>output_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Which container to use for output data. Options:
 “dok_matrix”, “coo_matrix”, “dict”, or “ndarray”. Default:
 “dok_matrix”.</p></li>
 </ul>
@@ -338,7 +333,7 @@ calculated. Distances outside this radius are not included.</p></li>
 matrix containing the pairwise distances.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dok_matrix | np.array | coo_matrix | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)">dict</a></p>
+<dd class="field-odd"><p>dok_matrix | np.array | coo_matrix | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>

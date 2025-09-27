@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,21 +7,17 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Unsupervised Learning: Clustering &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=7d1ac55c" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=c41997dc"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=c41997dc"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -40,9 +38,6 @@
             
               <img src="../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                2.1.x
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -118,7 +113,8 @@ FCC(111)-surface. To do this, we will first calculate a set of SOAP vectors on
 top of the surface. To simplify things, we will only consider a single plane 1
 Å above the topmost atoms. This set of feature vectors will be our dataset.</p>
 <figure class="align-center" id="id1">
-<a class="reference internal image-reference" href="../../_images/fcc111.png"><img alt="FCC(111) surface" src="../../_images/fcc111.png" style="width: 50%;" /></a>
+<a class="reference internal image-reference" href="../../_images/fcc111.png"><img alt="FCC(111) surface" src="../../_images/fcc111.png" style="width: 50%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">The used copper FCC(111) surface as viewed from above.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
@@ -138,12 +134,12 @@ essentially biasing our model.</p>
 <section id="dataset-generation">
 <h2>Dataset generation<a class="headerlink" href="#dataset-generation" title="Link to this heading"></a></h2>
 <p>The following script generates our training dataset:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">ase</span>
-<span class="kn">import</span> <span class="nn">ase.build</span>
-<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
-<span class="kn">from</span> <span class="nn">ase.visualize</span> <span class="kn">import</span> <span class="n">view</span>
-<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ase</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ase.build</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ase</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ase.visualize</span><span class="w"> </span><span class="kn">import</span> <span class="n">view</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dscribe.descriptors</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOAP</span>
 
 
 <span class="c1"># Lets create an FCC(111) surface</span>
@@ -187,15 +183,15 @@ essentially biasing our model.</p>
 <section id="training">
 <h2>Training<a class="headerlink" href="#training" title="Link to this heading"></a></h2>
 <p>Let’s load the dataset and fit our model:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span>
-<span class="kn">from</span> <span class="nn">sklearn.manifold</span> <span class="kn">import</span> <span class="n">TSNE</span>
-<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">MiniBatchKMeans</span><span class="p">,</span> <span class="n">SpectralClustering</span><span class="p">,</span> <span class="n">DBSCAN</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
-<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">ListedColormap</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_absolute_error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.manifold</span><span class="w"> </span><span class="kn">import</span> <span class="n">TSNE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">MiniBatchKMeans</span><span class="p">,</span> <span class="n">SpectralClustering</span><span class="p">,</span> <span class="n">DBSCAN</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">cm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListedColormap</span>
 
 <span class="c1"># Load the dataset</span>
 <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;D.npy&quot;</span><span class="p">)</span>
@@ -232,7 +228,8 @@ cluster that was assigned by our model.</p>
 </div>
 <p>The resulting clustering looks like this:</p>
 <figure class="align-center" id="id2">
-<a class="reference internal image-reference" href="../../_images/clustering.png"><img alt="Lennard-Jones energies" src="../../_images/clustering.png" style="width: 90%;" /></a>
+<a class="reference internal image-reference" href="../../_images/clustering.png"><img alt="Lennard-Jones energies" src="../../_images/clustering.png" style="width: 90%;" />
+</a>
 <figcaption>
 <p><span class="caption-text">The k-means clustering result.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>

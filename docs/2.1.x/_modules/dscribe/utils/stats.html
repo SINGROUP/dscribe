@@ -1,24 +1,22 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>dscribe.utils.stats &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css?v=7d1ac55c" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=c41997dc"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script defer="defer" src="../../../_static/js/versions.js?v=413e22da"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=c41997dc"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script defer="defer" src="../../../_static/js/versions.js?v=413e22da"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -37,9 +35,6 @@
             
               <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                2.1.x
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -100,14 +95,14 @@
 <span class="sd">limitations under the License.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
-<span class="kn">from</span> <span class="nn">dscribe.core.system</span> <span class="kn">import</span> <span class="n">System</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ase</span><span class="w"> </span><span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dscribe.core.system</span><span class="w"> </span><span class="kn">import</span> <span class="n">System</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 
 <div class="viewcode-block" id="system_stats">
 <a class="viewcode-back" href="../../../doc/dscribe.utils.html#dscribe.utils.stats.system_stats">[docs]</a>
-<span class="k">def</span> <span class="nf">system_stats</span><span class="p">(</span><span class="n">system_iterator</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">system_stats</span><span class="p">(</span><span class="n">system_iterator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Args:</span>
 <span class="sd">        system_stats(iterable containing ASE.Atoms or System): The atomic</span>
@@ -145,8 +140,7 @@
         <span class="n">symbols</span> <span class="o">=</span> <span class="n">symbols</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">i_symbols</span><span class="p">)</span>
 
         <span class="c1"># Gather maximum number of atoms</span>
-        <span class="k">if</span> <span class="n">n_atoms</span> <span class="o">&gt;</span> <span class="n">n_atoms_max</span><span class="p">:</span>
-            <span class="n">n_atoms_max</span> <span class="o">=</span> <span class="n">n_atoms</span>
+        <span class="n">n_atoms_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">n_atoms</span><span class="p">,</span> <span class="n">n_atoms_max</span><span class="p">)</span>
 
         <span class="c1"># Gather min distance. For periodic systems we must also consider</span>
         <span class="c1"># distances from an atom to it&#39;s periodic copy, as given by</span>

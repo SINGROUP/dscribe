@@ -140,7 +140,7 @@ void SOAPGTO::derivatives_analytical(
     auto pbc_u = pbc.unchecked<1>();
     bool is_periodic = this->periodic && (pbc_u(0) || pbc_u(1) || pbc_u(2));
     if (is_periodic) {
-        ExtendedSystem system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
+        System system_extended = extend_system(positions, atomic_numbers, cell, pbc, this->cutoff);
         positions = system_extended.positions;
         atomic_numbers = system_extended.atomic_numbers;
     }

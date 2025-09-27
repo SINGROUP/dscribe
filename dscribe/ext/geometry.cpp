@@ -34,7 +34,104 @@ inline double norm(const vector<double>& a) {
     return sqrt(accum);
 };
 
-ExtendedSystem extend_system(
+double get_volume(const py::array_t<double>& cell) {
+    // Extract elements from the cell
+    auto cell_u = cell.unchecked<2>();
+    double a1 = cell_u(0, 0), a2 = cell_u(0, 1), a3 = cell_u(0, 2);
+    double b1 = cell_u(1, 0), b2 = cell_u(1, 1), b3 = cell_u(1, 2);
+    double c1 = cell_u(2, 0), c2 = cell_u(2, 1), c3 = cell_u(2, 2);
+
+    // Calculate the cross product of b and c
+    double crossX = b2 * c3 - b3 * c2;
+    double crossY = b3 * c1 - b1 * c3;
+    double crossZ = b1 * c2 - b2 * c1;
+
+    // Dot product of a with the cross product of b and c
+    double volume = abs(a1 * crossX + a2 * crossY + a3 * crossZ);
+
+    return volume;
+}
+
+std::unordered_map<int, int> count_unique(py::array_t<int> &input_array) {
+    // Request a buffer descriptor from the NumPy array
+    auto buf = input_array.request();
+
+    // Check that the array is indeed 1D
+    if (buf.ndim != 1) {
+        throw std::runtime_error("Input array must be 1-dimensional");
+    }
+
+    // Pointer to the data
+    int *ptr = static_cast<int *>(buf.ptr);
+    size_t size = buf.shape[0];
+
+    // Use an unordered_map for counting occurrences
+    std::unordered_map<int, int> counts;
+    counts.reserve(size); // Reserve space to avoid rehashing
+
+    for (size_t i = 0; i < size; ++i) {
+        counts[ptr[i]] += 1;
+    }
+
+    return counts;
+}
+
+System::System(
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
+    bool extra
+)
+    : positions(positions)
+    , atomic_numbers(atomic_numbers)
+    , cell(cell)
+{
+    if (!extra) { return; }
+
+    // Create the default set of interactive atoms, which encompasses the whole
+    // system
+    unordered_set<int> interactive_atoms = unordered_set<int>();
+    int n_atoms = atomic_numbers.size();
+    for (int i = 0; i < n_atoms; ++i) {
+        interactive_atoms.insert(i);
+    }
+    this->interactive_atoms = interactive_atoms;
+
+    // Create the default cell indices
+    py::array_t<int> cell_indices({n_atoms});
+    auto cell_indices_mu = cell_indices.mutable_unchecked<1>();
+    for (int i = 0; i < n_atoms; ++i) {
+        cell_indices_mu(i) = 0;
+    }
+    this->cell_indices = cell_indices;
+
+    // Create the default indices
+    py::array_t<int> indices({uint(n_atoms)});
+    auto indices_mu = indices.mutable_unchecked<1>();
+    for (int i = 0; i < n_atoms; ++i) {
+        indices_mu(i) = i;
+    }
+    this->indices = indices;
+}
+
+System::System(
+    py::array_t<double> positions,
+    py::array_t<int> atomic_numbers,
+    py::array_t<double> cell,
+    py::array_t<int> indices,
+    py::array_t<int> cell_indices,
+    unordered_set<int> interactive_atoms
+)
+    : positions(positions)
+    , atomic_numbers(atomic_numbers)
+    , cell(cell)
+    , indices(indices)
+    , cell_indices(cell_indices)
+    , interactive_atoms(interactive_atoms)
+{
+}
+
+System extend_system(
     py::array_t<double> positions,
     py::array_t<int> atomic_numbers,
     py::array_t<double> cell,
@@ -97,15 +194,17 @@ ExtendedSystem extend_system(
         }
     }
 
-    // Calculate the extended system positions.
+    // Calculate the extended system properties
     int n_rep = (2*n_copies_axis[0]+1)*(2*n_copies_axis[1]+1)*(2*n_copies_axis[2]+1);
     int n_atoms = atomic_numbers.size();
     py::array_t<double> ext_pos({n_atoms*n_rep, 3});
     py::array_t<int> ext_atomic_numbers({n_atoms*n_rep});
     py::array_t<int> ext_indices({n_atoms*n_rep});
+    py::array_t<int> cell_indices({n_atoms*n_rep});
     auto ext_pos_mu = ext_pos.mutable_unchecked<2>();
     auto ext_atomic_numbers_mu = ext_atomic_numbers.mutable_unchecked<1>();
     auto ext_indices_mu = ext_indices.mutable_unchecked<1>();
+    auto cell_indices_mu = cell_indices.mutable_unchecked<1>();
     int i_copy = 0;
     int a_limit = multipliers[0].size();
     int b_limit = multipliers[1].size();
@@ -131,13 +230,20 @@ ExtendedSystem extend_system(
                     for (int m=0; m < 3; ++m) {
                         ext_pos_mu(index, m) = positions_u(l, m) + addition[m];
                     }
+                    cell_indices_mu(index) = i_copy;
                 }
                 ++i_copy;
             }
         }
     }
 
-    return ExtendedSystem{ext_pos, ext_atomic_numbers, ext_indices};
+    // Store original set of interactive atoms
+    unordered_set<int> interactive_atoms = unordered_set<int>();
+    for (int i = 0; i < n_atoms; ++i) {
+        interactive_atoms.insert(i);
+    }
+
+    return System(ext_pos, ext_atomic_numbers, cell, ext_indices, cell_indices, interactive_atoms);
 }
 
 py::array_t<double> distancesNumpy(py::detail::unchecked_reference<double, 2> &positions_u)

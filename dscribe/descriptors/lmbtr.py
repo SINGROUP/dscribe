@@ -371,9 +371,7 @@ class LMBTR(DescriptorLocal):
         return output
 
     def create_single(
-        self,
-        system,
-        centers=None,
+        self, system, centers=None, return_descriptor=True, return_derivatives=False
     ):
         """Return the local many-body tensor representation for the given
         system and centers.
@@ -386,6 +384,8 @@ class LMBTR(DescriptorLocal):
                 If cartesian positions are provided, new atoms are added at that
                 position. If no centers are provided, all atoms in the system
                 will be used as centers.
+            return_descriptor: Whether to return the descriptor
+            return_derivatives: Whether to return the derivatives
 
         Returns:
             1D ndarray: The local many-body tensor representations of given

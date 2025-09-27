@@ -78,7 +78,7 @@ def get_adjacency_list(adjacency_matrix):
         for atom at index i is given by accessing the ith element of this list.
     """
     # Ensure that we have a coo-matrix
-    if type(adjacency_matrix) != scipy.sparse.coo_matrix:
+    if type(adjacency_matrix) is not scipy.sparse.coo_matrix:
         adjacency_matrix = adjacency_matrix.tocoo()
 
     # Build adjacency list
@@ -137,7 +137,7 @@ def get_extended_system(system, radial_cutoff, centers=None, return_cell_indices
     # return the multiplied system. This is much faster.
     if centers is None and not return_cell_indices:
         n_atoms = len(system)
-        n_rep = np.product(2 * n_copies_axis + 1)  # Number of repeated copies
+        n_rep = np.prod(2 * n_copies_axis + 1)  # Number of repeated copies
         ext_pos = np.tile(system.get_positions(), (n_rep, 1))
 
         # Calculate the extended system positions so that the original cell

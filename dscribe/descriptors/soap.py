@@ -219,7 +219,7 @@ class SOAP(DescriptorLocal):
             )
         if n_max < 1:
             raise ValueError(
-                "Must have at least one radial basis function." "n_max={}".format(n_max)
+                "Must have at least one radial basis function.n_max={}".format(n_max)
             )
         supported_average = set(("off", "inner", "outer"))
         if average not in supported_average:
@@ -486,7 +486,9 @@ class SOAP(DescriptorLocal):
 
         return output
 
-    def create_single(self, system, centers=None):
+    def create_single(
+        self, system, centers=None, return_descriptor=True, return_derivatives=False
+    ):
         """Return the SOAP output for the given system and given centers.
 
         Args:
@@ -495,6 +497,8 @@ class SOAP(DescriptorLocal):
                 specified, the SOAP spectrum will be created for these points.
                 If no centers are defined, the SOAP output will be created
                 for all atoms in the system.
+            return_descriptor: Whether to return the descriptor
+            return_derivatives: Whether to return the derivatives
 
         Returns:
             np.ndarray | sparse.COO: The SOAP output for the
@@ -1001,8 +1005,7 @@ class SOAP(DescriptorLocal):
                 )
             if i != j:
                 raise ValueError(
-                    "Compression has been selected. "
-                    "No cross-species output available"
+                    "Compression has been selected. No cross-species output available"
                 )
             start = int(i * n_elem_feat_symm)
             end = int(start + n_elem_feat_symm)

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,22 +7,18 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Supervised Learning: Training an ML Force-field &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=7d1ac55c" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=c41997dc"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=c41997dc"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -41,9 +39,6 @@
             
               <img src="../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                2.1.x
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -172,11 +167,11 @@ variance in the training set.</p>
 <h2>Dataset generation<a class="headerlink" href="#dataset-generation" title="Link to this heading"></a></h2>
 <p>The following script generates our training dataset (full script in the GitHub
 repository: <em>examples/forces_and_energies/dataset.py</em>):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">ase</span>
-<span class="kn">from</span> <span class="nn">ase.calculators.lj</span> <span class="kn">import</span> <span class="n">LennardJones</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">SOAP</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ase.calculators.lj</span><span class="w"> </span><span class="kn">import</span> <span class="n">LennardJones</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dscribe.descriptors</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOAP</span>
 
 <span class="c1"># Setting up the SOAP descriptor</span>
 <span class="n">soap</span> <span class="o">=</span> <span class="n">SOAP</span><span class="p">(</span>
@@ -227,7 +222,8 @@ repository: <em>examples/forces_and_energies/dataset.py</em>):</p>
 </pre></div>
 </div>
 <p>The energies will look like this:</p>
-<a class="reference internal image-reference" href="../../_images/lj.png"><img alt="Lennard-Jones energies" class="align-center" src="../../_images/lj.png" style="width: 90%;" /></a>
+<a class="reference internal image-reference" href="../../_images/lj.png"><img alt="Lennard-Jones energies" class="align-center" src="../../_images/lj.png" style="width: 90%;" />
+</a>
 </section>
 <section id="training">
 <h2>Training<a class="headerlink" href="#training" title="Link to this heading"></a></h2>
@@ -241,10 +237,10 @@ also an identical implementation using <a class="reference external" href="https
 </div>
 <p>Let us first load and prepare the dataset (full script in the GitHub
 repository: <em>examples/forces_and_energies/training_pytorch.py</em>):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
 <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
 
 <span class="c1"># Load the dataset</span>
@@ -301,11 +297,11 @@ repository: <em>examples/forces_and_energies/training_pytorch.py</em>):</p>
 </pre></div>
 </div>
 <p>Then let us define our model and loss function:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FFNet</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">FFNet</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A simple feed-forward network with one hidden layer, randomly</span>
 <span class="sd">    initialized weights, sigmoid activation and a linear output layer.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">n_hidden</span><span class="p">,</span> <span class="n">n_out</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">n_hidden</span><span class="p">,</span> <span class="n">n_out</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">FFNet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">linear1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">n_hidden</span><span class="p">)</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linear1</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
@@ -313,7 +309,7 @@ repository: <em>examples/forces_and_energies/training_pytorch.py</em>):</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">linear2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">n_hidden</span><span class="p">,</span> <span class="n">n_out</span><span class="p">)</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linear2</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -321,7 +317,7 @@ repository: <em>examples/forces_and_energies/training_pytorch.py</em>):</p>
         <span class="k">return</span> <span class="n">x</span>
 
 
-<span class="k">def</span> <span class="nf">energy_force_loss</span><span class="p">(</span><span class="n">E_pred</span><span class="p">,</span> <span class="n">E_train</span><span class="p">,</span> <span class="n">F_pred</span><span class="p">,</span> <span class="n">F_train</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">energy_force_loss</span><span class="p">(</span><span class="n">E_pred</span><span class="p">,</span> <span class="n">E_train</span><span class="p">,</span> <span class="n">F_pred</span><span class="p">,</span> <span class="n">F_train</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom loss function that targets both energies and forces.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">energy_loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">E_pred</span> <span class="o">-</span> <span class="n">E_train</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">var_energy_train</span>
@@ -452,9 +448,9 @@ model and produce predicted data that is saved on disk for later analysis:</p>
 response in the whole dataset input domain and compare it to the correct values
 (full script in the GitHub repository:
 <em>examples/forces_and_energies/analysis.py</em>):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_absolute_error</span>
 
 <span class="c1"># Load data as produded by the trained model</span>
 <span class="n">r_whole</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;r.npy&quot;</span><span class="p">)</span>
@@ -498,7 +494,8 @@ response in the whole dataset input domain and compare it to the correct values
 </pre></div>
 </div>
 <p>The plots look something like this:</p>
-<a class="reference internal image-reference" href="../../_images/nn_test.png"><img alt="Lennard-Jones energies" class="align-center" src="../../_images/nn_test.png" style="width: 90%;" /></a>
+<a class="reference internal image-reference" href="../../_images/nn_test.png"><img alt="Lennard-Jones energies" class="align-center" src="../../_images/nn_test.png" style="width: 90%;" />
+</a>
 </section>
 </section>
 
