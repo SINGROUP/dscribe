@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"] # 3.13 not added due to https://github.com/numba/numba/issues/10239
     steps:
     - uses: actions/checkout@v5
       with:

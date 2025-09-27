@@ -880,7 +880,7 @@ def test_rbf_orthonormality():
     for l in range(l_max + 1):
         for i in range(n_max):
             for j in range(n_max):
-                overlap = np.trapz(
+                overlap = np.trapezoid(
                     rspace**2 * functions[i, l, :] * functions[j, l, :],
                     dx=(r_cut + 5) / nr,
                 )
