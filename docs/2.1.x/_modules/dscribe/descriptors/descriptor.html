@@ -1,24 +1,22 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>dscribe.descriptors.descriptor &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/style.css?v=7d1ac55c" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=c41997dc"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script defer="defer" src="../../../_static/js/versions.js?v=413e22da"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=c41997dc"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script defer="defer" src="../../../_static/js/versions.js?v=413e22da"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -37,9 +35,6 @@
             
               <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                2.1.x
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -100,26 +95,26 @@
 <span class="sd">limitations under the License.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">sparse</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sparse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sp</span>
 
-<span class="kn">import</span> <span class="nn">ase.geometry.cell</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ase.geometry.cell</span>
 
-<span class="kn">from</span> <span class="nn">dscribe.utils.species</span> <span class="kn">import</span> <span class="n">get_atomic_numbers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dscribe.utils.species</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_atomic_numbers</span>
 
-<span class="kn">import</span> <span class="nn">joblib</span>
-<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">joblib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
 
 
 <div class="viewcode-block" id="Descriptor">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor">[docs]</a>
-<span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Descriptor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract base class for all descriptors.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">periodic</span><span class="p">,</span> <span class="n">sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">periodic</span><span class="p">,</span> <span class="n">sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            periodic (bool): Whether the descriptor should take PBC into account.</span>
@@ -142,7 +137,7 @@
 <div class="viewcode-block" id="Descriptor.create">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates the descriptor for the given systems.</span>
 
 <span class="sd">        Args:</span>
@@ -158,7 +153,7 @@
 <div class="viewcode-block" id="Descriptor.get_number_of_features">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.get_number_of_features">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_number_of_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to inquire the final number of features that this descriptor</span>
 <span class="sd">        will have.</span>
 
@@ -169,7 +164,7 @@
 
 <div class="viewcode-block" id="Descriptor.validate_derivatives_method">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.validate_derivatives_method">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate_derivatives_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_derivatives_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to validate and determine the final method for calculating the</span>
 <span class="sd">        derivatives.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -184,11 +179,11 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span>
 
     <span class="nd">@sparse</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets whether the output should be sparse or not.</span>
 
 <span class="sd">        Args:</span>
@@ -197,11 +192,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">periodic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">periodic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span>
 
     <span class="nd">@periodic</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">periodic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">periodic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets whether the inputs should be considered periodic or not.</span>
 
 <span class="sd">        Args:</span>
@@ -209,7 +204,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_periodic</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="k">def</span> <span class="nf">_set_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to setup the species information for this descriptor. This</span>
 <span class="sd">        information includes an ordered list of unique atomic numbers, a set</span>
 <span class="sd">        of atomic numbers and the original variable contents.</span>
@@ -226,7 +221,7 @@
 
 <div class="viewcode-block" id="Descriptor.validate_species">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.validate_species">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to validate the species information.</span>
 
 <span class="sd">        Args:</span>
@@ -241,7 +236,7 @@
 
 <div class="viewcode-block" id="Descriptor.validate_atomic_numbers">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.validate_atomic_numbers">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate_atomic_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_atomic_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atomic_numbers</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check that the given atomic numbers have been defined for</span>
 <span class="sd">        this descriptor.</span>
 
@@ -265,7 +260,7 @@
 
 <div class="viewcode-block" id="Descriptor.validate_positions">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.validate_positions">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check that the cartesian positions are valid.</span>
 
 <span class="sd">        Args:</span>
@@ -286,7 +281,7 @@
 
 <div class="viewcode-block" id="Descriptor.validate_pbc">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.validate_pbc">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate_pbc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pbc</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_pbc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pbc</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check that the given pbc cell is valid and return a</span>
 <span class="sd">        normalized value.</span>
 
@@ -298,7 +293,7 @@
 
 <div class="viewcode-block" id="Descriptor.validate_cell">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.validate_cell">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">pbc</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">pbc</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to check that the given unit cell is valid.</span>
 
 <span class="sd">        Args:</span>
@@ -317,7 +312,7 @@
 
 <div class="viewcode-block" id="Descriptor.format_array">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.format_array">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to format a float64 numpy array in the final format that will be</span>
 <span class="sd">        returned to the user.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -331,7 +326,7 @@
 
 <div class="viewcode-block" id="Descriptor.create_parallel">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.create_parallel">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_parallel</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_parallel</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp</span><span class="p">,</span>
         <span class="n">func</span><span class="p">,</span>
@@ -387,7 +382,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If single system given, skip the parallelization overhead</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_array</span><span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">inp</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_array</span><span class="p">(</span>
+                <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">inp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">return_descriptor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="c1"># Determine the number of jobs</span>
         <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -403,7 +400,7 @@
             <span class="n">inp</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">create_multiple</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">is_sparse</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">create_multiple</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">is_sparse</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;This is the function that is called by each job but with</span>
 <span class="sd">            different parts of the data.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
@@ -424,7 +421,7 @@
             <span class="n">n_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">i_sample</span><span class="p">,</span> <span class="n">i_arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arguments</span><span class="p">):</span>
-                <span class="n">i_out</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">i_arg</span><span class="p">)</span>
+                <span class="n">i_out</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">i_arg</span><span class="p">,</span> <span class="n">return_descriptor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_derivatives</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="n">i_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_array</span><span class="p">(</span><span class="n">i_out</span><span class="p">)</span>
 
                 <span class="c1"># If the shape varies, just add result into a list</span>
@@ -496,7 +493,7 @@
         <span class="k">return</span> <span class="n">results</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">include</span><span class="p">,</span> <span class="n">exclude</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_atoms</span><span class="p">,</span> <span class="n">include</span><span class="p">,</span> <span class="n">exclude</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Given the number of atoms and which indices to include or exclude,</span>
 <span class="sd">        returns a list of final indices that will be used. If not includes or</span>
 <span class="sd">        excludes are defined, then by default all atoms will be included.</span>
@@ -540,7 +537,7 @@
 
 <div class="viewcode-block" id="Descriptor.derivatives_parallel">
 <a class="viewcode-back" href="../../../doc/dscribe.descriptors.html#dscribe.descriptors.descriptor.Descriptor.derivatives_parallel">[docs]</a>
-    <span class="k">def</span> <span class="nf">derivatives_parallel</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">derivatives_parallel</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">inp</span><span class="p">,</span>
         <span class="n">func</span><span class="p">,</span>
@@ -616,7 +613,7 @@
             <span class="n">inp</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">create_multiple_with_descriptor</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">create_multiple_with_descriptor</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;This is the function that is called by each job but with</span>
 <span class="sd">            different parts of the data.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
@@ -687,7 +684,7 @@
 
             <span class="k">return</span> <span class="p">((</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">descriptors</span><span class="p">),</span> <span class="n">index</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">create_multiple_without_descriptor</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">create_multiple_without_descriptor</span><span class="p">(</span><span class="n">arguments</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;This is the function that is called by each job but with</span>
 <span class="sd">            different parts of the data.</span>
 <span class="sd">            &quot;&quot;&quot;</span>

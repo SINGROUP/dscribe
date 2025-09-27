@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,21 +7,17 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chemical Environment Visualization with Local Descriptors &mdash; DScribe 2.1.x documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/style.css?v=7d1ac55c" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=c41997dc"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=c41997dc"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script defer="defer" src="../../_static/js/versions.js?v=413e22da"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -40,9 +38,6 @@
             
               <img src="../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                2.1.x
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -116,10 +111,10 @@ opacity, outline color, size etc.</p>
 <h2>References and final system<a class="headerlink" href="#references-and-final-system" title="Link to this heading"></a></h2>
 <p>We start out by creating bulk systems for two different iron phases: one for
 BCC and another for FCC:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">ase.io</span>
-<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
-<span class="kn">from</span> <span class="nn">dscribe.descriptors</span> <span class="kn">import</span> <span class="n">LMBTR</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ase.io</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ase.build</span><span class="w"> </span><span class="kn">import</span> <span class="n">bulk</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dscribe.descriptors</span><span class="w"> </span><span class="kn">import</span> <span class="n">LMBTR</span>
 
 <span class="c1"># Lets create iron in BCC phase</span>
 <span class="n">n_z</span> <span class="o">=</span> <span class="mi">8</span>
@@ -168,7 +163,8 @@ added noise in the atom positions:</p>
 </div>
 <p>The full structure will look like this:</p>
 <figure class="align-center">
-<a class="reference internal image-reference" href="../../_images/original.png"><img alt="FCC(111) surface" src="../../_images/original.png" style="width: 50%;" /></a>
+<a class="reference internal image-reference" href="../../_images/original.png"><img alt="FCC(111) surface" src="../../_images/original.png" style="width: 50%;" />
+</a>
 </figure>
 </section>
 <section id="coloring">
@@ -180,7 +176,7 @@ between 0 and 1 from least similar to identical with reference:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a measure of of how similar the atoms are to the reference. Euclidean</span>
 <span class="c1"># distance is used and the values are scaled between 0 and 1 from least similar</span>
 <span class="c1"># to identical with reference.</span>
-<span class="k">def</span> <span class="nf">metric</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">reference</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">metric</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">reference</span><span class="p">):</span>
     <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">values</span> <span class="o">-</span> <span class="n">reference</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">dist_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
     <span class="k">return</span>  <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">dist</span> <span class="o">/</span> <span class="n">dist_max</span><span class="p">)</span>
@@ -214,7 +210,8 @@ and FCC is tied to red:</p>
 </div>
 <p>The final re-colored system looks like this:</p>
 <figure class="align-center">
-<a class="reference internal image-reference" href="../../_images/colored.png"><img alt="FCC(111) surface" src="../../_images/colored.png" style="width: 50%;" /></a>
+<a class="reference internal image-reference" href="../../_images/colored.png"><img alt="FCC(111) surface" src="../../_images/colored.png" style="width: 50%;" />
+</a>
 </figure>
 <p>In addition to being able to clearly separate the two grains, one can see
 imperfections as noise in the coloring and also how the interfaces affect the
