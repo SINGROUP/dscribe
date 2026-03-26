@@ -15,6 +15,7 @@ limitations under the License.
 """
 
 import numpy as np
+import sparse
 from dscribe.kernels.localsimilaritykernel import LocalSimilarityKernel
 
 
@@ -32,6 +33,34 @@ class AverageKernel(LocalSimilarityKernel):
     metric (e.g. linear, gaussian) defined by the parameters given in the
     constructor.
     """
+
+    def create(self, x, y=None):
+        if self.metric != "linear":
+            return super().create(x, y)
+        
+        x_mean = np.array([np.mean(a.todense(), axis=0) if isinstance(a, sparse.COO) else np.mean(a, axis=0) for a in x])
+        if y is None:
+            symmetric = True
+            y_mean = x_mean
+        else:
+            symmetric = False
+            y_mean = np.array([np.mean(a.todense(), axis=0) if isinstance(a, sparse.COO) else np.mean(a, axis=0) for a in y])
+        
+        K_ij = x_mean @ y_mean.T
+
+        if not self.normalize_kernel:
+            return K_ij
+
+        if symmetric:
+            x_ii_sqrt = np.sqrt(np.diagonal(K_ij))
+            y_ii_sqrt = x_ii_sqrt
+        else:
+            x_ii_sqrt = np.linalg.norm(x_mean, axis=1)
+            y_ii_sqrt = np.linalg.norm(y_mean, axis=1)
+
+        K_ij /= np.outer(x_ii_sqrt, y_ii_sqrt)
+        return K_ij
+    
 
     def get_global_similarity(self, localkernel):
         """
