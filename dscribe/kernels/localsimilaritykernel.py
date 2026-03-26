@@ -93,7 +93,7 @@ class LocalSimilarityKernel(ABC):
         n_x = len(x)
         n_y = len(y)
 
-        C_ij_dict = {}
+        K_ij = np.zeros((n_x, n_y))
         for i in range(n_x):
             for j in range(n_y):
                 # Skip lower triangular part for symmetric matrices
@@ -115,18 +115,7 @@ class LocalSimilarityKernel(ABC):
                     y_j = y_j.tocsr()
 
                 C_ij = self.get_pairwise_matrix(x_i, y_j)
-                C_ij_dict[i, j] = C_ij
-
-        # Calculate the global pairwise similarity between the entire
-        # structures
-        K_ij = np.zeros((n_x, n_y))
-        for i in range(n_x):
-            for j in range(n_y):
-                # Skip lower triangular part for symmetric matrices
-                if symmetric and j < i:
-                    continue
-
-                C_ij = C_ij_dict[i, j]
+                
                 k_ij = self.get_global_similarity(C_ij)
                 K_ij[i, j] = k_ij
 
