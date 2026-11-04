@@ -6,6 +6,8 @@ from ase.lattice.cubic import SimpleCubicFactory
 from ase.build import bulk
 import ase.data
 from ase import Atoms
+from ase.calculators.emt import EMT
+from ase.constraints import FixAtoms
 from scipy.special import erf
 
 from dscribe.core import System
@@ -36,6 +38,36 @@ H = Atoms(
     ],
     symbols=["H"],
 )
+
+
+@pytest.mark.parametrize("info", [{}, {"label": "hydrogen"}])
+@pytest.mark.parametrize("with_calculator", [False, True])
+@pytest.mark.parametrize("with_momenta", [False, True])
+def test_system_from_atoms(info, with_calculator, with_momenta):
+    """Converting ASE atoms preserves data across ASE constructor changes."""
+    atoms = Atoms(
+        "H2",
+        positions=[[0, 0, 0], [0, 0, 0.74]],
+        cell=[5, 5, 5],
+        pbc=[True, False, False],
+        info=info,
+        calculator=EMT() if with_calculator else None,
+        constraint=FixAtoms(indices=[0]),
+    )
+    if with_momenta:
+        atoms.set_momenta([[0, 0, 0], [0.1, 0.2, 0.3]])
+
+    system = System.from_atoms(atoms)
+
+    assert system.info == atoms.info
+    assert system.calc is atoms.calc
+    assert system.get_chemical_symbols() == atoms.get_chemical_symbols()
+    np.testing.assert_allclose(system.get_positions(), atoms.get_positions())
+    np.testing.assert_allclose(system.get_momenta(), atoms.get_momenta())
+    np.testing.assert_allclose(system.get_cell(), atoms.get_cell())
+    np.testing.assert_array_equal(system.get_pbc(), atoms.get_pbc())
+    assert len(system.constraints) == 1
+    np.testing.assert_array_equal(system.constraints[0].get_indices(), [0])
 
 
 def test_distances():
